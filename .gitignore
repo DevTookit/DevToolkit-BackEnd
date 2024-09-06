@@ -38,3 +38,7 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+pplication-local.yml
+application-prod.yml
+application-test.yml
