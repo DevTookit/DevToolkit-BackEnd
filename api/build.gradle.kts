@@ -1,3 +1,6 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+
 plugins {
 }
 
@@ -31,4 +34,34 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+// kover 설정
+kover {
+    reports {
+        verify {
+            rule {
+                groupBy = GroupingEntityType.CLASS
+                minBound(80, CoverageUnit.LINE)
+                minBound(80, CoverageUnit.INSTRUCTION)
+            }
+        }
+
+        filters {
+            includes {
+                classes("*Service*")
+            }
+            excludes {
+            }
+        }
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("koverVerify")
+    doLast {
+        if (state.failure != null) {
+            throw GradleException("Code coverage verification failed!")
+        }
+    }
 }
