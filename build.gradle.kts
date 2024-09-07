@@ -1,41 +1,58 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.3.3"
-    id("io.spring.dependency-management") version "1.1.6"
-    kotlin("plugin.jpa") version "1.9.25"
-}
-
-group = "com.project"
-version = "0.0.1-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    id("org.springframework.boot") version "3.3.2" apply false
+    id("io.spring.dependency-management") version "1.1.6" apply false
+    id("org.jetbrains.kotlinx.kover") version "0.8.3" apply false
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.spring") version "2.0.0" apply false
+    kotlin("plugin.jpa") version "2.0.0" apply false
+    kotlin("kapt") version "2.0.0"
 }
 
 repositories {
     mavenCentral()
 }
+subprojects {
+    group = "com.project"
+    version = "1.0.0"
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    runtimeOnly("com.h2database:h2")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    apply(plugin = "org.springframework.boot")
+    apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.jetbrains.kotlinx.kover")
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+    apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
+    apply(plugin = "kotlin-kapt")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+    dependencies {
+        kapt("org.springframework.boot:spring-boot-configuration-processor")
+
+        // kotlin
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("org.jetbrains.kotlin:kotlin-stdlib")
+
+        // Spring Data JPA
+        implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    }
+
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xjsr305=strict")
+        }
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+
+    repositories {
+        mavenCentral() // Maven Central 리포지토리를 추가하여 외부 의존성 해결
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+project(":api") {
+    // test module specific configurations if necessary
+}
+
+project(":core") {
 }

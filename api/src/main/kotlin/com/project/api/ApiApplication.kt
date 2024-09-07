@@ -1,11 +1,11 @@
-package com.project.devapi
+package com.project.api
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class DevApiApplication
+class ApiApplication
 
 fun main(args: Array<String>) {
-    runApplication<DevApiApplication>(*args)
+    runApplication<ApiApplication>(*args)
 }
