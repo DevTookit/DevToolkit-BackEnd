@@ -3,7 +3,7 @@ FROM gradle:8.10.0-jdk21 as build
 WORKDIR /app
 
 COPY build.gradle.kts settings.gradle.kts /app/
-COPY /src /app/src
+COPY ./src /app/src
 
 RUN gradle clean build --no-daemon
 
