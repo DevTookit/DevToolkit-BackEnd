@@ -21,6 +21,7 @@ jobs:
         id: check-changes
         run: |
           git fetch
+          
           if git diff --quiet origin/main -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
             echo "changed=false" >> $GITHUB_ENV
