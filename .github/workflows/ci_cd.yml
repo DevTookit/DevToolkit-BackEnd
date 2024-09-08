@@ -22,11 +22,12 @@ jobs:
         run: |
           git fetch
           if git diff --quiet origin/main -- ${{ matrix.module }}/; then
-          echo "no changes in ${{ matrix.module }}"
-          echo "changed=false" >> $GITHUB_ENV
+            echo "no changes in ${{ matrix.module }}"
+            echo "changed=false" >> $GITHUB_ENV
           else
-          echo "changes detected in ${{ matrix.module }}"
-          echo "changed=true" >> $GITHUB_ENV
+            echo "changes detected in ${{ matrix.module }}"
+            echo "changed=true" >> $GITHUB_ENV
+          fi
 
       - name: Build and Test ${{ matrix.module }}
         if: steps.check-changes.outputs.changed == 'true'
