@@ -42,9 +42,9 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
-      - name: Build and Test ${{ matrix.module }}
+      - name: Test ${{ matrix.module }}
         if: steps.check-changes.outputs.changed == 'true'
-        run: ./gradlew :${{ matrix.module }}:build
+        run: ./gradlew :${{ matrix.module }}:test
 
 
       - name: Configure AWS Credentials Action for GitHub Actions

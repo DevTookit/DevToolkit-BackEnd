@@ -5,7 +5,8 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts /app/
 COPY ./api/src /app/src
 
-RUN gradle clean build --no-daemon
+# gradle 대신 gradlew 사용, 캐시 없이 빌드 시도
+RUN ./gradlew clean build --no-daemon --no-build-cache
 
 FROM openjdk:21-jdk
 
