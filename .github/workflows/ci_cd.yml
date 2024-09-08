@@ -20,7 +20,7 @@ jobs:
       - name: Check if ${{ matrix.module }} has changed
         id: check-changes
         run: |
-          git fetch origin main
+          git fetch
           if git diff --quiet origin/main -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
             echo "::set-output name=changed::false"
