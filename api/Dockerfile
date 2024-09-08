@@ -10,9 +10,10 @@ COPY ./api/src /app/src
 
 # 실행 권한 부여 (gradlew가 실행될 수 있도록)
 RUN chmod +x /app/gradlew
+RUN chmod +x /app/gradle
 
 # Gradle 빌드 수행
-RUN ./gradlew clean build --no-daemon --no-build-cache
+RUN gradle clean build --no-daemon --no-build-cache
 
 FROM openjdk:21-jdk
 
