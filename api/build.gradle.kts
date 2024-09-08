@@ -79,3 +79,7 @@ tasks.named("test") {
         }
     }
 }
+
+tasks.withType<Jar> {
+    enabled = true
+}
