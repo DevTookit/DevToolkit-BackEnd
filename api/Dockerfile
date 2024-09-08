@@ -2,10 +2,16 @@ FROM gradle:8.10.0-jdk21 as build
 
 WORKDIR /app
 
+# gradlew 관련 파일들을 복사
+COPY gradlew /app/gradlew
+COPY gradle /app/gradle
 COPY build.gradle.kts settings.gradle.kts /app/
 COPY ./api/src /app/src
 
-# gradle 대신 gradlew 사용, 캐시 없이 빌드 시도
+# 실행 권한 부여 (gradlew가 실행될 수 있도록)
+RUN chmod +x /app/gradlew
+
+# Gradle 빌드 수행
 RUN ./gradlew clean build --no-daemon --no-build-cache
 
 FROM openjdk:21-jdk
