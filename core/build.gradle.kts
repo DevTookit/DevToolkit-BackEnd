@@ -18,6 +18,10 @@ repositories {
 }
 
 dependencies {
+    // spatial
+    implementation("org.hibernate:hibernate-spatial:6.2.2.Final")
+    implementation("org.locationtech.jts:jts-core:1.18.2")
+    implementation("com.bedatadriven:jackson-datatype-jts:2.4")
 }
 
 tasks.withType<BootJar> { enabled = false }

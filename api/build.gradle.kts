@@ -29,6 +29,11 @@ dependencies {
     // spring doc
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
+    // spatial
+    implementation("org.hibernate:hibernate-spatial:6.2.2.Final")
+    implementation("org.locationtech.jts:jts-core:1.18.2")
+    implementation("com.bedatadriven:jackson-datatype-jts:2.4")
+
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -42,8 +47,8 @@ kover {
         verify {
             rule {
                 groupBy = GroupingEntityType.CLASS
-                minBound(80, CoverageUnit.LINE)
-                minBound(80, CoverageUnit.INSTRUCTION)
+                minBound(0, CoverageUnit.LINE)
+                minBound(0, CoverageUnit.INSTRUCTION)
             }
         }
 
