@@ -30,6 +30,10 @@ jobs:
             echo "changed=true" >> $GITHUB_ENV
           fi
 
+      - name: Echo Changed Value
+        run: |
+          echo "Changed: ${{ steps.check-changes.outputs.changed }}"
+
       - name: Build and Test ${{ matrix.module }}
         if: steps.check-changes.outputs.changed == 'true'
         run: ./gradlew :${{ matrix.module }}:build
