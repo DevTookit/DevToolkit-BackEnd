@@ -1,0 +1,77 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "release/test", "release/prod", "dev/#3" ]
+  pull_request:
+    branches: [ "release/test", "release/prod" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: [api]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if ${{ matrix.module }} has changed
+        id: check-changes
+        run: |
+          git fetch origin main
+          if git diff --quiet origin/main -- ${{ matrix.module }}/; then
+            echo "no changes in ${{ matrix.module }}"
+            echo "::set-output name=changed::false"
+          else
+            echo "changes detected in ${{ matrix.module }}"
+            echo "::set-output name=changed::true"
+
+      - name: Build and Test ${{ matrix.module }}
+        if: steps.check-changes.outputs.changed == 'true'
+        run: ./gradlew :${{ matrix.module }}:build
+
+
+      - name: Configure AWS Credentials Action for GitHub Actions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}  # Typo fixed
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        if: steps.check-changes.outputs.changed == 'true'
+        run: |
+          docker build -t dev${{ matrix.module}}:latest .
+
+      - name: Tag Docker image
+        run: |
+          IMAGE_TAG="latest"
+          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-prod' }}"
+          docker tag dev${{ matrix.module}}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Docker image to Amazon ECR
+        run: |
+          IMAGE_TAG= "latest"  # Same tag as above
+          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-prod' }}"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update ECS service with new image
+        env:
+          AWS_REGION: ap-northeast-2
+          CLUSTER_NAME: ${{ github.ref == 'refs/heads/release/test' && 'api-test-cluster' || 'api-prod-cluster' }}
+          SERVICE_NAME: ${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-prod' }}
+          CONTAINER_NAME: dev-api-container
+          ECR_IMAGE: ${{secrets.AWS_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ github.ref == 'refs/heads/release/test' && 'devtool/api-test' || 'devtool/api-prod' }}
+        run: |
+          aws ecs update-service \
+               --cluster $CLUSTER_NAME \
+               --service $SERVICE_NAME-${{ matrix.module }} \
+               --force-new-deployment \
