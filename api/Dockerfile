@@ -2,8 +2,12 @@ FROM gradle:8.10.0-jdk21 as build
 
 WORKDIR /app
 
+RUN if [ -d "src" ]; then echo "src directory exists"; else echo "src directory does not exist" && exit 1; fi
+RUN if [ -d "/app/src" ]; then echo "app/src directory exists"; else echo "src directory does not exist" && exit 1; fi
+
+
 COPY build.gradle.kts settings.gradle.kts /app/
-COPY ./src /app/src
+COPY src /app/src
 
 RUN gradle clean build --no-daemon
 
