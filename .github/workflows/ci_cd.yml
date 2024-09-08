@@ -55,7 +55,7 @@ jobs:
       - name: Build Docker image
         if: steps.check-changes.outputs.changed == 'true'
         run: |
-          docker build -t dev${{ matrix.module}}:latest -f ${{ matrix.module }}/Dockerfile .
+          docker build -t dev${{ matrix.module}}:latest -f ${{ matrix.module }} .
 
       - name: Tag Docker image
         run: |
