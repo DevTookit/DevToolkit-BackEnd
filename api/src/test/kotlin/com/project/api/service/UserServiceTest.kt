@@ -2,6 +2,7 @@ package com.project.api.service
 
 import com.project.api.fixture.UserFixture
 import com.project.api.web.dto.request.UserLoginRequest
+import com.project.api.web.dto.request.UserUpdateRequest
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
@@ -42,6 +43,26 @@ class UserServiceTest(
     fun readMe() {
         val user = userFixture.create()
         val response = userService.readMe(user.email)
+
+        Assertions.assertThat(response.email).isEqualTo(user.email)
+        Assertions.assertThat(response.img).isEqualTo(user.img)
+        Assertions.assertThat(response.name).isEqualTo(user.name)
+        Assertions.assertThat(response.phoneNumber).isEqualTo(user.phoneNumber)
+        Assertions.assertThat(response.description).isEqualTo(user.description)
+        Assertions.assertThat(response.latitude).isEqualTo(user.point.y)
+        Assertions.assertThat(response.longitude).isEqualTo(user.point.x)
+    }
+
+    @Test
+    fun updatePassword() {
+        val user = userFixture.create()
+        val response =
+            userService.updatePassword(
+                user.email,
+                UserUpdateRequest(
+                    password = "hello1233",
+                ),
+            )
 
         Assertions.assertThat(response.email).isEqualTo(user.email)
         Assertions.assertThat(response.img).isEqualTo(user.img)
