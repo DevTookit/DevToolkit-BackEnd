@@ -1,11 +1,11 @@
 package com.project.api.commons.exception.dto
 
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import java.time.LocalDateTime
 
 data class ErrorResponse(
     val message: String,
     val timestamp: String = LocalDateTime.now().toString(),
-    val status: HttpStatus,
+    val status: HttpStatusCode,
     val path: String? = null,
 )

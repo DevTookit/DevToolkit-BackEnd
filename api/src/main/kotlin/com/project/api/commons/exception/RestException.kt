@@ -2,52 +2,61 @@ package com.project.api.commons.exception
 
 import com.project.api.commons.exception.dto.ErrorResponse
 import org.springframework.http.HttpStatus
-import java.time.LocalDateTime
+import org.springframework.http.HttpStatusCode
 
-class RestException : RuntimeException() {
+sealed class RestException(
+    override val message: String,
+    val status: HttpStatusCode,
+) : RuntimeException() {
+    fun toResponse(path: String): ErrorResponse =
+        ErrorResponse(
+            message = this.message,
+            status = this.status,
+            path = path,
+        )
+
     companion object {
         fun forbidden(
             message: String,
-            status: HttpStatus = HttpStatus.FORBIDDEN,
-        ): ErrorResponse =
-            ErrorResponse(
+            status: HttpStatusCode = HttpStatus.FORBIDDEN,
+        ): ForbiddenException =
+            ForbiddenException(
                 message = message,
                 status = status,
-                timestamp = LocalDateTime.now().toString(),
             )
 
         fun authorized(
             message: String,
-            status: HttpStatus = HttpStatus.UNAUTHORIZED,
-        ): ErrorResponse =
-            ErrorResponse(
+            status: HttpStatusCode = HttpStatus.UNAUTHORIZED,
+        ): UnAuthorizedException =
+            UnAuthorizedException(
                 message = message,
                 status = status,
             )
 
         fun badRequest(
             message: String,
-            status: HttpStatus = HttpStatus.BAD_REQUEST,
-        ): ErrorResponse =
-            ErrorResponse(
+            status: HttpStatusCode = HttpStatus.BAD_REQUEST,
+        ): BadRequestException =
+            BadRequestException(
                 message = message,
                 status = status,
             )
 
         fun notFound(
             message: String,
-            status: HttpStatus = HttpStatus.NOT_FOUND,
-        ): ErrorResponse =
-            ErrorResponse(
+            status: HttpStatusCode = HttpStatus.NOT_FOUND,
+        ): NotFoundException =
+            NotFoundException(
                 message = message,
                 status = status,
             )
 
         fun conflict(
             message: String,
-            status: HttpStatus = HttpStatus.CONFLICT,
-        ): ErrorResponse =
-            ErrorResponse(
+            status: HttpStatusCode = HttpStatus.CONFLICT,
+        ): ConflictException =
+            ConflictException(
                 message = message,
                 status = status,
             )
