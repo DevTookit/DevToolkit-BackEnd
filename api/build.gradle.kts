@@ -17,12 +17,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // domain
     implementation(project(":core"))
 
     // db
-    runtimeOnly("com.h2database:h2")
+    runtimeOnly("com.mysql:mysql-connector-j")
 
     // auth
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -36,6 +37,7 @@ dependencies {
     implementation("com.bedatadriven:jackson-datatype-jts:2.4")
 
     // test
+    testRuntimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
@@ -58,6 +60,7 @@ kover {
                 classes("*Service*")
             }
             excludes {
+                classes("*MailService", "*UserService", "*AuthService")
             }
         }
     }

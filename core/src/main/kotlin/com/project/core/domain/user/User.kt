@@ -18,7 +18,7 @@ class User(
     var description: String,
     var point: Point,
 ) : BaseEntity() {
-    var enabled = false
+    var enabled = true
     var failCount = 0
         set(value) {
             if (value >= 5) {
