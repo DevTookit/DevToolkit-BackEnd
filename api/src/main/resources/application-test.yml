@@ -1,0 +1,17 @@
+logging:
+  level:
+    org:
+      springframework:
+        web: debug
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+security:
+  key: dfslkdsklcnlkeaowsekncdsdascmewansodicnewsdgwg2143edsc
+  token-access: 10000000
+  token-refresh: 2039482309480
