@@ -44,7 +44,7 @@ jobs:
 
       - name: Test module ${{ matrix.module }}
         if: steps.check-changes.outputs.changed == 'true'
-        run: ./gradlew :${{ matrix.module }}:build
+        run: ./gradlew :${{ matrix.module }}:build --debug
 
 
       - name: Configure AWS Credentials Action for GitHub Actions
