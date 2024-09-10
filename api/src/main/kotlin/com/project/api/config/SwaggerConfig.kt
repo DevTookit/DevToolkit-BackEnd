@@ -21,7 +21,7 @@ class SwaggerConfig {
         OpenAPI()
             .info(
                 Info()
-                    .title("Base API")
+                    .title("DevToolKit API")
                     .version("1.0"),
             ).addSecurityItem(SecurityRequirement().addList("AUTHORIZATION"))
 }

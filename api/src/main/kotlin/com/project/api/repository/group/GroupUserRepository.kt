@@ -1,6 +1,18 @@
 package com.project.api.repository.group
 
+import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
+import com.project.core.domain.user.User
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface GroupUserRepository : JpaRepository<GroupUser, Long>
+interface GroupUserRepository : JpaRepository<GroupUser, Long> {
+    fun findByUserAndGroup(
+        user: User,
+        group: Group,
+    ): GroupUser?
+
+    fun findByIdAndGroup(
+        id: Long,
+        group: Group,
+    ): GroupUser?
+}

@@ -45,15 +45,16 @@ class UserService(
                     img = request.img,
                 ),
             ).also {
-                userHashTagRepository.saveAll(
-                    request.tags.map { hashTag ->
+                user ->
+                if(request.tags != null) userHashTagRepository.saveAll(
+                    request.tags!!.map {
                         UserHashTag(
-                            content = hashTag,
-                            user = it,
+                            content = it.lowercase().replaceFirstChar { it.uppercase() },
+                            user = user
                         )
-                    },
+                    }
                 )
-                mailService.sendTmpPassword(it.email, tmpPassword)
+                mailService.sendTmpPassword(user.email, tmpPassword)
             }
     }
 

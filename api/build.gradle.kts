@@ -61,11 +61,11 @@ kover {
         }
 
         filters {
-            includes {
-                classes("*Service*")
-            }
             excludes {
-                classes("*MailService", "*UserService", "*AuthService")
+                classes("*MailService", "com.project.api.service.UserService*", "*AuthService")
+            }
+            includes {
+                classes("*Service*", "GroupUserService")
             }
         }
     }

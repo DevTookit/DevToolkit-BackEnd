@@ -7,5 +7,5 @@ data class UserCreateRequest(
     val email: String,
     val name: String,
     val img: String?,
-    val tags: List<String>,
+    val tags: List<String>?,
 )
