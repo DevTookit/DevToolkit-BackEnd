@@ -1,5 +1,6 @@
 package com.project.api.service
 
+import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.group.GroupRepository
@@ -17,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
 @ActiveProfiles("test")
-class GroupServiceTes(
+class GroupServiceTest(
     @Autowired private val groupService: GroupService,
     @Autowired private val userFixture: UserFixture,
     @Autowired private val groupFixture: GroupFixture,
@@ -55,6 +56,22 @@ class GroupServiceTes(
     }
 
     @Test
+    fun createNotFoundUser() {
+        val request =
+            GroupCreateRequest(
+                name = "Group",
+                img = null,
+                description = null,
+                isPublic = true,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                groupService.create("haha@gmail.com", request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
     fun update() {
         val user = userFixture.create()
         val group = groupFixture.create(user = user)
@@ -77,6 +94,46 @@ class GroupServiceTes(
     }
 
     @Test
+    fun updateNotFoundGroup() {
+        val user = userFixture.create()
+
+        val request =
+            GroupUpdateRequest(
+                id = 1L,
+                name = "Group",
+                img = "img",
+                description = "description",
+                isPublic = true,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                groupService.update(user.email, request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun updateOnlyByHost() {
+        val user = userFixture.create()
+        val notHost = userFixture.create()
+        val group = groupFixture.create(user = user)
+
+        val request =
+            GroupUpdateRequest(
+                id = group.id!!,
+                name = "Group",
+                img = "img",
+                description = "description",
+                isPublic = true,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                groupService.update(notHost.email, request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
     fun delete() {
         val user = userFixture.create()
         val group = groupFixture.create(user = user)
@@ -88,5 +145,27 @@ class GroupServiceTes(
 
         Assertions.assertThat(responseGroup).isEmpty()
         Assertions.assertThat(responseGroupUsers).isEmpty()
+    }
+
+    @Test
+    fun deleteNotFoundGroup() {
+        val user = userFixture.create()
+
+        Assertions
+            .assertThatThrownBy {
+                groupService.delete(user.email, 1L)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun deleteOnlyByHost() {
+        val user = userFixture.create()
+        val notHost = userFixture.create()
+        val group = groupFixture.create(user = user)
+
+        Assertions
+            .assertThatThrownBy {
+                groupService.delete(notHost.email, group.id!!)
+            }.isInstanceOf(RestException::class.java)
     }
 }

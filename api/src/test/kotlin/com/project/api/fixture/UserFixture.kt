@@ -6,6 +6,7 @@ import com.project.core.util.LocationUtil
 import org.locationtech.jts.geom.Point
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import java.util.UUID
 import kotlin.random.Random
 
 @Component
@@ -14,7 +15,7 @@ class UserFixture(
     private val passwordEncoder: PasswordEncoder,
 ) : Fixture {
     fun create(
-        email: String = "test@test.com",
+        email: String = UUID.randomUUID().toString() + "@gmail.com",
         password: String = "test",
         name: String = "name",
         img: String? = null,
