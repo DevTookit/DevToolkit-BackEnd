@@ -7,7 +7,8 @@ enum class ErrorMessage(
     NOT_MATCH_PASSWORD("비밀번호가 틀렸습니다."),
     NOT_FOUND_USER("해당 유저를 찾을 수 없습니다."),
     NOT_FOUND_GROUP("해당 그룹을 찾을 수 없습니다."),
+    NOT_FOUND_GROUP_USER("해당 그룹 회원을 찾을 수 없습니다."),
     NEW_PASSWORD_MATCH_OLD_PASSWORD("새로운 패스워드가 이전 패스워드와 일치합니다."),
     IMPOSSIBLE_LOGIN("로그인이 불가능합니다. 관리자에게 문의해주세요"),
-    UNAUTHORIZED_UPDATE("해당권한은 수정 불가능합니다."),
+    UNAUTHORIZED("해당권한으로 불가능한 요청입니다."),
 }

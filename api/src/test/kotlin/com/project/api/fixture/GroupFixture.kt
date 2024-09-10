@@ -20,6 +20,7 @@ class GroupFixture(
         name: String = UUID.randomUUID().toString(),
         img: String? = null,
         description: String? = null,
+        role: GroupRole = GroupRole.TOP_MANAGER,
         isPublic: Boolean = Random.nextBoolean(),
     ): Group =
         groupRepository
@@ -36,7 +37,7 @@ class GroupFixture(
                     GroupUser(
                         user = user,
                         group = it,
-                        role = GroupRole.TOP_MANAGER,
+                        role = role,
                     ).apply {
                         this.isAccepted = true
                     },

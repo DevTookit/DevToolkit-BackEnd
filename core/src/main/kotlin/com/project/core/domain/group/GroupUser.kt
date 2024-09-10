@@ -15,7 +15,8 @@ class GroupUser(
     @ManyToOne val user: User,
     // 등급, 확동가능, 초대확인, 그룹아이디
     @ManyToOne val group: Group,
-    @Enumerated(EnumType.STRING)
+
+    @Enumerated(value = EnumType.STRING)
     var role: GroupRole = GroupRole.USER,
 ) : BaseEntity() {
     var isAccepted = false

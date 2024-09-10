@@ -2,10 +2,12 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
+import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.web.dto.request.GroupCreateRequest
+import com.project.api.web.dto.request.GroupRoleUpdateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
 import com.project.core.internal.GroupRole
 import org.assertj.core.api.Assertions
@@ -22,6 +24,7 @@ class GroupServiceTest(
     @Autowired private val groupService: GroupService,
     @Autowired private val userFixture: UserFixture,
     @Autowired private val groupFixture: GroupFixture,
+    @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val groupUserRepository: GroupUserRepository,
     @Autowired private val groupRepository: GroupRepository,
 ) {
@@ -167,5 +170,60 @@ class GroupServiceTest(
             .assertThatThrownBy {
                 groupService.delete(notHost.email, group.id!!)
             }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun updateRole() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(user = admin)
+
+        val user = userFixture.create()
+        val groupUser = groupUserFixture.create(
+            group = group,
+            user = user,
+            role = GroupRole.USER,
+        )
+
+        val request = GroupRoleUpdateRequest(
+            groupId = group.id!!,
+            groupUserId = groupUser.id!!,
+            role = GroupRole.MANAGER
+        )
+        val response = groupService.updateRole(admin.email, request)
+
+        Assertions.assertThat(response.role).isEqualTo(request.role)
+        Assertions.assertThat(response.groupId).isEqualTo(request.groupId)
+        Assertions.assertThat(response.groupUserId).isEqualTo(request.groupUserId)
+    }
+
+    @Test
+    fun updateRoleForTopManagerOnly() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(user = admin)
+
+
+        val manager = userFixture.create()
+        val groupManager = groupUserFixture.create(
+            group = group,
+            user = manager,
+            role = GroupRole.MANAGER,
+        )
+
+        val user = userFixture.create()
+        val groupUser = groupUserFixture.create(
+            group = group,
+            user = user,
+            role = GroupRole.USER,
+        )
+
+        val request = GroupRoleUpdateRequest(
+            groupId = group.id!!,
+            groupUserId = groupUser.id!!,
+            role = GroupRole.MANAGER
+        )
+
+        Assertions.assertThatThrownBy {
+            groupService.updateRole(manager.email, request)
+        }.isInstanceOf(RestException::class.java)
     }
 }
