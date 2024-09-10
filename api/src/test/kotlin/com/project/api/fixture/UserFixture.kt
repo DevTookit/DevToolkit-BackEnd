@@ -1,6 +1,6 @@
 package com.project.api.fixture
 
-import com.project.api.repository.UserRepository
+import com.project.api.repository.user.UserRepository
 import com.project.core.domain.user.User
 import com.project.core.util.LocationUtil
 import org.locationtech.jts.geom.Point
@@ -17,7 +17,7 @@ class UserFixture(
         email: String = "test@test.com",
         password: String = "test",
         name: String = "name",
-        img: String = "",
+        img: String? = null,
         phoneNumber: String = "010-1234-1234",
         description: String = "description",
         point: Point = LocationUtil.createPoint(Random.nextDouble(139.0), Random.nextDouble(24.0)),
@@ -28,9 +28,6 @@ class UserFixture(
                 password = passwordEncoder.encode(password),
                 name = name,
                 img = img,
-                phoneNumber = phoneNumber,
-                description = description,
-                point = point,
             ),
         )
 

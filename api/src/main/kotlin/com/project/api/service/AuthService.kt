@@ -6,6 +6,7 @@ import com.nimbusds.jose.crypto.MACSigner
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import com.project.api.config.properties.SecurityProperties
+import com.project.api.web.dto.response.TokenResponse
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.Date
@@ -14,10 +15,19 @@ import java.util.Date
 class AuthService(
     private val properties: SecurityProperties,
 ) {
-    fun createAccessToken(email: String): String {
+    fun create(email: String): TokenResponse =
+        TokenResponse(
+            accessToken = createToken(email, properties.tokenAccess.toLong()),
+            refreshToken = createToken(email, properties.tokenRefresh.toLong()),
+        )
+
+    private fun createToken(
+        email: String,
+        period: Long,
+    ): String {
         val now = Instant.now()
         val issuedAt = Date.from(now)
-        val expiredAt = Date.from(now.plusMillis(properties.tokenAccess.toLong()))
+        val expiredAt = Date.from(now.plusMillis(period))
         val claimSet =
             JWTClaimsSet
                 .Builder()
