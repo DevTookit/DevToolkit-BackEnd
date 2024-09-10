@@ -55,8 +55,8 @@ kover {
         verify {
             rule {
                 groupBy = GroupingEntityType.CLASS
-                minBound(0, CoverageUnit.LINE)
-                minBound(0, CoverageUnit.INSTRUCTION)
+                minBound(80, CoverageUnit.LINE)
+                minBound(80, CoverageUnit.INSTRUCTION)
             }
         }
 
