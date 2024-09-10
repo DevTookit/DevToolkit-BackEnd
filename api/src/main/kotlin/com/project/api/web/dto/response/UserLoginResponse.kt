@@ -3,14 +3,14 @@ package com.project.api.web.dto.response
 import com.project.core.domain.user.User
 
 data class UserLoginResponse(
-    val accessToken: String,
+    val token: TokenResponse,
     val email: String,
     val id: Long?,
 ) {
     companion object {
-        fun User.toUserLoginResponse(accessToken: String) =
+        fun User.toUserLoginResponse(tokenResponse: TokenResponse) =
             UserLoginResponse(
-                accessToken = accessToken,
+                token = tokenResponse,
                 email = email,
                 id = id,
             )

@@ -36,6 +36,11 @@ dependencies {
     implementation("org.locationtech.jts:jts-core:1.18.2")
     implementation("com.bedatadriven:jackson-datatype-jts:2.4")
 
+    // querydsl
+    implementation("com.querydsl:querydsl-core:5.1.0")
+    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+
     // test
     testRuntimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

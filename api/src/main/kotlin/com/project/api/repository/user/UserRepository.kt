@@ -1,4 +1,4 @@
-package com.project.api.repository
+package com.project.api.repository.user
 
 import com.project.core.domain.user.User
 import org.springframework.data.jpa.repository.JpaRepository

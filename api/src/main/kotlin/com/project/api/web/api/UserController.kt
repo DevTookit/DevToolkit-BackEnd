@@ -1,10 +1,11 @@
 package com.project.api.web.api
 
 import com.project.api.service.UserService
-import com.project.api.web.dto.request.UserJoinRequest
+import com.project.api.web.dto.request.UserCreateRequest
 import com.project.api.web.dto.request.UserLoginRequest
 import com.project.api.web.dto.request.UserResponse
 import com.project.api.web.dto.request.UserUpdateRequest
+import com.project.api.web.dto.response.TokenResponse
 import com.project.api.web.dto.response.UserLoginResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -28,7 +29,7 @@ class UserController(
     @PostMapping("create")
     @Operation(summary = "유저 생성")
     fun create(
-        @Valid @RequestBody request: UserJoinRequest,
+        @Valid @RequestBody request: UserCreateRequest,
     ): ResponseEntity<Unit> {
         userService.create(request)
         return ResponseEntity
@@ -48,10 +49,16 @@ class UserController(
         @AuthenticationPrincipal jwt: Jwt,
     ): UserResponse = userService.readMe(jwt.subject)
 
-    @PatchMapping("update-password")
-    @Operation(summary = "비밀번호 수정")
+    @PatchMapping("update")
+    @Operation(summary = "내정보 수정")
     fun updatePassword(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: UserUpdateRequest,
-    ): UserResponse = userService.updatePassword(jwt.subject, request)
+    ): UserResponse = userService.update(jwt.subject, request)
+
+    @PostMapping("token")
+    @Operation(summary = "토큰 발급")
+    fun createToken(
+        @AuthenticationPrincipal jwt: Jwt,
+    ): TokenResponse = userService.createToken(jwt.subject)
 }

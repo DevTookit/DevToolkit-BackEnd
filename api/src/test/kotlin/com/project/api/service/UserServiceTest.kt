@@ -1,6 +1,7 @@
 package com.project.api.service
 
 import com.project.api.fixture.UserFixture
+import com.project.api.fixture.UserHashTagFixture
 import com.project.api.web.dto.request.UserLoginRequest
 import com.project.api.web.dto.request.UserUpdateRequest
 import org.assertj.core.api.Assertions
@@ -16,9 +17,11 @@ import org.springframework.test.context.ActiveProfiles
 class UserServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val userFixture: UserFixture,
+    @Autowired private val userHashTagFixture: UserHashTagFixture,
 ) {
     @AfterEach
     fun tearDown() {
+        userHashTagFixture.tearDown()
         userFixture.tearDown()
     }
 
@@ -42,34 +45,39 @@ class UserServiceTest(
     @Test
     fun readMe() {
         val user = userFixture.create()
+        val tags = listOf("Java", "Kotlin")
+        userHashTagFixture.create(
+            user = user,
+            tags = tags,
+        )
         val response = userService.readMe(user.email)
 
         Assertions.assertThat(response.email).isEqualTo(user.email)
         Assertions.assertThat(response.img).isEqualTo(user.img)
         Assertions.assertThat(response.name).isEqualTo(user.name)
-        Assertions.assertThat(response.phoneNumber).isEqualTo(user.phoneNumber)
-        Assertions.assertThat(response.description).isEqualTo(user.description)
-        Assertions.assertThat(response.latitude).isEqualTo(user.point.y)
-        Assertions.assertThat(response.longitude).isEqualTo(user.point.x)
+        Assertions.assertThat(response.tags).containsAll(tags)
     }
 
     @Test
-    fun updatePassword() {
+    fun update() {
         val user = userFixture.create()
+        val tags = listOf("Python")
+        val request =
+            UserUpdateRequest(
+                password = "hello1233",
+                name = "hello",
+                img = null,
+                tags = tags,
+            )
         val response =
-            userService.updatePassword(
+            userService.update(
                 user.email,
-                UserUpdateRequest(
-                    password = "hello1233",
-                ),
+                request,
             )
 
         Assertions.assertThat(response.email).isEqualTo(user.email)
-        Assertions.assertThat(response.img).isEqualTo(user.img)
-        Assertions.assertThat(response.name).isEqualTo(user.name)
-        Assertions.assertThat(response.phoneNumber).isEqualTo(user.phoneNumber)
-        Assertions.assertThat(response.description).isEqualTo(user.description)
-        Assertions.assertThat(response.latitude).isEqualTo(user.point.y)
-        Assertions.assertThat(response.longitude).isEqualTo(user.point.x)
+        Assertions.assertThat(response.img).isEqualTo(request.img)
+        Assertions.assertThat(response.name).isEqualTo(request.name)
+        Assertions.assertThat(response.tags).containsAll(tags)
     }
 }

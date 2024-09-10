@@ -1,10 +1,11 @@
 package com.project.core.domain.user
 
 import com.project.core.domain.BaseEntity
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
-import org.locationtech.jts.geom.Point
 
 @Entity
 @Table(name = "users")
@@ -14,18 +15,18 @@ class User(
     var password: String,
     var name: String,
     var img: String?,
-    var phoneNumber: String,
-    var description: String,
-    var point: Point,
 ) : BaseEntity() {
-    var enabled = true
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
+    var hashTags: MutableSet<UserHashTag> = mutableSetOf()
+
+    var isEnabled = true
     var failCount = 0
         set(value) {
             if (value >= 5) {
-                enabled = false
+                isEnabled = false
                 field = 5
             } else {
-                enabled = true
+                isEnabled = true
                 field = value
             }
         }
