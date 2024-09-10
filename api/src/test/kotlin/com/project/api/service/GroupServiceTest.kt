@@ -1,0 +1,92 @@
+package com.project.api.service
+
+import com.project.api.fixture.GroupFixture
+import com.project.api.fixture.UserFixture
+import com.project.api.repository.group.GroupRepository
+import com.project.api.repository.group.GroupUserRepository
+import com.project.api.web.dto.request.GroupCreateRequest
+import com.project.api.web.dto.request.GroupUpdateRequest
+import com.project.core.internal.GroupRole
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+
+@SpringBootTest
+@ActiveProfiles("test")
+class GroupServiceTes(
+    @Autowired private val groupService: GroupService,
+    @Autowired private val userFixture: UserFixture,
+    @Autowired private val groupFixture: GroupFixture,
+    @Autowired private val groupUserRepository: GroupUserRepository,
+    @Autowired private val groupRepository: GroupRepository,
+) {
+    @AfterEach
+    fun tearDown() {
+        groupFixture.tearDown()
+        userFixture.tearDown()
+    }
+
+    @Test
+    fun create() {
+        val user = userFixture.create()
+        val request =
+            GroupCreateRequest(
+                name = "Group",
+                img = null,
+                description = null,
+                isPublic = true,
+            )
+
+        val response = groupService.create(user.email, request)
+        val responseGroupUsers = groupUserRepository.findAll()
+
+        Assertions.assertThat(response.img).isEqualTo(request.img)
+        Assertions.assertThat(response.name).isEqualTo(request.name)
+        Assertions.assertThat(response.description).isEqualTo(request.description)
+        Assertions.assertThat(response.isPublic).isEqualTo(request.isPublic)
+        Assertions.assertThat(responseGroupUsers[0].role).isEqualTo(GroupRole.TOP_MANAGER)
+        Assertions.assertThat(responseGroupUsers[0].isEnable).isEqualTo(true)
+        Assertions.assertThat(responseGroupUsers[0].isAccepted).isEqualTo(true)
+        Assertions.assertThat(responseGroupUsers[0].user.id).isEqualTo(user.id)
+    }
+
+    @Test
+    fun update() {
+        val user = userFixture.create()
+        val group = groupFixture.create(user = user)
+
+        val request =
+            GroupUpdateRequest(
+                id = group.id!!,
+                name = "Group",
+                img = "img",
+                description = "description",
+                isPublic = true,
+            )
+
+        val response = groupService.update(user.email, request)
+
+        Assertions.assertThat(response.img).isEqualTo(request.img)
+        Assertions.assertThat(response.name).isEqualTo(request.name)
+        Assertions.assertThat(response.description).isEqualTo(request.description)
+        Assertions.assertThat(response.isPublic).isEqualTo(request.isPublic)
+    }
+
+    @Test
+    fun delete() {
+        val user = userFixture.create()
+        val group = groupFixture.create(user = user)
+
+        groupService.delete(user.email, group.id!!)
+
+        val responseGroup = groupRepository.findAll()
+        val responseGroupUsers = groupUserRepository.findAll()
+
+        Assertions.assertThat(responseGroup).isEmpty()
+        Assertions.assertThat(responseGroupUsers).isEmpty()
+    }
+}
