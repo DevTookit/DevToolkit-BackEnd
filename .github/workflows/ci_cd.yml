@@ -24,12 +24,10 @@ jobs:
           
           if git diff --quiet origin/main -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
-            echo "changed=true" >> $GITHUB_ENV
-            echo "::set-output name=changed::true"
+            echo "changed=false" >> $GITHUB_ENV
           else
             echo "changes detected in ${{ matrix.module }}"
             echo "changed=true" >> $GITHUB_ENV
-            echo "::set-output name=changed::true"
           fi
 
       - name: Echo Changed Value
