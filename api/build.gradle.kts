@@ -71,6 +71,9 @@ kover {
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
 tasks.named("test") {
     finalizedBy("koverVerify")
     doLast {
