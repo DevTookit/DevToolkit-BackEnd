@@ -69,7 +69,7 @@ jobs:
         run: |
           IMAGE_TAG="latest"  # Same tag as above
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
-          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-prod' }}"
+          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-test' }}" 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Update ECS service with new image
         env:
