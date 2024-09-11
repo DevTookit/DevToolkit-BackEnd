@@ -6,10 +6,11 @@ RUN mkdir -p /deploy
 # 작업 디렉터리를 /deploy로 설정
 WORKDIR /deploy
 
-ARG JAR_FILE=build/libs/*.jar
+ARG JAR_FILE=/build/libs/api-server.jar
 # 빌드된 JAR 파일을 복사
-COPY ${JAR_FILE} /depoloy/api.jar
+COPY ${JAR_FILE} /deploy/api.jar
 
+EXPOSE 8080
 # JAR 파일 실행
 ENTRYPOINT ["java", "-jar", "/deploy/api.jar"]
 
