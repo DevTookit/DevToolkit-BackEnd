@@ -73,8 +73,6 @@ kover {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-tasks.named("test") {
     finalizedBy("koverVerify")
     doLast {
         if (state.failure != null) {
@@ -83,6 +81,3 @@ tasks.named("test") {
     }
 }
 
-tasks.withType<Jar> {
-    enabled = false
-}
