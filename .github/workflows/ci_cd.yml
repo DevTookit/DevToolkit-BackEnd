@@ -65,21 +65,33 @@ jobs:
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
           ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-test' }}"
           docker tag dev${{ matrix.module}}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Set environment variables based on branch
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/release/test" || "${GITHUB_REF}" == "refs/heads/dev/#3" ]]; then
+            echo "CLUSTER_NAME=api-test-cluster" >> $GITHUB_ENV
+            echo "SERVICE_NAME=api-test" >> $GITHUB_ENV
+          else
+            echo "CLUSTER_NAME=api-prod-cluster" >> $GITHUB_ENV
+            echo "SERVICE_NAME=api-prod" >> $GITHUB_ENV
+          fi
+
       - name: Push Docker image to Amazon ECR
         run: |
-          IMAGE_TAG="latest"  # Same tag as above
+          IMAGE_TAG="latest"
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
-          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-test' }}" 
+          ECR_REPOSITORY="devtool/${{ env.SERVICE_NAME }}"
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
       - name: Update ECS service with new image
         env:
           AWS_REGION: ap-northeast-2
-          CLUSTER_NAME: ${{ github.ref == 'refs/heads/release/test' && 'api-test-cluster' || 'api-test-cluster' }}"
-          SERVICE_NAME: ${{ github.ref == 'refs/heads/release/test' && 'api-test-cluster' || 'api-test-cluster' }}"
+          CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
           CONTAINER_NAME: dev-api-container
-          ECR_IMAGE: ${{secrets.AWS_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ github.ref == 'refs/heads/release/test' && 'devtool/api-test' || 'devtool/api-test' }}
+          ECR_IMAGE: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/devtool/${{ env.SERVICE_NAME }}
         run: |
           aws ecs update-service \
                --cluster $CLUSTER_NAME \
                --service $SERVICE_NAME-${{ matrix.module }} \
-               --force-new-deployment \
+               --force-new-deployment
