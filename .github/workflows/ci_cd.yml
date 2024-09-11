@@ -74,12 +74,8 @@ jobs:
       - name: Update ECS service with new image
         env:
           AWS_REGION: ap-northeast-2
-          CLUSTER_NAME: >
-            ${{ github.ref == 'refs/heads/release/test' || github.ref == 'refs/heads/dev/#3' 
-            ? 'api-test-cluster' : 'api-prod-cluster' }}
-          SERVICE_NAME: >
-            ${{ github.ref == 'refs/heads/release/test' || github.ref == 'refs/heads/dev/#3' 
-            ? 'api-test' : 'api-prod' }}
+          CLUSTER_NAME: ${{ github.ref == 'refs/heads/release/test' || github.ref == 'refs/heads/dev/#3' && 'api-test-cluster' || 'api-prod-cluster' }}
+          SERVICE_NAME: ${{ github.ref == 'refs/heads/release/test' || github.ref == 'refs/heads/dev/#3' && 'api-test-cluster' || 'api-prod-cluster' }}
           CONTAINER_NAME: dev-api-container
           ECR_IMAGE: ${{secrets.AWS_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ github.ref == 'refs/heads/release/test' && 'devtool/api-test' || 'devtool/api-prod' }}
         run: |
