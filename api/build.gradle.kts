@@ -1,5 +1,6 @@
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
 }
@@ -73,6 +74,9 @@ kover {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+}
+tasks.named("test") {
     finalizedBy("koverVerify")
     doLast {
         if (state.failure != null) {
@@ -81,3 +85,15 @@ tasks.withType<Test> {
     }
 }
 
+val jarName = "api-server.jar"
+
+tasks.named<BootJar>("bootJar") {
+    archiveFileName.set(jarName)
+
+    doLast {
+        copy {
+            from("build/libs/$jarName")
+            into("../build/libs")
+        }
+    }
+}
