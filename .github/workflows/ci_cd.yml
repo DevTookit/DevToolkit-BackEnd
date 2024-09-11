@@ -67,7 +67,7 @@ jobs:
           docker tag dev${{ matrix.module}}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: Push Docker image to Amazon ECR
         run: |
-          IMAGE_TAG= "latest"  # Same tag as above
+          IMAGE_TAG="latest"  # Same tag as above
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
           ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/test' && 'api-test' || 'api-prod' }}"
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
