@@ -69,7 +69,7 @@ jobs:
       - name: Set environment variables based on branch
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/release/test" || "${GITHUB_REF}" == "refs/heads/dev/#3" ]]; then
-            echo "CLUSTER_NAME=api-test-cluster" >> $GITHUB_ENV
+            echo "CLUSTER_NAME=api-stage-cluster" >> $GITHUB_ENV
             echo "SERVICE_NAME=api-test" >> $GITHUB_ENV
           else
             echo "CLUSTER_NAME=api-prod-cluster" >> $GITHUB_ENV
