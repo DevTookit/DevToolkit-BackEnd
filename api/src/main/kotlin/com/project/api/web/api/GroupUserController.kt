@@ -45,7 +45,7 @@ class GroupUserController(
     ): GroupUserResponse = groupUserService.update(jwt.subject, request)
 
     @DeleteMapping
-    @Operation(summary = "그룹 멤버 삭제 또느 그룹 멤버방출")
+    @Operation(summary = "그룹 멤버 삭제 또는 그룹 멤버방출")
     fun delete(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestParam groupId: Long,
