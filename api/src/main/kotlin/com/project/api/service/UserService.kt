@@ -44,16 +44,17 @@ class UserService(
                     name = request.name,
                     img = request.img,
                 ),
-            ).also {
-                user ->
-                if(request.tags != null) userHashTagRepository.saveAll(
-                    request.tags!!.map {
-                        UserHashTag(
-                            content = it.lowercase().replaceFirstChar { it.uppercase() },
-                            user = user
-                        )
-                    }
-                )
+            ).also { user ->
+                if (request.tags != null) {
+                    userHashTagRepository.saveAll(
+                        request.tags!!.map {
+                            UserHashTag(
+                                content = it.lowercase().replaceFirstChar { it.uppercase() },
+                                user = user,
+                            )
+                        },
+                    )
+                }
                 mailService.sendTmpPassword(user.email, tmpPassword)
             }
     }

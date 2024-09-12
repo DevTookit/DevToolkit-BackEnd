@@ -64,6 +64,7 @@ class SecurityConfig(
     @Bean
     fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
         val converter = JwtGrantedAuthoritiesConverter()
+        // 각 그룹별 권한이 다 다르기 때문에 토큰에 넣기 애매함
         /*converter.setAuthoritiesClaimName("roles")
         converter.setAuthorityPrefix("ROLE_")*/
 

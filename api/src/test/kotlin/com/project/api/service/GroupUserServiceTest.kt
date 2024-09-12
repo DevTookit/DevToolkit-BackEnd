@@ -8,9 +8,8 @@ import com.project.api.repository.group.GroupUserRepository
 import com.project.core.internal.GroupRole
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -25,7 +24,6 @@ class GroupUserServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val groupUserRepository: GroupUserRepository,
 ) {
-
     @BeforeEach
     fun setUp() {
     }
@@ -44,17 +42,19 @@ class GroupUserServiceTest(
         val user = userFixture.create()
 
         val group = groupFixture.create(user = admin)
-        val groupManager = groupUserFixture.create(
-            group = group,
-            user = manager,
-            role = GroupRole.MANAGER
-        )
+        val groupManager =
+            groupUserFixture.create(
+                group = group,
+                user = manager,
+                role = GroupRole.MANAGER,
+            )
 
-        val groupUser = groupUserFixture.create(
-            group = group,
-            user = user,
-            role = GroupRole.USER
-        )
+        val groupUser =
+            groupUserFixture.create(
+                group = group,
+                user = user,
+                role = GroupRole.USER,
+            )
 
         groupUserService.delete(admin.email, group.id!!, groupManager.id!!)
 
@@ -69,17 +69,19 @@ class GroupUserServiceTest(
         val user = userFixture.create()
 
         val group = groupFixture.create(user = admin)
-        val groupManager = groupUserFixture.create(
-            group = group,
-            user = manager,
-            role = GroupRole.MANAGER
-        )
+        val groupManager =
+            groupUserFixture.create(
+                group = group,
+                user = manager,
+                role = GroupRole.MANAGER,
+            )
 
-        val groupUser = groupUserFixture.create(
-            group = group,
-            user = user,
-            role = GroupRole.USER
-        )
+        val groupUser =
+            groupUserFixture.create(
+                group = group,
+                user = user,
+                role = GroupRole.USER,
+            )
 
         groupUserService.delete(manager.email, group.id!!, groupUser.id!!)
 
@@ -95,15 +97,17 @@ class GroupUserServiceTest(
 
         val group = groupFixture.create(user = admin)
 
-        val groupUser = groupUserFixture.create(
-            group = group,
-            user = user,
-            role = GroupRole.USER
-        )
+        val groupUser =
+            groupUserFixture.create(
+                group = group,
+                user = user,
+                role = GroupRole.USER,
+            )
 
-        Assertions.assertThatThrownBy {
-            groupUserService.delete(manager.email, group.id!!, groupUser.id!!)
-        }.isInstanceOf(RestException::class.java)
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.delete(manager.email, group.id!!, groupUser.id!!)
+            }.isInstanceOf(RestException::class.java)
     }
 
     @Test
@@ -114,15 +118,17 @@ class GroupUserServiceTest(
 
         val group = groupFixture.create(user = admin)
 
-        val groupManager = groupUserFixture.create(
-            group = group,
-            user = manager,
-            role = GroupRole.MANAGER
-        )
+        val groupManager =
+            groupUserFixture.create(
+                group = group,
+                user = manager,
+                role = GroupRole.MANAGER,
+            )
 
-        Assertions.assertThatThrownBy {
-            groupUserService.delete(manager.email, group.id!!, 100L)
-        }.isInstanceOf(RestException::class.java)
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.delete(manager.email, group.id!!, 100L)
+            }.isInstanceOf(RestException::class.java)
     }
 
     @Test
@@ -132,21 +138,24 @@ class GroupUserServiceTest(
         val manager2 = userFixture.create()
 
         val group = groupFixture.create(user = admin)
-        val groupManager1 = groupUserFixture.create(
-            group = group,
-            user = manager1,
-            role = GroupRole.MANAGER
-        )
+        val groupManager1 =
+            groupUserFixture.create(
+                group = group,
+                user = manager1,
+                role = GroupRole.MANAGER,
+            )
 
-        val groupManager2 = groupUserFixture.create(
-            group = group,
-            user = manager2,
-            role = GroupRole.MANAGER
-        )
+        val groupManager2 =
+            groupUserFixture.create(
+                group = group,
+                user = manager2,
+                role = GroupRole.MANAGER,
+            )
 
-        Assertions.assertThatThrownBy {
-            groupUserService.delete(manager1.email, group.id!!, groupManager2.id!!)
-        }.isInstanceOf(RestException::class.java)
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.delete(manager1.email, group.id!!, groupManager2.id!!)
+            }.isInstanceOf(RestException::class.java)
     }
 
     @Test
@@ -156,21 +165,23 @@ class GroupUserServiceTest(
         val user = userFixture.create()
 
         val group = groupFixture.create(user = admin)
-        val groupManager = groupUserFixture.create(
-            group = group,
-            user = manager,
-            role = GroupRole.MANAGER
-        )
+        val groupManager =
+            groupUserFixture.create(
+                group = group,
+                user = manager,
+                role = GroupRole.MANAGER,
+            )
 
-        val groupUser = groupUserFixture.create(
-            group = group,
-            user = user,
-            role = GroupRole.USER
-        )
+        val groupUser =
+            groupUserFixture.create(
+                group = group,
+                user = user,
+                role = GroupRole.USER,
+            )
 
-        Assertions.assertThatThrownBy {
-            groupUserService.delete(user.email, group.id!!, groupManager.id!!)
-        }.isInstanceOf(RestException::class.java)
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.delete(user.email, group.id!!, groupManager.id!!)
+            }.isInstanceOf(RestException::class.java)
     }
-
 }

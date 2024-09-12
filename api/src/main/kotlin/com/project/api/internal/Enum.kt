@@ -11,4 +11,5 @@ enum class ErrorMessage(
     NEW_PASSWORD_MATCH_OLD_PASSWORD("새로운 패스워드가 이전 패스워드와 일치합니다."),
     IMPOSSIBLE_LOGIN("로그인이 불가능합니다. 관리자에게 문의해주세요"),
     UNAUTHORIZED("해당권한으로 불가능한 요청입니다."),
+    CONFLICT_ENTITY("이미 존재하는 리소스 입니다."),
 }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,6 +26,13 @@ import org.springframework.web.bind.annotation.RestController
 class GroupController(
     private val groupService: GroupService,
 ) {
+    @GetMapping
+    @Operation(summary = "각 그룹 조회")
+    fun readOne(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam groupId: Long,
+    ): GroupResponse = groupService.readOne(jwt.subject, groupId)
+
     @PostMapping
     @Operation(summary = "그룹 생성")
     fun create(
@@ -56,3 +64,5 @@ class GroupController(
         @RequestBody request: GroupRoleUpdateRequest,
     ): GroupRoleUpdateResponse = groupService.updateRole(jwt.subject, request)
 }
+
+// 가입요청, 가입요청 승인

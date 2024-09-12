@@ -25,6 +25,26 @@ class GroupService(
     private val groupUserRepository: GroupUserRepository,
     private val userRepository: UserRepository,
 ) {
+    fun readOne(
+        email: String,
+        groupId: Long,
+    ): GroupResponse {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        if (group.isPublic) {
+            return group.toResponse()
+        }
+
+        val groupUser =
+            groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+        if (groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return group.toResponse()
+    }
+
     @Transactional
     fun create(
         email: String,
