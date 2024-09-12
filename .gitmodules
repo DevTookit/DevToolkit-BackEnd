@@ -1,0 +1,4 @@
+[submodule "api/src/main/resources/security"]
+	path = api/src/main/resources/security
+	url = git@github.com:DevTookit/secret_config.git
+	branch = main
