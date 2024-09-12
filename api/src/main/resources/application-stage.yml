@@ -2,3 +2,5 @@ spring:
   config:
     activate:
       on-profile: stage
+    import:
+      - security/application-stage.yml
