@@ -13,7 +13,7 @@ FROM openjdk:21-jdk
 RUN mkdir -p /deploy
 
 WORKDIR /deploy
-ARG JAR_FILE=build/libs/api-server.jar
+ARG JAR_FILE=/build/libs/api-server.jar
 COPY ${JAR_FILE} /deploy/api.jar
 
 ARG SPRING_PROFILE

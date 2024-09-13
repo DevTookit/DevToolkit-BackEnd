@@ -43,7 +43,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Test module ${{ matrix.module }}
-        if: steps.check-changes.outputs.changed == 'true'
+        if:  ${{ env.changed == 'true' }}
         run: ./gradlew :${{ matrix.module }}:build
 
       - name: Configure AWS Credentials Action for GitHub Actions

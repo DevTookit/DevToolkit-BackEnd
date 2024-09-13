@@ -93,7 +93,7 @@ tasks.named<BootJar>("bootJar") {
     doLast {
         copy {
             from("build/libs/$jarName")
-            into("${project.rootDir}/api/build/libs")  // 절대 경로로 복사
+            into("../build/libs")
         }
     }
 }
