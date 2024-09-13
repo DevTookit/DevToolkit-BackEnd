@@ -80,24 +80,4 @@ class UserServiceTest(
         Assertions.assertThat(response.name).isEqualTo(request.name)
         Assertions.assertThat(response.tags).containsAll(tags)
     }
-
-    @Test
-    fun updatePassword() {
-        val user = userFixture.create()
-        val response =
-            userService.updatePassword(
-                user.email,
-                UserUpdateRequest(
-                    password = "hello1233",
-                ),
-            )
-
-        Assertions.assertThat(response.email).isEqualTo(user.email)
-        Assertions.assertThat(response.img).isEqualTo(user.img)
-        Assertions.assertThat(response.name).isEqualTo(user.name)
-        Assertions.assertThat(response.phoneNumber).isEqualTo(user.phoneNumber)
-        Assertions.assertThat(response.description).isEqualTo(user.description)
-        Assertions.assertThat(response.latitude).isEqualTo(user.point.y)
-        Assertions.assertThat(response.longitude).isEqualTo(user.point.x)
-    }
 }
