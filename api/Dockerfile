@@ -8,7 +8,7 @@ COPY build.gradle.kts /app/
 COPY src /app/src
 
 # resources 폴더 복사 (security 폴더 포함)
-COPY resources /app/resources
+COPY src/main/resources /app/resources
 
 # 빌드 수행
 RUN gradle clean build --no-daemon
