@@ -65,7 +65,7 @@ jobs:
           else
             PROFILE="stage"
           fi
-          docker build --build-arg SPRING_PROFILE=${PROFILE} -t dev${{ matrix.module }}:latest -f ${{ matrix.module }}/Dockerfile .
+          docker build --build-arg SPRING_PROFILE=${PROFILE} -t dev${{ matrix.module}}:latest -f ${{ matrix.module }}/Dockerfile .
           
 
       - name: Tag Docker image
