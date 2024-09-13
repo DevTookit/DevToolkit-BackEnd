@@ -7,9 +7,6 @@ WORKDIR /app
 COPY build.gradle.kts /app/
 COPY src /app/src
 
-# resources 폴더 복사 (security 폴더 포함)
-COPY src/main/resources /app/resources
-
 # 빌드 수행
 RUN gradle clean build --no-daemon
 
@@ -27,7 +24,7 @@ ARG JAR_FILE=/build/libs/api-server.jar
 COPY ${JAR_FILE} /deploy/api.jar
 
 # resources 폴더를 복사 (application.yml 및 기타 설정 포함)
-COPY --from=build /app/resources /deploy/resources
+COPY --from=build /app/src/main/resources /deploy/resources
 
 # 프로파일 값을 환경 변수로 설정
 ARG SPRING_PROFILE
