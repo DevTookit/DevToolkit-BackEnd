@@ -72,13 +72,14 @@ class GroupUserController(
         @RequestParam isAccepted: Boolean?,
         @RequestParam isApproved: Boolean?,
         @ParameterObject pageable: Pageable,
-    ): Page<GroupUserResponse> = groupUserService.readAll(
-        email = jwt.subject,
-        groupId = groupId,
-        role = role,
-        name = name,
-        isAccepted = isAccepted,
-        isApproved = isApproved,
-        pageable = pageable,
-    )
+    ): Page<GroupUserResponse> =
+        groupUserService.readAll(
+            email = jwt.subject,
+            groupId = groupId,
+            role = role,
+            name = name,
+            isAccepted = isAccepted,
+            isApproved = isApproved,
+            pageable = pageable,
+        )
 }

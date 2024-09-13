@@ -2,10 +2,8 @@ package com.project.api.web.api
 
 import com.project.api.service.GroupService
 import com.project.api.web.dto.request.GroupCreateRequest
-import com.project.api.web.dto.request.GroupRoleUpdateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
 import com.project.api.web.dto.response.GroupResponse
-import com.project.api.web.dto.response.GroupRoleUpdateResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -56,13 +54,4 @@ class GroupController(
         groupService.delete(jwt.subject, groupId)
         return ResponseEntity.noContent().build()
     }
-
-    @PatchMapping("role")
-    @Operation(summary = "그룹 내 권한 설정", description = "그룹 내 권한설정은 채널방장만 가능하다.")
-    fun updateRole(
-        @AuthenticationPrincipal jwt: Jwt,
-        @RequestBody request: GroupRoleUpdateRequest,
-    ): GroupRoleUpdateResponse = groupService.updateRole(jwt.subject, request)
 }
-
-// 가입요청, 가입요청 승인

@@ -17,7 +17,7 @@ class UserFixture(
     fun create(
         email: String = UUID.randomUUID().toString() + "@gmail.com",
         password: String = "test",
-        name: String = "name",
+        name: String = UUID.randomUUID().toString(),
         img: String? = null,
         phoneNumber: String = "010-1234-1234",
         description: String = "description",

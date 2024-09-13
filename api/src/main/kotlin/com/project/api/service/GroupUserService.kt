@@ -71,8 +71,7 @@ class GroupUserService(
 
         val admin =
             groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-
-        if (admin.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!admin.role.isActive() || admin.role == GroupRole.USER) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         val expelUser =
             groupUserRepository.findByIdAndGroup(groupUserId, group) ?: throw RestException.notFound(
@@ -155,7 +154,7 @@ class GroupUserService(
         val groupUser =
             groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
 
-        if(!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         return groupUserRepository
             .findAll(
