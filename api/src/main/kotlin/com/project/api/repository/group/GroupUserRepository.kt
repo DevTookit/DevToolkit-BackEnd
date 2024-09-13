@@ -9,6 +9,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 interface GroupUserRepository :
     JpaRepository<GroupUser, Long>,
     QuerydslPredicateExecutor<GroupUser> {
+
     fun findByUserAndGroup(
         user: User,
         group: Group,

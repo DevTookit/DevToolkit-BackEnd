@@ -30,3 +30,4 @@ class GroupUserFixture(
         groupUserRepository.deleteAll()
     }
 }
+
