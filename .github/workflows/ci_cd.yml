@@ -58,7 +58,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
-        if: steps.check-changes.outputs.changed == 'true'
+        if: ${{ env.changed }} = 'true'
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/release/prod" ]]; then
             PROFILE="prod"
