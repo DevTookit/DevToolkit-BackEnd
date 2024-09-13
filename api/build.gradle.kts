@@ -89,11 +89,4 @@ val jarName = "api-server.jar"
 
 tasks.named<BootJar>("bootJar") {
     archiveFileName.set(jarName)
-
-    doLast {
-        copy {
-            from("build/libs/$jarName")
-            into("../build/libs")
-        }
-    }
 }
