@@ -19,15 +19,12 @@ jobs:
         with:
           token: ${{ secrets.GIT_TOKEN }}
           submodules: true
-          
-      - name: Check if application.yml exists
+      - name: Verify submodules
         run: |
-          if find . -name "application-stage.yml" | grep -q "application-stage.yml"; then
-            echo "application.yml exists"
-          else
-            echo "application.yml does not exist"
-            exit 1
-          fi
+          echo "Checking submodule status"
+          git submodule status  # 서브모듈 상태 확인
+          echo "Listing files in submodules"
+          git submodule foreach 'ls -al'  # 서브모듈의 파일 목록 확인
 
       - name: Check if ${{ matrix.module }} has changed
         id: check-changes
