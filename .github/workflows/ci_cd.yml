@@ -22,8 +22,8 @@ jobs:
           
       - name: Check if application.yml exists
         run: |
-          if [ -f ./application-stage.yml ]; then
-            echo "applications.yml exists"
+          if find . -name "application-stage.yml" | grep -q "application-stage.yml"; then
+            echo "application.yml exists"
           else
             echo "application.yml does not exist"
             exit 1
