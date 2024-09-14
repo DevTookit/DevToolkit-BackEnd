@@ -6,8 +6,6 @@ WORKDIR /deploy
 ARG JAR_FILE=build/libs/api-server.jar
 COPY ${JAR_FILE} /deploy/api.jar
 
-# resources 폴더를 복사 (application.yml 및 기타 설정 포함)
-COPY --from=build /app/src/main/resources /deploy/resources
 
 ARG SPRING_PROFILE
 # 프로파일 값을 환경 변수로 설정
