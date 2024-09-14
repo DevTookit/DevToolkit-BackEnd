@@ -22,9 +22,9 @@ jobs:
       - name: Verify submodules
         run: |
           echo "Checking submodule status"
-          git submodule status  # 서브모듈 상태 확인
+          git submodule status 
           echo "Listing files in submodules"
-          git submodule foreach 'ls -al'  # 서브모듈의 파일 목록 확인
+          git submodule foreach 'ls -al'
 
       - name: Check if ${{ matrix.module }} has changed
         id: check-changes
