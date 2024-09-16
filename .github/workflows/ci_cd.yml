@@ -1,0 +1,112 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "release/stage", "release/prod" ]
+  pull_request:
+    branches: [ "release/stage", "release/prod" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: [api]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          submodules: true
+      - name: Verify submodules
+        run: |
+          echo "Checking submodule status"
+          git submodule status 
+          echo "Listing files in submodules"
+          git submodule foreach 'ls -al'
+
+      - name: Check if ${{ matrix.module }} has changed
+        id: check-changes
+        run: |
+          git fetch
+          
+          if git diff --quiet origin/develop -- ${{ matrix.module }}/; then
+            echo "no changes in ${{ matrix.module }}"
+            echo "changed=false" >> $GITHUB_ENV
+          else
+            echo "changes detected in ${{ matrix.module }}"
+            echo "changed=true" >> $GITHUB_ENV
+          fi
+      - name: Echo Changed Value
+        run: |
+          echo "Changed: ${{ env.changed }}"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.2.2
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Test module ${{ matrix.module }}
+        if:  ${{ env.changed == 'true' }}
+        run: ./gradlew :${{ matrix.module }}:build
+
+      - name: Configure AWS Credentials Action for GitHub Actions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        if: ${{ env.changed == 'true' }}
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/release/prod" ]]; then
+            PROFILE="prod"
+          else
+            PROFILE="stage"
+          fi
+          docker build --build-arg SPRING_PROFILE=${PROFILE} -t dev${{ matrix.module}}:latest -f ${{ matrix.module }}/Dockerfile .
+          
+
+      - name: Tag Docker image
+        run: |
+          IMAGE_TAG="latest"
+          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/stage' && 'api-stage' || 'api-prod' }}"
+          docker tag dev${{ matrix.module}}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Set environment variables based on branch
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/release/stage" ]]; then
+            echo "CLUSTER_NAME=api-stage-cluster" >> $GITHUB_ENV
+            echo "SERVICE_NAME=api-stage" >> $GITHUB_ENV
+          else
+            echo "CLUSTER_NAME=api-prod-cluster" >> $GITHUB_ENV
+            echo "SERVICE_NAME=api-prod" >> $GITHUB_ENV
+          fi
+
+      - name: Push Docker image to Amazon ECR
+        run: |
+          IMAGE_TAG="latest"
+          ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          ECR_REPOSITORY="devtool/${{ env.SERVICE_NAME }}"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update ECS service with new image
+        env:
+          AWS_REGION: ap-northeast-2
+          CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          CONTAINER_NAME: dev-api-container
+          ECR_IMAGE: ${{ secrets.AWS_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/devtool/${{ env.SERVICE_NAME }}
+        run: |
+          aws ecs update-service \
+               --cluster $CLUSTER_NAME \
+               --service $SERVICE_NAME \
+               --force-new-deployment

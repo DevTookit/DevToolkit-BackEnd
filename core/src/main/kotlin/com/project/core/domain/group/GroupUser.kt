@@ -6,6 +6,7 @@ import com.project.core.internal.GroupRole
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -17,7 +18,7 @@ import jakarta.persistence.UniqueConstraint
 )
 class GroupUser(
     @ManyToOne val user: User,
-    @ManyToOne val group: Group,
+    @ManyToOne @JoinColumn(name = "group_id")  val group: Group,
     @Enumerated(value = EnumType.STRING)
     var role: GroupRole = GroupRole.PENDING,
 ) : BaseEntity() {

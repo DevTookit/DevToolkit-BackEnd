@@ -1,5 +1,6 @@
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
 }
@@ -24,7 +25,7 @@ dependencies {
 
     // db
     runtimeOnly("com.mysql:mysql-connector-j")
-
+    runtimeOnly("com.h2database:h2")
     // auth
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
@@ -71,11 +72,28 @@ kover {
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+
+}
 tasks.named("test") {
     finalizedBy("koverVerify")
     doLast {
         if (state.failure != null) {
             throw GradleException("Code coverage verification failed!")
+        }
+    }
+}
+
+val jarName = "api-server.jar"
+
+tasks.named<BootJar>("bootJar") {
+    archiveFileName.set(jarName)
+
+    doLast {
+        copy {
+            from("build/libs/$jarName")
+            into("../build/libs")
         }
     }
 }
