@@ -108,5 +108,5 @@ jobs:
         run: |
           aws ecs update-service \
                --cluster $CLUSTER_NAME \
-               --service $SERVICE_NAME-${{ matrix.module }} \
+               --service $SERVICE_NAME \
                --force-new-deployment
