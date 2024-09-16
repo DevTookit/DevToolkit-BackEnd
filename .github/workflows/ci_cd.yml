@@ -33,7 +33,7 @@ jobs:
           
           if git diff --quiet origin/main -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
-            echo "changed=true" >> $GITHUB_ENV
+            echo "changed=false" >> $GITHUB_ENV
           else
             echo "changes detected in ${{ matrix.module }}"
             echo "changed=true" >> $GITHUB_ENV
@@ -78,12 +78,12 @@ jobs:
         run: |
           IMAGE_TAG="latest"
           ECR_REGISTRY="${{ steps.login-ecr.outputs.registry }}"
-          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/stage' && 'api-stage' || 'api-stage' }}"
+          ECR_REPOSITORY="devtool/${{ github.ref == 'refs/heads/release/stage' && 'api-stage' || 'api-prod' }}"
           docker tag dev${{ matrix.module}}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Set environment variables based on branch
         run: |
-          if [[ "${GITHUB_REF}" == "refs/heads/release/test" || "${GITHUB_REF}" == "refs/heads/dev/#3" ]]; then
+          if [[ "${GITHUB_REF}" == "refs/heads/release/stage" ]]; then
             echo "CLUSTER_NAME=api-stage-cluster" >> $GITHUB_ENV
             echo "SERVICE_NAME=api-stage" >> $GITHUB_ENV
           else
