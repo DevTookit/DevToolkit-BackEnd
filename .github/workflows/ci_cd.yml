@@ -31,7 +31,7 @@ jobs:
         run: |
           git fetch
           
-          if git diff --quiet origin/main -- ${{ matrix.module }}/; then
+          if git diff --quiet origin/develop -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
             echo "changed=false" >> $GITHUB_ENV
           else
