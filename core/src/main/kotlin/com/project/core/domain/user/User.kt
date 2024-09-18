@@ -18,6 +18,7 @@ class User(
 ) : BaseEntity() {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var hashTags: MutableSet<UserHashTag> = mutableSetOf()
+    var isVerified: Boolean = false
 
     var isEnabled = true
     var failCount = 0

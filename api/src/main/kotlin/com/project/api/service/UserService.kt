@@ -1,11 +1,13 @@
 package com.project.api.service
 
 import com.project.api.commons.exception.RestException
+import com.project.api.internal.EmailForm
 import com.project.api.internal.ErrorMessage
 import com.project.api.repository.user.UserHashTagRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.UserCreateRequest
 import com.project.api.web.dto.request.UserLoginRequest
+import com.project.api.web.dto.request.UserResetPasswordRequest
 import com.project.api.web.dto.request.UserResponse
 import com.project.api.web.dto.request.UserResponse.Companion.toUserResponse
 import com.project.api.web.dto.request.UserUpdateRequest
@@ -27,6 +29,14 @@ class UserService(
     private val mailService: MailService,
     private val passwordEncoder: PasswordEncoder,
 ) {
+    fun verifyEmail(
+        email: String,
+    ): String {
+        val code = UUID.randomUUID().toString().substring(0, 10)
+        mailService.send(email, code, EmailForm.VERIFY_EMAIL)
+        return code
+    }
+
     @Transactional
     fun create(request: UserCreateRequest) {
         userRepository.existsByEmail(request.email).let {
@@ -35,15 +45,16 @@ class UserService(
             }
         }
 
-        val tmpPassword = UUID.randomUUID().toString().substring(0, 10)
         userRepository
             .save(
                 User(
                     email = request.email,
-                    password = passwordEncoder.encode(tmpPassword),
+                    password = passwordEncoder.encode(request.password),
                     name = request.name,
                     img = request.img,
-                ),
+                ).apply {
+                    isVerified = true
+                },
             ).also { user ->
                 if (request.tags != null) {
                     userHashTagRepository.saveAll(
@@ -55,8 +66,27 @@ class UserService(
                         },
                     )
                 }
-                mailService.sendTmpPassword(user.email, tmpPassword)
             }
+    }
+
+    fun findEmail(email: String,): Boolean {
+        return userRepository.existsByEmail(email)
+    }
+
+    @Transactional
+    fun resetPassword(
+        request: UserResetPasswordRequest,
+    ) {
+        val user = userRepository.findByEmail(request.email)
+            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+
+        if(passwordEncoder.matches(request.newPassword, user.password)) {
+            throw RestException.badRequest(ErrorMessage.IMPOSSIBLE_PASSWORD.message)
+        }
+
+        userRepository.save(
+            user.apply { password = passwordEncoder.encode(request.newPassword) }
+        )
     }
 
     @Transactional(noRollbackFor = [RestException::class])

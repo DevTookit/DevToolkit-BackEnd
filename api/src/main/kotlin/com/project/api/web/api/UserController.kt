@@ -3,6 +3,7 @@ package com.project.api.web.api
 import com.project.api.service.UserService
 import com.project.api.web.dto.request.UserCreateRequest
 import com.project.api.web.dto.request.UserLoginRequest
+import com.project.api.web.dto.request.UserResetPasswordRequest
 import com.project.api.web.dto.request.UserResponse
 import com.project.api.web.dto.request.UserUpdateRequest
 import com.project.api.web.dto.response.TokenResponse
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -26,6 +28,12 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userService: UserService,
 ) {
+    @GetMapping("verify-email")
+    @Operation(summary = "이메일 인증")
+    fun verifyEmail(
+        @RequestParam email: String,
+    ): String = userService.verifyEmail(email)
+
     @PostMapping("create")
     @Operation(summary = "유저 생성")
     fun create(
@@ -42,6 +50,18 @@ class UserController(
     fun login(
         @RequestBody request: UserLoginRequest,
     ): UserLoginResponse = userService.login(request)
+
+    @GetMapping("find-email")
+    @Operation(summary = "아이디 찾기")
+    fun findEmail(
+        email: String,
+    ) = userService.findEmail(email)
+
+    @PatchMapping("reset-password")
+    @Operation(summary = "비밀번호 찾기(재설정)")
+    fun resetPassword(
+        @RequestBody request: UserResetPasswordRequest,
+    ) = userService.resetPassword(request)
 
     @GetMapping("me")
     @Operation(summary = "내정보 조회")
