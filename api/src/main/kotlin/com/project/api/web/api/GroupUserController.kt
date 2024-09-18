@@ -38,7 +38,7 @@ class GroupUserController(
     ): GroupUserCreateResponse = groupUserService.create(jwt.subject, request)
 
     @PatchMapping("role/update")
-    @Operation(summary = "가입요청 승인 및 회원 등급 수정")
+    @Operation(summary = "가입요청 승인 및 회원 등급 수정 및 정지처분")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: GroupUserUpdateRequest,
