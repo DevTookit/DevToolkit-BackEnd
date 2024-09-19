@@ -5,7 +5,6 @@ import com.project.api.internal.ErrorMessage
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
-import com.project.api.web.api.CategoryNotificationService
 import com.project.api.web.dto.request.GroupUserCreateRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
 import com.project.api.web.dto.response.GroupRoleResponse
@@ -124,10 +123,9 @@ class GroupUserService(
                     this.isApproved = true
                 }
             }.also {
-                val categoryNotificationType = if(!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
+                val categoryNotificationType = if (!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
                 categoryNotificationService.update(group, groupUser, categoryNotificationType)
-            }
-            .toGroupUserResponse()
+            }.toGroupUserResponse()
     }
 
     fun readRole(

@@ -6,7 +6,6 @@ import com.project.api.repository.category.CategoryRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
-import com.project.api.web.api.CategoryNotificationService
 import com.project.api.web.dto.request.CategoryCreateRequest
 import com.project.api.web.dto.request.CategoryUpdateRequest
 import com.project.api.web.dto.response.CategoryCreateResponse
@@ -92,7 +91,6 @@ class CategoryService(
             categoryRepository.findByIdOrNull(categoryId) ?: throw RestException.notFound(
                 ErrorMessage.NOT_FOUND_CATEGORY.message,
             )
-
 
         val groupUser =
             groupUserRepository.findByUserAndGroup(user, category.group)

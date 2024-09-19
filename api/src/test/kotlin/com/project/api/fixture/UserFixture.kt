@@ -2,12 +2,9 @@ package com.project.api.fixture
 
 import com.project.api.repository.user.UserRepository
 import com.project.core.domain.user.User
-import com.project.core.util.LocationUtil
-import org.locationtech.jts.geom.Point
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import java.util.UUID
-import kotlin.random.Random
 
 @Component
 class UserFixture(
@@ -19,9 +16,6 @@ class UserFixture(
         password: String = "test",
         name: String = UUID.randomUUID().toString(),
         img: String? = null,
-        phoneNumber: String = "010-1234-1234",
-        description: String = "description",
-        point: Point = LocationUtil.createPoint(Random.nextDouble(139.0), Random.nextDouble(24.0)),
     ): User =
         userRepository.save(
             User(

@@ -1,4 +1,4 @@
-package com.project.api.web.api
+package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
@@ -54,7 +54,7 @@ class CategoryNotificationService(
             groupUserRepository.findByUserAndGroup(user, group)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
 
-        if(!groupUser.role.isActive()) {
+        if (!groupUser.role.isActive()) {
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
         }
 
@@ -80,14 +80,21 @@ class CategoryNotificationService(
     }
 
     @Transactional
-    fun update(group: Group, groupUser: GroupUser, type: CategoryNotificationType,) {
-        categoryRepository.findByGroup(group)
+    fun update(
+        group: Group,
+        groupUser: GroupUser,
+        type: CategoryNotificationType,
+    ) {
+        categoryRepository
+            .findByGroup(group)
             .map { category ->
-                categoryNotificationRepository.findByCategoryAndGroupUser(
-                    category, groupUser
-                )?.apply {
-                    this.type = type
-                }?: run {
+                categoryNotificationRepository
+                    .findByCategoryAndGroupUser(
+                        category,
+                        groupUser,
+                    )?.apply {
+                        this.type = type
+                    } ?: run {
                     categoryNotificationRepository.save(
                         CategoryNotification(
                             category = category,

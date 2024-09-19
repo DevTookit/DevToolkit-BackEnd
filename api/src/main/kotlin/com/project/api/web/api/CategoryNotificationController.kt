@@ -1,5 +1,6 @@
 package com.project.api.web.api
 
+import com.project.api.service.CategoryNotificationService
 import com.project.api.web.dto.request.CategoryNotificationUpdateRequest
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.security.core.annotation.AuthenticationPrincipal
