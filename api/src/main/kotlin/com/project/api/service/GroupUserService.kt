@@ -116,15 +116,21 @@ class GroupUserService(
     fun acceptInvitation(
         email: String,
         groupUserId: Long,
-    ): GroupUserResponse {
+        isAccepted: Boolean,
+    ) {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val groupUser =
             groupUserRepository.findByIdOrNull(groupUserId) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
 
-        return groupUser
+        if (!isAccepted) {
+            groupUserRepository.delete(groupUser)
+            return
+        }
+
+        groupUser
             .apply {
                 this.role = GroupRole.USER
-            }.toGroupUserResponse()
+            }
     }
 
     @Transactional

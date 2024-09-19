@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -52,12 +51,16 @@ class GroupUserController(
         @AuthenticationPrincipal jwt: Jwt,
     ) = groupUserService.readInvitations(jwt.subject)
 
-    @PatchMapping("/invitations/{groupUserId}")
-    @Operation(summary = "그룹 초대 수락")
-    fun acceptInvitation(
+    @PatchMapping("/invitations")
+    @Operation(summary = "그룹 초대 수락 or 거절")
+    fun updateInvitation(
         @AuthenticationPrincipal jwt: Jwt,
-        @PathVariable groupUserId: Long,
-    ) = groupUserService.acceptInvitation(jwt.subject, groupUserId)
+        @RequestParam groupUserId: Long,
+        @RequestParam isAccepted: Boolean,
+    ): ResponseEntity<Unit> {
+        groupUserService.acceptInvitation(jwt.subject, groupUserId, isAccepted)
+        return ResponseEntity.accepted().build()
+    }
 
     @PatchMapping("role/update")
     @Operation(summary = "가입요청 승인 및 회원 등급 수정 및 정지처분")
