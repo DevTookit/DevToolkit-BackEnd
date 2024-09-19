@@ -5,6 +5,7 @@ import com.project.api.internal.ErrorMessage
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
+import com.project.api.web.api.CategoryNotificationService
 import com.project.api.web.dto.request.GroupUserCreateRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
 import com.project.api.web.dto.response.GroupRoleResponse
@@ -15,6 +16,7 @@ import com.project.api.web.dto.response.GroupUserResponse
 import com.project.api.web.dto.response.GroupUserResponse.Companion.toGroupUserResponse
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
+import com.project.core.internal.CategoryNotificationType
 import com.project.core.internal.GroupRole
 import com.querydsl.core.BooleanBuilder
 import org.springframework.data.domain.Page
@@ -28,6 +30,7 @@ class GroupUserService(
     private val groupUserRepository: GroupUserRepository,
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
+    private val categoryNotificationService: CategoryNotificationService,
 ) {
     @Transactional
     fun create(
@@ -120,7 +123,11 @@ class GroupUserService(
                     this.role = request.role
                     this.isApproved = true
                 }
-            }.toGroupUserResponse()
+            }.also {
+                val categoryNotificationType = if(!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
+                categoryNotificationService.update(group, groupUser, categoryNotificationType)
+            }
+            .toGroupUserResponse()
     }
 
     fun readRole(
@@ -174,4 +181,3 @@ class GroupUserService(
             }
     }
 }
-

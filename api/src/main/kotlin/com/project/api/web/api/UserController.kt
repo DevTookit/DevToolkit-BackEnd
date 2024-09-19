@@ -53,9 +53,7 @@ class UserController(
 
     @GetMapping("find-email")
     @Operation(summary = "아이디 찾기")
-    fun findEmail(
-        email: String,
-    ) = userService.findEmail(email)
+    fun findEmail(email: String) = userService.findEmail(email)
 
     @PatchMapping("reset-password")
     @Operation(summary = "비밀번호 찾기(재설정)")

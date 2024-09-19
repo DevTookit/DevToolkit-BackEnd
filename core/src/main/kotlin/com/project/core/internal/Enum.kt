@@ -14,4 +14,22 @@ enum class GroupRole {
             PENDING, SUSPENDED, INVITED -> false
             else -> true
         }
+
+    fun isAdmin(): Boolean =
+        when (this) {
+            TOP_MANAGER, MANAGER -> true
+            else -> false
+        }
+
+    fun isTopAmin(): Boolean =
+        when (this) {
+            TOP_MANAGER -> true
+            else -> false
+        }
+}
+
+enum class CategoryNotificationType {
+    ALL,
+    MENTIONS,
+    NONE,
 }

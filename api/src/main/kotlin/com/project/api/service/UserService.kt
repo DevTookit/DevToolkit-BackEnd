@@ -29,9 +29,7 @@ class UserService(
     private val mailService: MailService,
     private val passwordEncoder: PasswordEncoder,
 ) {
-    fun verifyEmail(
-        email: String,
-    ): String {
+    fun verifyEmail(email: String): String {
         val code = UUID.randomUUID().toString().substring(0, 10)
         mailService.send(email, code, EmailForm.VERIFY_EMAIL)
         return code
@@ -69,23 +67,20 @@ class UserService(
             }
     }
 
-    fun findEmail(email: String,): Boolean {
-        return userRepository.existsByEmail(email)
-    }
+    fun findEmail(email: String): Boolean = userRepository.existsByEmail(email)
 
     @Transactional
-    fun resetPassword(
-        request: UserResetPasswordRequest,
-    ) {
-        val user = userRepository.findByEmail(request.email)
-            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+    fun resetPassword(request: UserResetPasswordRequest) {
+        val user =
+            userRepository.findByEmail(request.email)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
 
-        if(passwordEncoder.matches(request.newPassword, user.password)) {
+        if (passwordEncoder.matches(request.newPassword, user.password)) {
             throw RestException.badRequest(ErrorMessage.IMPOSSIBLE_PASSWORD.message)
         }
 
         userRepository.save(
-            user.apply { password = passwordEncoder.encode(request.newPassword) }
+            user.apply { password = passwordEncoder.encode(request.newPassword) },
         )
     }
 
@@ -168,4 +163,3 @@ class UserService(
         }
     }
 }
-

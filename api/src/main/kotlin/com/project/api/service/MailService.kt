@@ -12,13 +12,13 @@ class MailService(
     fun send(
         email: String,
         code: String,
-        type: EmailForm
+        type: EmailForm,
     ) {
         val mailMessage =
             javaMailSender.createMimeMessage().apply {
                 setSubject(type.subject)
                 setText(
-                    type.message+"<br/> 코드 : $code",
+                    type.message + "<br/> 코드 : $code",
                     "UTF-8",
                     "html",
                 )

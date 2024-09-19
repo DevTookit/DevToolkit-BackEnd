@@ -221,4 +221,3 @@ class GroupServiceTest(
             }.isInstanceOf(RestException::class.java)
     }
 }
-
