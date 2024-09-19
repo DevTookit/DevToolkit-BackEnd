@@ -13,7 +13,6 @@ class CategoryFixture(
     private val categoryRepository: CategoryRepository,
     private val categoryNotificationRepository: CategoryNotificationRepository,
 ) : Fixture {
-
     fun create(
         name: String = UUID.randomUUID().toString(),
         isPublic: Boolean = Random().nextBoolean(),

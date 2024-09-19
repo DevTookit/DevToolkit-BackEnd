@@ -2,6 +2,7 @@ package com.project.api.web.api
 
 import com.project.api.service.GroupUserService
 import com.project.api.web.dto.request.GroupUserCreateRequest
+import com.project.api.web.dto.request.GroupUserInvitationRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
 import com.project.api.web.dto.response.GroupRoleResponse
 import com.project.api.web.dto.response.GroupUserCreateResponse
@@ -31,11 +32,35 @@ class GroupUserController(
     private val groupUserService: GroupUserService,
 ) {
     @PostMapping("join")
-    @Operation(summary = "가입요청")
+    @Operation(summary = "가입요청(role = Pending)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: GroupUserCreateRequest,
     ): GroupUserCreateResponse = groupUserService.create(jwt.subject, request)
+
+    @PostMapping("/invitations")
+    @Operation(summary = "그룹에 초대하기(role= INVITED)")
+    fun createInvitation(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestBody request: GroupUserInvitationRequest,
+    ) = groupUserService.createInvitation(jwt.subject, request)
+
+    @GetMapping("/invitations")
+    @Operation(summary = "그룹 초대 확인")
+    fun readInvitations(
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = groupUserService.readInvitations(jwt.subject)
+
+    @PatchMapping("/invitations")
+    @Operation(summary = "그룹 초대 수락 or 거절")
+    fun updateInvitation(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam groupUserId: Long,
+        @RequestParam isAccepted: Boolean,
+    ): ResponseEntity<Unit> {
+        groupUserService.acceptInvitation(jwt.subject, groupUserId, isAccepted)
+        return ResponseEntity.accepted().build()
+    }
 
     @PatchMapping("role/update")
     @Operation(summary = "가입요청 승인 및 회원 등급 수정 및 정지처분")

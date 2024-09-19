@@ -1,4 +1,4 @@
-package com.project.api.web.dto.request
+package com.project.api.web.dto.response
 
 import com.project.core.domain.user.User
 
