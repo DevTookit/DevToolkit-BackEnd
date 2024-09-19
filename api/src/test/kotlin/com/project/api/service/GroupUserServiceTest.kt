@@ -5,7 +5,9 @@ import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.group.GroupUserRepository
+import com.project.api.repository.notification.NotificationRepository
 import com.project.api.web.dto.request.GroupUserCreateRequest
+import com.project.api.web.dto.request.GroupUserInvitationRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
 import com.project.core.internal.GroupRole
 import org.assertj.core.api.Assertions
@@ -26,6 +28,7 @@ class GroupUserServiceTest(
     @Autowired private val groupFixture: GroupFixture,
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val groupUserRepository: GroupUserRepository,
+    @Autowired private val notificationRepository: NotificationRepository,
 ) {
     @BeforeEach
     fun setUp() {
@@ -33,6 +36,7 @@ class GroupUserServiceTest(
 
     @AfterEach
     fun tearDown() {
+        notificationRepository.deleteAll()
         groupUserFixture.tearDown()
         groupFixture.tearDown()
         userFixture.tearDown()
@@ -48,7 +52,7 @@ class GroupUserServiceTest(
             GroupUserCreateRequest(
                 groupId = group.id!!,
                 name = null,
-                role = GroupRole.USER,
+                role = GroupRole.PENDING,
             )
 
         val response = groupUserService.create(joinUser.email, request)
@@ -91,6 +95,118 @@ class GroupUserServiceTest(
         Assertions
             .assertThatThrownBy {
                 groupUserService.create(joinUser.email, request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun createInvitation() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+        val joinUser = userFixture.create()
+        val request =
+            GroupUserInvitationRequest(
+                groupId = group.id!!,
+                userId = joinUser.id!!,
+            )
+
+        val response = groupUserService.createInvitation(admin.email, request)
+
+        Assertions.assertThat(response.groupId).isEqualTo(group.id)
+        Assertions.assertThat(response.groupName).isEqualTo(group.name)
+        Assertions.assertThat(response.role).isEqualTo(GroupRole.INVITED)
+    }
+
+    @Test
+    fun createInvitationNotFoundGroup() {
+        val admin = userFixture.create()
+        val joinUser = userFixture.create()
+        val request =
+            GroupUserInvitationRequest(
+                groupId = 1L,
+                userId = joinUser.id!!,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.createInvitation(admin.email, request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun createInvitationNotFoundJoinUser() {
+        val admin = userFixture.create()
+        val request =
+            GroupUserInvitationRequest(
+                groupId = 1L,
+                userId = 100L,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.createInvitation(admin.email, request)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun readInvitations() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+        val joinUser = userFixture.create()
+        val groupUser = groupUserFixture.create(group = group, user = joinUser, role = GroupRole.INVITED)
+
+        val response = groupUserService.readInvitations(joinUser.email)
+
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response[0].groupId).isEqualTo(group.id)
+        Assertions.assertThat(response[0].groupUserId).isEqualTo(groupUser.id)
+        Assertions.assertThat(response[0].role).isEqualTo(groupUser.role)
+    }
+
+    @Test
+    fun readInvitationsNotFoundUser() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.readInvitations("test@kakao.com")
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun acceptInvitation() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+        val joinUser = userFixture.create()
+        val groupUser = groupUserFixture.create(group = group, user = joinUser, role = GroupRole.INVITED)
+
+        val response = groupUserService.acceptInvitation(joinUser.email, groupUser.id!!)
+
+        Assertions.assertThat(response.groupUserId).isEqualTo(groupUser.id)
+        Assertions.assertThat(response.role).isEqualTo(GroupRole.USER)
+        Assertions.assertThat(response.name).isEqualTo(groupUser.name)
+    }
+
+    @Test
+    fun acceptInvitationNotFoundUser() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.acceptInvitation("test@kakao.com", 1L)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun acceptInvitationNotFoundGroupUser() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+        val joinUser = userFixture.create()
+
+        Assertions
+            .assertThatThrownBy {
+                groupUserService.acceptInvitation(joinUser.email, 100L)
             }.isInstanceOf(RestException::class.java)
     }
 

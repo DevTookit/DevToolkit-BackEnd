@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -32,6 +33,20 @@ class GroupServiceTest(
         groupUserFixture.tearDown()
         groupFixture.tearDown()
         userFixture.tearDown()
+    }
+
+    @Test
+    fun readAll() {
+        val admin = userFixture.create()
+        val group = groupFixture.create(admin)
+
+        val response = groupService.readAll(null, Pageable.unpaged())
+
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response.first().name).isEqualTo(group.name)
+        Assertions.assertThat(response.first().description).isEqualTo(group.description)
+        Assertions.assertThat(response.first().id).isEqualTo(group.id)
+        Assertions.assertThat(response.first().isPublic).isEqualTo(group.isPublic)
     }
 
     @Test
