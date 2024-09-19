@@ -2,6 +2,7 @@ package com.project.api.web.api
 
 import com.project.api.service.GroupUserService
 import com.project.api.web.dto.request.GroupUserCreateRequest
+import com.project.api.web.dto.request.GroupUserInvitationRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
 import com.project.api.web.dto.response.GroupRoleResponse
 import com.project.api.web.dto.response.GroupUserCreateResponse
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,11 +33,31 @@ class GroupUserController(
     private val groupUserService: GroupUserService,
 ) {
     @PostMapping("join")
-    @Operation(summary = "가입요청")
+    @Operation(summary = "가입요청(role = Pending)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: GroupUserCreateRequest,
     ): GroupUserCreateResponse = groupUserService.create(jwt.subject, request)
+
+    @PostMapping("/invitations")
+    @Operation(summary = "그룹에 초대하기(role= INVITED)")
+    fun createInvitation(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestBody request: GroupUserInvitationRequest,
+    ) = groupUserService.createInvitation(jwt.subject, request)
+
+    @GetMapping("/invitations")
+    @Operation(summary = "그룹 초대 확인")
+    fun readInvitations(
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = groupUserService.readInvitations(jwt.subject)
+
+    @PatchMapping("/invitations/{groupUserId}")
+    @Operation(summary = "그룹 초대 수락")
+    fun acceptInvitation(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable groupUserId: Long,
+    ) = groupUserService.acceptInvitation(jwt.subject, groupUserId)
 
     @PatchMapping("role/update")
     @Operation(summary = "가입요청 승인 및 회원 등급 수정 및 정지처분")

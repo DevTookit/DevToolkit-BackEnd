@@ -11,7 +11,11 @@ import com.project.api.web.dto.response.GroupResponse
 import com.project.api.web.dto.response.GroupResponse.Companion.toResponse
 import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
+import com.project.core.domain.group.QGroup
 import com.project.core.internal.GroupRole
+import com.querydsl.core.BooleanBuilder
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,6 +26,21 @@ class GroupService(
     private val groupUserRepository: GroupUserRepository,
     private val userRepository: UserRepository,
 ) {
+    fun readAll(
+        name: String?,
+        pageable: Pageable,
+    ): Page<GroupResponse> =
+        groupRepository
+            .findAll(
+                BooleanBuilder()
+                    .and(
+                        name?.let { QGroup.group.name.containsIgnoreCase(name) },
+                    ),
+                pageable,
+            ).map {
+                it.toResponse()
+            }
+
     fun readOne(
         email: String,
         groupId: Long,

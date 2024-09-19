@@ -48,6 +48,7 @@ class GroupUserServiceTest(
             GroupUserCreateRequest(
                 groupId = group.id!!,
                 name = null,
+                role = GroupRole.USER,
             )
 
         val response = groupUserService.create(joinUser.email, request)
@@ -63,6 +64,7 @@ class GroupUserServiceTest(
             GroupUserCreateRequest(
                 groupId = 1L,
                 name = null,
+                role = GroupRole.USER,
             )
 
         Assertions
@@ -83,6 +85,7 @@ class GroupUserServiceTest(
             GroupUserCreateRequest(
                 groupId = group.id!!,
                 name = null,
+                role = GroupRole.USER,
             )
 
         Assertions

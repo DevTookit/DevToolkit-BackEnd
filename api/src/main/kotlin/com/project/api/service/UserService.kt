@@ -8,14 +8,15 @@ import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.UserCreateRequest
 import com.project.api.web.dto.request.UserLoginRequest
 import com.project.api.web.dto.request.UserResetPasswordRequest
-import com.project.api.web.dto.request.UserResponse
-import com.project.api.web.dto.request.UserResponse.Companion.toUserResponse
 import com.project.api.web.dto.request.UserUpdateRequest
 import com.project.api.web.dto.response.TokenResponse
 import com.project.api.web.dto.response.UserLoginResponse
 import com.project.api.web.dto.response.UserLoginResponse.Companion.toUserLoginResponse
+import com.project.api.web.dto.response.UserResponse
+import com.project.api.web.dto.response.UserResponse.Companion.toUserResponse
 import com.project.core.domain.user.User
 import com.project.core.domain.user.UserHashTag
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -127,6 +128,13 @@ class UserService(
 
     @Transactional
     fun createToken(email: String): TokenResponse = authService.create(email)
+
+    fun readOne(userId: Long): UserResponse {
+        val user =
+            userRepository.findByIdOrNull(userId) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+
+        return user.toUserResponse()
+    }
 
     private fun updateUser(
         request: UserUpdateRequest,

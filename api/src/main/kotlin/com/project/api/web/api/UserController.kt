@@ -4,10 +4,10 @@ import com.project.api.service.UserService
 import com.project.api.web.dto.request.UserCreateRequest
 import com.project.api.web.dto.request.UserLoginRequest
 import com.project.api.web.dto.request.UserResetPasswordRequest
-import com.project.api.web.dto.request.UserResponse
 import com.project.api.web.dto.request.UserUpdateRequest
 import com.project.api.web.dto.response.TokenResponse
 import com.project.api.web.dto.response.UserLoginResponse
+import com.project.api.web.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -79,4 +80,10 @@ class UserController(
     fun createToken(
         @AuthenticationPrincipal jwt: Jwt,
     ): TokenResponse = userService.createToken(jwt.subject)
+
+    @GetMapping("{userId}")
+    @Operation(summary = "한 회원 검색")
+    fun readOne(
+        @PathVariable userId: Long,
+    ): UserResponse = userService.readOne(userId)
 }

@@ -6,7 +6,10 @@ import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.GroupUserCreateRequest
+import com.project.api.web.dto.request.GroupUserInvitationRequest
 import com.project.api.web.dto.request.GroupUserUpdateRequest
+import com.project.api.web.dto.response.GroupInvitationResponse
+import com.project.api.web.dto.response.GroupInvitationResponse.Companion.toGroupInvitationResponse
 import com.project.api.web.dto.response.GroupRoleResponse
 import com.project.api.web.dto.response.GroupRoleResponse.Companion.toGroupRoleResponse
 import com.project.api.web.dto.response.GroupUserCreateResponse
@@ -17,6 +20,7 @@ import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
 import com.project.core.internal.CategoryNotificationType
 import com.project.core.internal.GroupRole
+import com.project.core.internal.NotificationType
 import com.querydsl.core.BooleanBuilder
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -30,6 +34,7 @@ class GroupUserService(
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
     private val categoryNotificationService: CategoryNotificationService,
+    private val notificationService: NotificationService,
 ) {
     @Transactional
     fun create(
@@ -50,6 +55,7 @@ class GroupUserService(
                         GroupUser(
                             user = user,
                             group = group,
+                            role = request.role,
                         ).apply {
                             request.name?.let {
                                 this.name = it
@@ -58,6 +64,67 @@ class GroupUserService(
                     ).toGroupUserCreateResponse(group.id)
             }
         }
+    }
+
+    @Transactional
+    fun createInvitation(
+        email: String,
+        request: GroupUserInvitationRequest,
+    ): GroupInvitationResponse {
+        val admin = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(request.groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser =
+            groupUserRepository.findByUserAndGroup(admin, group)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+
+        if (!groupUser.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        val user =
+            userRepository.findByIdOrNull(request.userId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+
+        return groupUserRepository
+            .save(
+                GroupUser(
+                    user = user,
+                    group = group,
+                    role = GroupRole.INVITED,
+                ),
+            ).also {
+                notificationService.create(
+                    user = user,
+                    group = group,
+                    contentId = it.id!!,
+                    type = NotificationType.INVITATION,
+                )
+            }.toGroupInvitationResponse()
+    }
+
+    fun readInvitations(email: String): List<GroupInvitationResponse> {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        return groupUserRepository
+            .findByUserAndRole(user, GroupRole.INVITED)
+            .map {
+                it.toGroupInvitationResponse()
+            }
+    }
+
+    @Transactional
+    fun acceptInvitation(
+        email: String,
+        groupUserId: Long,
+    ): GroupUserResponse {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val groupUser =
+            groupUserRepository.findByIdOrNull(groupUserId) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+
+        return groupUser
+            .apply {
+                this.role = GroupRole.USER
+            }.toGroupUserResponse()
     }
 
     @Transactional

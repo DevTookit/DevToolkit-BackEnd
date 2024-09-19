@@ -33,3 +33,10 @@ enum class CategoryNotificationType {
     MENTIONS,
     NONE,
 }
+
+enum class NotificationType {
+    CONTENT,
+    MENTION,
+    INVITATION,
+    NOTICE,
+}
