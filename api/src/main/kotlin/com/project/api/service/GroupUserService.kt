@@ -15,6 +15,7 @@ import com.project.api.web.dto.response.GroupUserResponse
 import com.project.api.web.dto.response.GroupUserResponse.Companion.toGroupUserResponse
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
+import com.project.core.internal.CategoryNotificationType
 import com.project.core.internal.GroupRole
 import com.querydsl.core.BooleanBuilder
 import org.springframework.data.domain.Page
@@ -28,6 +29,7 @@ class GroupUserService(
     private val groupUserRepository: GroupUserRepository,
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
+    private val categoryNotificationService: CategoryNotificationService,
 ) {
     @Transactional
     fun create(
@@ -120,6 +122,9 @@ class GroupUserService(
                     this.role = request.role
                     this.isApproved = true
                 }
+            }.also {
+                val categoryNotificationType = if (!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
+                categoryNotificationService.update(group, groupUser, categoryNotificationType)
             }.toGroupUserResponse()
     }
 
@@ -174,4 +179,3 @@ class GroupUserService(
             }
     }
 }
-

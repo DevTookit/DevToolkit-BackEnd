@@ -55,4 +55,3 @@ class GroupController(
         return ResponseEntity.noContent().build()
     }
 }
-

@@ -597,4 +597,3 @@ class GroupUserServiceTest(
             }.isInstanceOf(RestException::class.java)
     }
 }
-
