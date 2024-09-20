@@ -64,19 +64,17 @@ class UserServiceTest(
         val tags = listOf("Python")
         val request =
             UserUpdateRequest(
-                password = "hello1233",
                 name = "hello",
-                img = null,
                 tags = tags,
             )
         val response =
             userService.update(
                 user.email,
                 request,
+                null,
             )
 
         Assertions.assertThat(response.email).isEqualTo(user.email)
-        Assertions.assertThat(response.img).isEqualTo(request.img)
         Assertions.assertThat(response.name).isEqualTo(request.name)
         Assertions.assertThat(response.tags).containsAll(tags)
     }

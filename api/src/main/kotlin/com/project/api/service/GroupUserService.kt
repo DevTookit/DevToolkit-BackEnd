@@ -130,6 +130,8 @@ class GroupUserService(
         groupUser
             .apply {
                 this.role = GroupRole.USER
+                this.isApproved = true
+                this.isAccepted = true
             }
     }
 

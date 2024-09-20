@@ -25,3 +25,10 @@ security:
   key: dfslkdsklcnlkeaowsekncdsdascmewansodicnewsdgwg2143edsc
   token-access: 10000000
   token-refresh: 2039482309480
+s3:
+  access-key: 12341234
+  secret-key: 12341234
+  bucket-name: 12341234
+cloud-front:
+  url: 12341234
+

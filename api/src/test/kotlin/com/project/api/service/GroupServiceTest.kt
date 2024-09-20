@@ -105,15 +105,13 @@ class GroupServiceTest(
         val request =
             GroupCreateRequest(
                 name = "Group",
-                img = null,
                 description = null,
                 isPublic = true,
             )
 
-        val response = groupService.create(user.email, request)
+        val response = groupService.create(user.email, request, null)
         val responseGroupUsers = groupUserRepository.findAll()
 
-        Assertions.assertThat(response.img).isEqualTo(request.img)
         Assertions.assertThat(response.name).isEqualTo(request.name)
         Assertions.assertThat(response.description).isEqualTo(request.description)
         Assertions.assertThat(response.isPublic).isEqualTo(request.isPublic)
@@ -127,14 +125,13 @@ class GroupServiceTest(
         val request =
             GroupCreateRequest(
                 name = "Group",
-                img = null,
                 description = null,
                 isPublic = true,
             )
 
         Assertions
             .assertThatThrownBy {
-                groupService.create("haha@gmail.com", request)
+                groupService.create("haha@gmail.com", request, null)
             }.isInstanceOf(RestException::class.java)
     }
 

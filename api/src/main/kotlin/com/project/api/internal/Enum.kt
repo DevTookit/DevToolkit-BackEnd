@@ -23,3 +23,8 @@ enum class EmailForm(
 ) {
     VERIFY_EMAIL("[DevToolKit] 본인인증 코드", "고객님의 본인인증 코드는 다음과 같습니다."),
 }
+
+enum class FilePath {
+    PROFILE,
+    CONTENT,
+}

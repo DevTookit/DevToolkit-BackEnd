@@ -1,7 +1,9 @@
 package com.project.api.service
 
 import com.project.api.commons.exception.RestException
+import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
+import com.project.api.internal.FilePath
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
@@ -19,12 +21,14 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class GroupService(
     private val groupRepository: GroupRepository,
     private val groupUserRepository: GroupUserRepository,
     private val userRepository: UserRepository,
+    private val fileService: FileService,
 ) {
     fun readAll(
         name: String?,
@@ -65,6 +69,7 @@ class GroupService(
     fun create(
         email: String,
         request: GroupCreateRequest,
+        img: MultipartFile?,
     ): GroupResponse {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val group =
@@ -74,7 +79,7 @@ class GroupService(
                         user = user,
                         name = request.name,
                         description = request.description,
-                        img = request.img,
+                        img = img?.let { fileService.upload(it, FilePath.PROFILE.name).url },
                         isPublic = request.isPublic,
                     ),
                 ).also {
@@ -85,6 +90,7 @@ class GroupService(
                             role = GroupRole.TOP_MANAGER,
                         ).apply {
                             isAccepted = true
+                            isApproved = true
                         },
                     )
                 }

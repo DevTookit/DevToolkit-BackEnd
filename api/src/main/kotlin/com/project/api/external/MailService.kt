@@ -1,4 +1,4 @@
-package com.project.api.service
+package com.project.api.external
 
 import com.project.api.internal.EmailForm
 import jakarta.mail.Message
