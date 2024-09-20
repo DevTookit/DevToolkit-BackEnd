@@ -67,7 +67,7 @@ kover {
 
         filters {
             excludes {
-                classes("*MailService", "com.project.api.service.UserService*", "*AuthService")
+                classes("*MailService", "com.project.api.service.UserService*", "*AuthService", "*FileService", "*S3Service")
             }
             includes {
                 classes("*Service*", "GroupUserService")

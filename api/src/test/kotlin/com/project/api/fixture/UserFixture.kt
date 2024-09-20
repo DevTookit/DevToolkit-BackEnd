@@ -23,7 +23,9 @@ class UserFixture(
                 password = passwordEncoder.encode(password),
                 name = name,
                 img = img,
-            ),
+            ).apply {
+                this.isVerified = true
+            },
         )
 
     override fun tearDown() {
