@@ -33,7 +33,7 @@ jobs:
           
           if git diff --quiet origin/develop -- ${{ matrix.module }}/; then
             echo "no changes in ${{ matrix.module }}"
-            echo "changed=false" >> $GITHUB_ENV
+            echo "changed=true" >> $GITHUB_ENV
           else
             echo "changes detected in ${{ matrix.module }}"
             echo "changed=true" >> $GITHUB_ENV
