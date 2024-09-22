@@ -21,6 +21,8 @@ class User(
     var isVerified: Boolean = false
 
     var isEnabled = true
+    var isOnBoardingComplete: Boolean = false
+
     var failCount = 0
         set(value) {
             if (value >= 5) {

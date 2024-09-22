@@ -10,9 +10,12 @@ import com.project.api.web.dto.request.CategoryCreateRequest
 import com.project.api.web.dto.request.CategoryUpdateRequest
 import com.project.api.web.dto.response.CategoryCreateResponse
 import com.project.api.web.dto.response.CategoryCreateResponse.Companion.toCategoryCreateResponse
+import com.project.api.web.dto.response.CategoryResponse
+import com.project.api.web.dto.response.CategoryResponse.Companion.toResponse
 import com.project.api.web.dto.response.CategoryUpdateResponse
 import com.project.api.web.dto.response.CategoryUpdateResponse.Companion.toCategoryUpdateResponse
 import com.project.core.domain.category.Category
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,6 +28,20 @@ class CategoryService(
     private val categoryNotificationService: CategoryNotificationService,
     private val groupRepository: GroupRepository,
 ) {
+    fun readAll(
+        email: String,
+        pageable: Pageable,
+        groupId: Long,
+    ): List<CategoryResponse> {
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        return categoryRepository.findByGroup(group, pageable).map {
+            it.toResponse()
+        }
+    }
+
     @Transactional
     fun create(
         email: String,

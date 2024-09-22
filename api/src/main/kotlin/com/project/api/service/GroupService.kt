@@ -30,6 +30,17 @@ class GroupService(
     private val userRepository: UserRepository,
     private val fileService: FileService,
 ) {
+    fun readMine(
+        email: String,
+        pageable: Pageable,
+    ): List<GroupResponse> {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+
+        return groupRepository.findByUser(user, pageable).map {
+            it.toResponse()
+        }
+    }
+
     fun readAll(
         name: String?,
         pageable: Pageable,

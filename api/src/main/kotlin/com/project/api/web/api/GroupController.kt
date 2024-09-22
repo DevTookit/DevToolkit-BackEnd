@@ -30,6 +30,16 @@ import org.springframework.web.multipart.MultipartFile
 class GroupController(
     private val groupService: GroupService,
 ) {
+    @GetMapping("mine")
+    @Operation(summary = "내가 생성한 그룹들")
+    fun readMine(
+        @AuthenticationPrincipal jwt: Jwt,
+        @ParameterObject pageable: Pageable,
+    ) = groupService.readMine(
+        email = jwt.subject,
+        pageable = pageable,
+    )
+
     @GetMapping
     @Operation(summary = "그룹 검색")
     fun readAll(

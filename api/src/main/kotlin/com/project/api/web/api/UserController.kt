@@ -100,4 +100,22 @@ class UserController(
     fun readOne(
         @PathVariable userId: Long,
     ): UserResponse = userService.readOne(userId)
+
+    @GetMapping("onboarding")
+    @Operation(summary = "온보딩 다 했는지 확인")
+    fun checkOnBoarding(
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = userService.checkOnBoarding(jwt.subject)
+
+    @PatchMapping("onboarding")
+    @Operation(summary = "온보딩 완료 update(데이터 수정)")
+    fun updateOnBoarding(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam isOnBoarding: Boolean,
+    ): ResponseEntity<Unit> {
+        userService.updateOnBoarding(jwt.subject, isOnBoarding)
+        return ResponseEntity
+            .accepted()
+            .build()
+    }
 }
