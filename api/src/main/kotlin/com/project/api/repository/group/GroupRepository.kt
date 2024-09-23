@@ -13,6 +13,4 @@ interface GroupRepository :
         user: User,
         pageable: Pageable,
     ): List<Group>
-
 }
-

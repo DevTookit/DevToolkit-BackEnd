@@ -1,9 +1,9 @@
 package com.project.api.fixture
 
 import com.project.api.repository.notification.NotificationRepository
-import com.project.core.domain.category.Category
 import com.project.core.domain.group.Group
 import com.project.core.domain.notification.Notification
+import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.NotificationType
 import org.springframework.stereotype.Component
@@ -18,7 +18,7 @@ class NotificationFixture(
         type: NotificationType = NotificationType.entries.random(),
         group: Group,
         contentId: Long = Random.nextLong(),
-        category: Category? = null,
+        section: Section? = null,
     ): Notification =
         notificationRepository.save(
             Notification(
@@ -27,7 +27,7 @@ class NotificationFixture(
                 group = group,
                 contentId = contentId,
             ).apply {
-                this.category = category
+                this.section = section
             },
         )
 

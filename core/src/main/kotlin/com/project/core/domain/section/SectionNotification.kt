@@ -1,4 +1,4 @@
-package com.project.core.domain.category
+package com.project.core.domain.section
 
 import com.project.core.domain.BaseEntity
 import com.project.core.domain.group.GroupUser
@@ -10,8 +10,8 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.ManyToOne
 
 @Entity
-class CategoryNotification(
-    @ManyToOne(fetch = FetchType.LAZY) val category: Category,
+class SectionNotification(
+    @ManyToOne(fetch = FetchType.LAZY) val section: Section,
     @ManyToOne(fetch = FetchType.LAZY) val groupUser: GroupUser,
     @Enumerated(value = EnumType.STRING)
     var type: CategoryNotificationType = CategoryNotificationType.ALL,

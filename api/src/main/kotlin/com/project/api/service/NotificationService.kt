@@ -6,10 +6,10 @@ import com.project.api.repository.notification.NotificationRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.response.NotificationResponse
 import com.project.api.web.dto.response.NotificationResponse.Companion.toResponse
-import com.project.core.domain.category.Category
 import com.project.core.domain.group.Group
 import com.project.core.domain.notification.Notification
 import com.project.core.domain.notification.QNotification
+import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.NotificationType
 import com.querydsl.core.BooleanBuilder
@@ -57,7 +57,7 @@ class NotificationService(
                     ),
                 pageable,
             ).map {
-                it.toResponse(createNotificationContent(it.type, it.category, it.group))
+                it.toResponse(createNotificationContent(it.type, it.section, it.group))
             }
 
     @Transactional
@@ -74,11 +74,11 @@ class NotificationService(
 
     private fun createNotificationContent(
         type: NotificationType,
-        category: Category?,
+        section: Section?,
         group: Group,
     ): String {
         when (type) {
-            NotificationType.CONTENT -> return "${group.name}의 카테고리 ${category!!.name}에 새로운 컨텐츠가 게시되었습니다."
+            NotificationType.CONTENT -> return "${group.name}의 카테고리 ${section!!.name}에 새로운 컨텐츠가 게시되었습니다."
             NotificationType.NOTICE -> return "${group.name}에 공지사항을 확인해주세요"
             NotificationType.MENTION -> return "${group.name} 컨텐츠에 멘션되었습니다."
             else -> return "${group.name}에서 초대장을 보냈습니다."
