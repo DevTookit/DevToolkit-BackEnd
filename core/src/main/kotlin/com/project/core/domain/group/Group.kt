@@ -21,5 +21,5 @@ class Group(
     var isPublic: Boolean,
 ) : BaseEntity() {
     @OneToMany(mappedBy = "group", cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    var groupUsers: MutableSet<GroupUser> = mutableSetOf()
+    val groupUsers: MutableSet<GroupUser> = mutableSetOf()
 }
