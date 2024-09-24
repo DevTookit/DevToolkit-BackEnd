@@ -10,7 +10,6 @@ import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.FolderCreateRequest
 import com.project.api.web.dto.request.FolderUpdateRequest
-import com.project.api.web.dto.response.FolderAttachmentResponse
 import com.project.api.web.dto.response.FolderAttachmentResponse.Companion.toResponse
 import com.project.api.web.dto.response.FolderCreateResponse
 import com.project.api.web.dto.response.FolderCreateResponse.Companion.toFolderCreateResponse
@@ -110,28 +109,26 @@ class FolderContentService(
             sectionRepository.findByIdOrNull(
                 request.sectionId,
             ) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND.message)
-        var attachmentResponse: List<FolderAttachmentResponse>? = null
+
+        if (section.type != SectionType.REPOSITORY) {
+            throw RestException.badRequest(ErrorMessage.IMPOSSIBLE_CREATE_CONTENT.message)
+        }
 
         return folderRepository
             .save(
                 Folder(
                     name = request.name,
                     group = userResponse.group,
-                    section =
-                        if (section.type !=
-                            SectionType.REPOSITORY
-                        ) {
-                            throw RestException.badRequest(ErrorMessage.IMPOSSIBLE_CREATE_CONTENT.message)
-                        } else {
-                            section
-                        },
+                    section = section,
                     parent = request.parentFolderId?.let { folderRepository.findByIdOrNull(it) },
                 ),
-            ).also {
-                files?.let { files ->
-                    attachmentResponse = folderAttachmentService.create(it, files)
-                }
-            }.toFolderCreateResponse(attachmentResponse)
+            ).run {
+                toFolderCreateResponse(
+                    files?.let {
+                        folderAttachmentService.create(this, it)
+                    },
+                )
+            }
     }
 
     @Transactional

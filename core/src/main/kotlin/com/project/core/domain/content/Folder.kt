@@ -21,4 +21,7 @@ class Folder(
 ) : BaseEntity() {
     @OneToMany(mappedBy = "parent", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     val children: MutableSet<Folder> = mutableSetOf()
+
+    @OneToMany(mappedBy = "folder", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
+    val attachments: MutableSet<FolderAttachment> = mutableSetOf()
 }
