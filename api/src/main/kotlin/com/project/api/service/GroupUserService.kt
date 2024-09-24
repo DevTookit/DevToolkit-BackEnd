@@ -16,6 +16,7 @@ import com.project.api.web.dto.response.GroupUserCreateResponse
 import com.project.api.web.dto.response.GroupUserCreateResponse.Companion.toGroupUserCreateResponse
 import com.project.api.web.dto.response.GroupUserResponse
 import com.project.api.web.dto.response.GroupUserResponse.Companion.toGroupUserResponse
+import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
 import com.project.core.internal.CategoryNotificationType
@@ -33,7 +34,7 @@ class GroupUserService(
     private val groupUserRepository: GroupUserRepository,
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
-    private val categoryNotificationService: CategoryNotificationService,
+    private val sectionNotificationService: SectionNotificationService,
     private val notificationService: NotificationService,
 ) {
     @Transactional
@@ -141,21 +142,15 @@ class GroupUserService(
         groupId: Long,
         groupUserId: Long,
     ) {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
-        val group =
-            groupRepository.findByIdOrNull(groupId)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
-
-        val admin =
-            groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-        if (!admin.role.isActive() || admin.role == GroupRole.USER) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        val userResponse = validate(email, groupId)
+        if (!userResponse.groupUser.role.isAdmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         val expelUser =
-            groupUserRepository.findByIdAndGroup(groupUserId, group) ?: throw RestException.notFound(
+            groupUserRepository.findByIdAndGroup(groupUserId, userResponse.group) ?: throw RestException.notFound(
                 ErrorMessage.NOT_FOUND_GROUP_USER.message,
             )
 
-        if (admin.role == expelUser.role) {
+        if (userResponse.groupUser.role == expelUser.role) {
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
         } else {
             groupUserRepository.delete(expelUser)
@@ -167,19 +162,11 @@ class GroupUserService(
         email: String,
         request: GroupUserUpdateRequest,
     ): GroupUserResponse {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
-        val group =
-            groupRepository.findByIdOrNull(request.groupId)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
-
-        val admin =
-            groupUserRepository.findByUserAndGroup(user, group)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+        val userResponse = validate(email, request.groupId)
 
         // groupRole 거르고 만약 Manager가 Manger로 승격시키는 것은 불가능
-        if (!admin.role.isActive() ||
-            admin.role == GroupRole.USER ||
-            admin.role == request.role
+        if (!userResponse.groupUser.role.isAdmin() ||
+            userResponse.groupUser.role == request.role
         ) {
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
         }
@@ -199,7 +186,7 @@ class GroupUserService(
                 }
             }.also {
                 val categoryNotificationType = if (!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
-                categoryNotificationService.update(group, groupUser, categoryNotificationType)
+                sectionNotificationService.update(userResponse.group, groupUser, categoryNotificationType)
             }.toGroupUserResponse()
     }
 
@@ -207,15 +194,9 @@ class GroupUserService(
         email: String,
         groupId: Long,
     ): GroupRoleResponse {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
-        val group =
-            groupRepository.findByIdOrNull(groupId)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+        val userResponse = validate(email, groupId)
 
-        val groupUser =
-            groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-
-        return groupUser.toGroupRoleResponse(group.id)
+        return userResponse.groupUser.toGroupRoleResponse(userResponse.group.id)
     }
 
     fun readAll(
@@ -252,5 +233,29 @@ class GroupUserService(
             ).map {
                 it.toGroupUserResponse()
             }
+    }
+
+    private fun validate(
+        email: String,
+        groupId: Long,
+    ): UserValidateResponse {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser = (
+            groupUserRepository.findByUserAndGroup(user, group)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+        )
+
+        if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return UserValidateResponse(
+            user = user,
+            group = group,
+            groupUser = groupUser,
+        )
     }
 }

@@ -160,7 +160,10 @@ class UserService(
     }
 
     @Transactional
-    fun updateOnBoarding(email: String, isOnBoarding: Boolean) {
+    fun updateOnBoarding(
+        email: String,
+        isOnBoarding: Boolean,
+    ) {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
 
         user.apply {

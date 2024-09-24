@@ -1,8 +1,8 @@
 package com.project.core.domain.notification
 
 import com.project.core.domain.BaseEntity
-import com.project.core.domain.category.Category
 import com.project.core.domain.group.Group
+import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.NotificationType
 import jakarta.persistence.Entity
@@ -21,5 +21,5 @@ class Notification(
     var isRead = false
 
     @ManyToOne(fetch = FetchType.LAZY)
-    var category: Category? = null
+    var section: Section? = null
 }

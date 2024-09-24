@@ -1,10 +1,10 @@
 package com.project.api.service
 
 import com.project.api.commons.exception.RestException
-import com.project.api.fixture.CategoryFixture
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.NotificationFixture
+import com.project.api.fixture.SectionFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.notification.NotificationRepository
 import com.project.core.internal.NotificationType
@@ -26,7 +26,7 @@ class NotificationServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val notificationService: NotificationService,
     @Autowired private val notificationRepository: NotificationRepository,
-    @Autowired private val categoryFixture: CategoryFixture,
+    @Autowired private val sectionFixture: SectionFixture,
 ) {
     @BeforeEach
     fun setUp() {
@@ -36,7 +36,7 @@ class NotificationServiceTest(
     fun tearDown() {
         notificationFixture.tearDown()
         groupUserFixture.tearDown()
-        categoryFixture.tearDown()
+        sectionFixture.tearDown()
         groupFixture.tearDown()
         userFixture.tearDown()
     }
@@ -67,7 +67,7 @@ class NotificationServiceTest(
     fun readAllWhenTypeIsNoticeAndContent() {
         val admin = userFixture.create()
         val group = groupFixture.create(admin)
-        val category = categoryFixture.create(group = group)
+        val category = sectionFixture.create(group = group)
         val notificationUser = userFixture.create()
         val notification1 =
             notificationFixture.create(
@@ -80,7 +80,7 @@ class NotificationServiceTest(
             user = notificationUser,
             group = group,
             type = NotificationType.CONTENT,
-            category = category,
+            section = category,
         )
 
         val response =
