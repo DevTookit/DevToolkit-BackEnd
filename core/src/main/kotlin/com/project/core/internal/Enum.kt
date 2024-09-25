@@ -51,3 +51,10 @@ enum class ContentType {
     BOARD,
     FILE,
 }
+
+enum class BookmarkType {
+    FILE,
+    CODE,
+    FOLDER,
+    BOARD,
+}

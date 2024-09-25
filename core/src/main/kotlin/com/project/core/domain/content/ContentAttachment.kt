@@ -9,7 +9,8 @@ import jakarta.persistence.ManyToOne
 class ContentAttachment(
     @ManyToOne(fetch = FetchType.LAZY)
     val content: Content,
-    val name: String,
+    var name: String,
     val size: Long,
     val extension: String,
+    val url: String,
 ) : BaseEntity()
