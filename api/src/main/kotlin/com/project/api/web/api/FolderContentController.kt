@@ -48,7 +48,7 @@ class FolderContentController(
     @Operation(summary = "폴더 생성")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: FolderCreateRequest,
+        @RequestPart(name = "FolderCreateRequest") request: FolderCreateRequest,
         @PathVariable groupId: Long,
         @PathVariable sectionId: Long,
         @RequestPart(required = false) files: List<MultipartFile>?,

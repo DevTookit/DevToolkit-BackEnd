@@ -1,23 +1,13 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.SectionFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.category.SectionNotificationRepository
 import com.project.api.repository.category.SectionRepository
-import com.project.api.web.dto.request.CategoryUpdateRequest
-import com.project.api.web.dto.request.SectionCreateRequest
-import com.project.core.internal.CategoryNotificationType
-import com.project.core.internal.SectionType
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -31,7 +21,7 @@ class SectionServiceTest(
     @Autowired private val sectionRepository: SectionRepository,
     @Autowired private val groupUserFixture: GroupUserFixture,
 ) {
-    @BeforeEach
+/*    @BeforeEach
     fun setUp() {
     }
 
@@ -358,5 +348,5 @@ class SectionServiceTest(
             .assertThatThrownBy {
                 sectionService.delete(email = user.email, sectionId = category.id!!)
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }

@@ -77,7 +77,7 @@ class ContentController(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
         @PathVariable sectionId: Long,
-        @RequestPart request: ContentCreateRequest,
+        @RequestPart(name = "ContentCreateRequest") request: ContentCreateRequest,
         @RequestPart(required = false) files: List<MultipartFile>?,
     ): ContentCreateResponse =
         contentService.create(
@@ -92,7 +92,7 @@ class ContentController(
     @Operation(summary = "컨텐츠 수정(코드, 게시판형)")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: ContentUpdateRequest,
+        @RequestPart(value = "ContentUpdateRequest") request: ContentUpdateRequest,
         @PathVariable groupId: Long,
         @PathVariable sectionId: Long,
         @RequestPart(required = false) files: List<MultipartFile>?,

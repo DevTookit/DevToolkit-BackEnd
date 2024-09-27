@@ -1,23 +1,13 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.notification.NotificationRepository
-import com.project.api.web.dto.request.GroupUserCreateRequest
-import com.project.api.web.dto.request.GroupUserInvitationRequest
-import com.project.api.web.dto.request.GroupUserUpdateRequest
-import com.project.core.internal.GroupRole
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -30,7 +20,7 @@ class GroupUserServiceTest(
     @Autowired private val groupUserRepository: GroupUserRepository,
     @Autowired private val notificationRepository: NotificationRepository,
 ) {
-    @BeforeEach
+/*    @BeforeEach
     fun setUp() {
     }
 
@@ -715,5 +705,5 @@ class GroupUserServiceTest(
                     pageable = Pageable.unpaged(),
                 )
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }

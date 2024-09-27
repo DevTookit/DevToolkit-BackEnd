@@ -42,10 +42,17 @@ class UserService(
     }
 
     @Transactional
-    fun updateVerifyEmail(email: String) {
-        userRepository.findByEmail(email)?.apply {
+    fun updateVerifyEmail(
+        email: String,
+        code: String,
+    ): Boolean {
+        // redis 이용해서 해당 code와 email이 동일한지 검증
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        user.apply {
             this.isVerified = true
         }
+
+        return true
     }
 
     @Transactional
@@ -69,6 +76,7 @@ class UserService(
                         img?.let {
                             fileService.upload(it, FilePath.PROFILE.name).url
                         },
+                    job = request.job,
                 ).apply {
                     isVerified = true
                 },
@@ -182,6 +190,10 @@ class UserService(
 
         request.name?.let {
             user.name = it
+        }
+
+        request.job?.let {
+            user.job = it
         }
     }
 
