@@ -43,7 +43,7 @@ class FolderAttachmentController(
     @Operation(summary = "파일 생성")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: FolderAttachmentCreateRequest,
+        @RequestPart(name = "FolderAttachmentCreateRequest") request: FolderAttachmentCreateRequest,
         @RequestPart files: List<MultipartFile>,
     ) = folderAttachmentService.create(jwt.subject, request, files)
 

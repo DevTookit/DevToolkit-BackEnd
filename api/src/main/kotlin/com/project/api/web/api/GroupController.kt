@@ -58,7 +58,7 @@ class GroupController(
     @Operation(summary = "그룹 생성")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: GroupCreateRequest,
+        @RequestPart(name = "GroupCreateRequest") request: GroupCreateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): GroupResponse = groupService.create(jwt.subject, request, img)
 
@@ -67,6 +67,7 @@ class GroupController(
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: GroupUpdateRequest,
+        // TODO 이미지 추가
     ): GroupResponse = groupService.update(jwt.subject, request)
 
     @DeleteMapping

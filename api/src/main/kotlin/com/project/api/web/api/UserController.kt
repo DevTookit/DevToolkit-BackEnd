@@ -85,7 +85,7 @@ class UserController(
     @Operation(summary = "내정보 수정")
     fun updatePassword(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: UserUpdateRequest,
+        @RequestPart(name = "UserUpdateRequest") request: UserUpdateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): UserResponse = userService.update(jwt.subject, request, img)
 
