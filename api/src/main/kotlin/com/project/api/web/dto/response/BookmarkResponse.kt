@@ -2,7 +2,6 @@ package com.project.api.web.dto.response
 
 import com.project.core.domain.content.Content
 import com.project.core.domain.content.Folder
-import com.project.core.domain.content.FolderAttachment
 import com.project.core.internal.BookmarkType
 
 data class BookmarkResponse(
@@ -17,7 +16,7 @@ data class BookmarkResponse(
                 bookmarkId = bookmarkId,
                 contentId = this.id,
                 type = BookmarkType.valueOf(this.type.name),
-                name = this.title,
+                name = this.name,
             )
 
         fun Folder.toBookmarkResponse(bookmarkId: Long?) =
@@ -25,14 +24,6 @@ data class BookmarkResponse(
                 bookmarkId = bookmarkId,
                 contentId = this.id,
                 type = BookmarkType.FOLDER,
-                name = this.name,
-            )
-
-        fun FolderAttachment.toBookmarkResponse(bookmarkId: Long?) =
-            BookmarkResponse(
-                bookmarkId = bookmarkId,
-                contentId = this.id,
-                type = BookmarkType.FILE,
                 name = this.name,
             )
     }

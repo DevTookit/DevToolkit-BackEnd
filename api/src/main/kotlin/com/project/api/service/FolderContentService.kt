@@ -2,8 +2,9 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
+import com.project.api.internal.SortType
 import com.project.api.repository.category.SectionRepository
-import com.project.api.repository.content.FolderAttachmentRepository
+import com.project.api.repository.content.ContentRepository
 import com.project.api.repository.content.FolderRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
@@ -13,13 +14,13 @@ import com.project.api.web.dto.request.FolderUpdateRequest
 import com.project.api.web.dto.response.FolderAttachmentResponse.Companion.toResponse
 import com.project.api.web.dto.response.FolderCreateResponse
 import com.project.api.web.dto.response.FolderCreateResponse.Companion.toFolderCreateResponse
+import com.project.api.web.dto.response.FolderReadResponse
+import com.project.api.web.dto.response.FolderReadResponse.Companion.toFolderReadResponse
 import com.project.api.web.dto.response.FolderResponse
 import com.project.api.web.dto.response.FolderResponse.Companion.toResponse
-import com.project.api.web.dto.response.FolderSubResponse.Companion.toFolderSubResponse
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.content.Folder
 import com.project.core.internal.SectionType
-import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 class FolderContentService(
     private val folderRepository: FolderRepository,
-    private val folderAttachmentRepository: FolderAttachmentRepository,
+    private val contentRepository: ContentRepository,
     private val sectionRepository: SectionRepository,
     private val userRepository: UserRepository,
     private val groupRepository: GroupRepository,
@@ -37,7 +38,7 @@ class FolderContentService(
 ) {
     fun readAll(
         email: String,
-        pageable: Pageable,
+        sortType: SortType,
         groupId: Long,
         sectionId: Long,
         parentFolderId: Long?,
@@ -63,51 +64,69 @@ class FolderContentService(
                         group = userResponse.group,
                         section = section,
                         parent = parentFolder,
-                        pageable = pageable,
                     ).map {
-                        it.toFolderSubResponse()
+                        it.toFolderReadResponse()
                     }
 
             val subAttachments =
-                folderAttachmentRepository
+                contentRepository
                     .findByFolder(parentFolder)
                     .map {
-                        it.toResponse()
+                        it.toFolderReadResponse()
                     }
 
+            val combinedList = (subFolders + subAttachments).sortedWith(getSortComparator(sortType))
+
+            // parentFolder의 응답 생성
             parentFolder.toResponse(
-                attachments = subAttachments,
-                subFolders = subFolders,
+                lists = combinedList,
             )
         } ?: run {
-            val subFolders =
+            val lists =
                 folderRepository
                     .findByGroupAndSectionAndParentIsNull(
                         group = userResponse.group,
                         section = section,
-                        pageable = pageable,
                     ).map {
-                        it.toFolderSubResponse()
+                        it.toFolderReadResponse()
                     }
 
             FolderResponse(
                 parentId = null,
                 name = null,
-                subFolders = subFolders,
+                lists = lists.sortedWith(getSortComparator(sortType)),
             )
         }
     }
+
+    fun getSortComparator(sortType: SortType): Comparator<FolderReadResponse> =
+        when (sortType) {
+            SortType.NEW ->
+                Comparator { o1, o2 ->
+                    compareValuesBy(o1, o2, { it.lastModifiedDate })
+                }
+            SortType.NAME ->
+                Comparator { o1, o2 ->
+                    compareValuesBy(o1, o2, { it.name })
+                }
+            SortType.DEFAULT ->
+                Comparator { o1, o2 ->
+                    compareValuesBy(o1, o2, { it.id })
+                }
+        }
 
     @Transactional
     fun create(
         email: String,
         request: FolderCreateRequest,
+        groupId: Long,
+        sectionId: Long,
         files: List<MultipartFile>?,
     ): FolderCreateResponse {
-        val userResponse = validate(email, request.groupId)
+        val userResponse = validate(email, groupId)
         val section =
             sectionRepository.findByIdOrNull(
-                request.sectionId,
+                sectionId,
             ) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND.message)
 
         if (section.type != SectionType.REPOSITORY) {
@@ -125,7 +144,7 @@ class FolderContentService(
             ).run {
                 toFolderCreateResponse(
                     files?.let {
-                        folderAttachmentService.create(this, it)
+                        folderAttachmentService.create(this, it, userResponse)
                     },
                 )
             }
@@ -134,9 +153,11 @@ class FolderContentService(
     @Transactional
     fun update(
         email: String,
+        groupId: Long,
+        sectionId: Long,
         request: FolderUpdateRequest,
     ): FolderResponse {
-        validate(email, request.groupId)
+        validate(email, groupId)
         val folder =
             folderRepository.findByIdOrNull(request.folderId)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND.message)

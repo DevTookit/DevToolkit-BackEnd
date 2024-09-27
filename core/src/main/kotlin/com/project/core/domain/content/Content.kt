@@ -1,6 +1,7 @@
 package com.project.core.domain.content
 
 import com.project.core.domain.BaseEntity
+import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.internal.ContentType
@@ -14,16 +15,24 @@ import jakarta.persistence.OneToMany
 
 @Entity
 class Content(
-    var title: String,
+    var name: String,
     @ManyToOne(fetch = FetchType.LAZY)
     var groupUser: GroupUser,
+    @ManyToOne(fetch = FetchType.LAZY)
+    var group: Group,
     @ManyToOne(fetch = FetchType.LAZY)
     val section: Section,
     @Enumerated(EnumType.STRING)
     val type: ContentType,
-    var content: String,
+    var content: String?,
 ) : BaseEntity() {
     var codeDescription: String? = null
+    var size: Long? = null
+    var extension: String? = null
+    var url: String? = null
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    var folder: Folder? = null
 
     @OneToMany(mappedBy = "content", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     var languages: MutableSet<ContentLanguage> = mutableSetOf()

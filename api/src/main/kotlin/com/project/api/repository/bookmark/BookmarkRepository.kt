@@ -12,4 +12,9 @@ interface BookmarkRepository :
         id: Long,
         user: User,
     ): Bookmark?
+
+    fun existsByContentIdAndUser(
+        contentId: Long,
+        user: User,
+    ): Boolean
 }

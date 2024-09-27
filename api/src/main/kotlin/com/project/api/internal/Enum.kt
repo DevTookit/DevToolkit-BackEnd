@@ -36,3 +36,15 @@ enum class FilePath {
     PROFILE,
     CONTENT,
 }
+
+enum class SortType {
+    NEW,
+    NAME,
+    DEFAULT,
+}
+
+enum class FolderReadType {
+    FILE,
+    FOLDER,
+    DEFAULT,
+}

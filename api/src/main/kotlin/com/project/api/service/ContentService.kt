@@ -4,6 +4,7 @@ import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
 import com.project.api.internal.FilePath
+import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.content.ContentAttachmentRepository
 import com.project.api.repository.content.ContentLanguageRepository
@@ -18,6 +19,7 @@ import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentCreateResponse.Companion.toContentCreateResponse
 import com.project.api.web.dto.response.ContentResponse
 import com.project.api.web.dto.response.ContentResponse.Companion.toResponse
+import com.project.api.web.dto.response.ContentSearchResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
 import com.project.api.web.dto.response.ContentUpdateResponse.Companion.toContentUpdateResponse
 import com.project.api.web.dto.response.UserValidateResponse
@@ -25,8 +27,11 @@ import com.project.core.domain.content.Content
 import com.project.core.domain.content.ContentAttachment
 import com.project.core.domain.content.ContentLanguage
 import com.project.core.domain.content.ContentSkill
+import com.project.core.domain.group.QGroup.group
+import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
 import com.project.core.internal.SectionType
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -42,8 +47,53 @@ class ContentService(
     private val groupRepository: GroupRepository,
     private val groupUserRepository: GroupUserRepository,
     private val sectionRepository: SectionRepository,
+    private val bookmarkRepository: BookmarkRepository,
     private val fileService: FileService,
 ) {
+    fun readAll(
+        email: String,
+        groupId: Long?,
+        name: String?,
+        languages: List<String>?,
+        skills: List<String>?,
+        writer: String?,
+        startDate: Long?,
+        endDate: Long?,
+        pageable: Pageable,
+        type: ContentType?,
+    ): List<ContentSearchResponse> {
+        var user: User
+
+        if (groupId == null) {
+            user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        } else {
+            user = validate(email, groupId).user
+        }
+        return contentRepository
+            .search(
+                user = user,
+                groupId = groupId,
+                name = name,
+                languages =
+                    languages?.map {
+                        it.lowercase().replaceFirstChar { it.uppercase() }
+                    },
+                skills =
+                    skills?.map {
+                        it.lowercase().replaceFirstChar { it.uppercase() }
+                    },
+                writer = writer,
+                startDate = startDate,
+                endDate = endDate,
+                pageable = pageable,
+                type = type,
+            ).map {
+                val isBookmark = bookmarkRepository.existsByContentIdAndUser(it.contentId!!, user)
+                it.isBookmark = isBookmark
+                return@map it
+            }
+    }
+
     fun read(
         email: String,
         groupId: Long,
@@ -79,11 +129,12 @@ class ContentService(
         return contentRepository
             .save(
                 Content(
-                    title = request.name,
+                    name = request.name,
                     groupUser = userResponse.groupUser,
                     section = section,
                     type = request.type,
                     content = request.content,
+                    group = userResponse.group,
                 ).apply {
                     if (request.type == ContentType.CODE) {
                         this.codeDescription = request.codeDescription
@@ -138,7 +189,7 @@ class ContentService(
         files: List<MultipartFile>?,
     ) {
         request.name?.let {
-            this.title = it
+            this.name = it
         }
         request.content?.let {
             this.content = it

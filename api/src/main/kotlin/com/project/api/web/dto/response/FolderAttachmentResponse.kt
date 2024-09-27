@@ -1,6 +1,6 @@
 package com.project.api.web.dto.response
 
-import com.project.core.domain.content.FolderAttachment
+import com.project.core.domain.content.Content
 
 data class FolderAttachmentResponse(
     val name: String,
@@ -12,13 +12,13 @@ data class FolderAttachmentResponse(
     val lastModifiedDate: Long?,
 ) {
     companion object {
-        fun FolderAttachment.toResponse(): FolderAttachmentResponse =
+        fun Content.toResponse(): FolderAttachmentResponse =
             FolderAttachmentResponse(
                 name = name,
                 id = id,
-                extension = extension,
-                size = size,
-                url = url,
+                extension = extension!!,
+                size = size!!,
+                url = url!!,
                 createdAt = createdDate,
                 lastModifiedDate = lastModifiedDate,
             )

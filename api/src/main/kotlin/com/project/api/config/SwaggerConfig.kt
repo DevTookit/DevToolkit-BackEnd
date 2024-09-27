@@ -21,6 +21,7 @@ class SwaggerConfig {
         OpenAPI()
             .info(
                 Info()
+                    .description("request와 reponse에 대한 값들은 밑에 schemas를 참고해주세요")
                     .title("DevToolKit API")
                     .version("1.0"),
             ).addSecurityItem(SecurityRequirement().addList("AUTHORIZATION"))

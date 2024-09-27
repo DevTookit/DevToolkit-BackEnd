@@ -6,7 +6,10 @@ import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
+import com.project.core.internal.ContentType
 import io.swagger.v3.oas.annotations.Operation
+import org.springdoc.core.annotations.ParameterObject
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -23,17 +26,43 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/v1/contents/{groupId}/{sectionId}")
+@RequestMapping("/v1/contents/{groupId}")
 class ContentController(
     private val contentService: ContentService,
 ) {
     @GetMapping
-    @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형)")
+    @Operation(summary = "컨텐츠 검색(코드, 게시판형, 파일)")
+    fun readAll(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable groupId: Long?,
+        @RequestParam name: String?,
+        @RequestParam languages: List<String>?,
+        @RequestParam skills: List<String>?,
+        @RequestParam writer: String?,
+        @RequestParam startDate: Long?,
+        @RequestParam endDate: Long?,
+        @RequestParam type: ContentType?,
+        @ParameterObject pageable: Pageable,
+    ) = contentService.readAll(
+        email = jwt.subject,
+        groupId = groupId,
+        name = name,
+        languages = languages,
+        skills = skills,
+        writer = writer,
+        startDate = startDate,
+        endDate = endDate,
+        pageable = pageable,
+        type = type,
+    )
+
+    @GetMapping("/{sectionId}/{contentId}")
+    @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형, 파일)")
     fun read(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
         @PathVariable sectionId: Long,
-        @RequestParam contentId: Long,
+        @PathVariable contentId: Long,
     ): ContentResponse =
         contentService.read(
             email = jwt.subject,
@@ -42,7 +71,7 @@ class ContentController(
             contentId = contentId,
         )
 
-    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(path = ["/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 생성(코드, 게시판형)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
@@ -59,7 +88,7 @@ class ContentController(
             files = files,
         )
 
-    @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PatchMapping(path = ["/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 수정(코드, 게시판형)")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
@@ -76,7 +105,7 @@ class ContentController(
             files = files,
         )
 
-    @DeleteMapping
+    @DeleteMapping("/{sectionId}")
     @Operation(summary = "컨텐츠 삭제(코드, 게시판형)")
     fun delete(
         @AuthenticationPrincipal jwt: Jwt,

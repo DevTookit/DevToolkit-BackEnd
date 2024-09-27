@@ -4,7 +4,7 @@ import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
 import com.project.api.internal.FilePath
-import com.project.api.repository.content.FolderAttachmentRepository
+import com.project.api.repository.content.ContentRepository
 import com.project.api.repository.content.FolderRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
@@ -14,8 +14,9 @@ import com.project.api.web.dto.request.FolderAttachmentUpdateRequest
 import com.project.api.web.dto.response.FolderAttachmentResponse
 import com.project.api.web.dto.response.FolderAttachmentResponse.Companion.toResponse
 import com.project.api.web.dto.response.UserValidateResponse
+import com.project.core.domain.content.Content
 import com.project.core.domain.content.Folder
-import com.project.core.domain.content.FolderAttachment
+import com.project.core.internal.ContentType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 class FolderAttachmentService(
-    private val folderAttachmentRepository: FolderAttachmentRepository,
+    private val contentRepository: ContentRepository,
     private val folderRepository: FolderRepository,
     private val fileService: FileService,
     private val userRepository: UserRepository,
@@ -33,12 +34,13 @@ class FolderAttachmentService(
     fun readOne(
         email: String,
         groupId: Long,
+        sectionId: Long,
         folderAttachmentId: Long,
     ): FolderAttachmentResponse {
         validate(email, groupId)
         val attachment =
-            folderAttachmentRepository
-                .findByIdOrNull(folderAttachmentId)
+            contentRepository
+                .findByIdAndType(folderAttachmentId, ContentType.FILE)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER_FILE.message)
         return attachment.toResponse()
     }
@@ -49,7 +51,7 @@ class FolderAttachmentService(
         request: FolderAttachmentCreateRequest,
         files: List<MultipartFile>,
     ): List<FolderAttachmentResponse> {
-        validate(email, request.groupId)
+        val userResponse = validate(email, request.groupId)
         val parentFolder =
             folderRepository.findByIdOrNull(request.parentFolderId) ?: throw RestException.notFound(
                 ErrorMessage.NOT_FOUND_FOLDER.message,
@@ -58,15 +60,21 @@ class FolderAttachmentService(
         return files.map {
             val response = fileService.upload(it, FilePath.CONTENT.name)
             if (response.isSuccess) {
-                folderAttachmentRepository
+                contentRepository
                     .save(
-                        FolderAttachment(
-                            folder = parentFolder,
+                        Content(
                             name = it.name,
-                            size = it.size,
-                            extension = createExtension(it),
-                            url = response.url!!,
-                        ),
+                            groupUser = userResponse.groupUser,
+                            section = parentFolder.section,
+                            type = ContentType.FILE,
+                            content = null,
+                            group = userResponse.group,
+                        ).apply {
+                            folder = parentFolder
+                            size = it.size
+                            extension = createExtension(it)
+                            url = response.url
+                        },
                     ).toResponse()
             } else {
                 throw RestException.badRequest(message = response.errorMessage!!)
@@ -81,7 +89,7 @@ class FolderAttachmentService(
     ): FolderAttachmentResponse {
         validate(email, request.groupId)
         val folderAttachment =
-            folderAttachmentRepository.findByIdOrNull(request.folderAttachmentId) ?: throw RestException.notFound(
+            contentRepository.findByIdAndType(request.folderAttachmentId, ContentType.FILE) ?: throw RestException.notFound(
                 ErrorMessage.NOT_FOUND_FOLDER_FILE.message,
             )
         return folderAttachment
@@ -94,30 +102,38 @@ class FolderAttachmentService(
     fun delete(
         email: String,
         groupId: Long,
+        sectionId: Long,
         folderAttachmentId: Long,
     ) {
         validate(email, groupId)
-        folderAttachmentRepository.deleteById(folderAttachmentId)
+        contentRepository.deleteById(folderAttachmentId)
     }
 
     @Transactional
     fun create(
         folder: Folder,
         files: List<MultipartFile>,
+        userResponse: UserValidateResponse,
     ): List<FolderAttachmentResponse> =
         files.map { file ->
             val response = fileService.upload(file, FilePath.CONTENT.name)
 
             if (response.isSuccess) {
-                folderAttachmentRepository
+                contentRepository
                     .save(
-                        FolderAttachment(
-                            folder = folder,
-                            name = file.name,
-                            size = file.size,
-                            extension = createExtension(file),
-                            url = response.url!!,
-                        ),
+                        Content(
+                            name = file.originalFilename!!,
+                            groupUser = userResponse.groupUser,
+                            section = folder.section,
+                            type = ContentType.FILE,
+                            content = null,
+                            group = userResponse.group,
+                        ).apply {
+                            this.folder = folder
+                            size = file.size
+                            extension = createExtension(file)
+                            url = response.url
+                        },
                     ).toResponse()
             } else {
                 throw RestException.badRequest(message = response.errorMessage!!)

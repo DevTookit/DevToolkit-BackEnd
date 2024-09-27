@@ -4,7 +4,6 @@ import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
 import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.repository.content.ContentRepository
-import com.project.api.repository.content.FolderAttachmentRepository
 import com.project.api.repository.content.FolderRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
@@ -32,7 +31,6 @@ class BookmarkService(
     private val groupUserRepository: GroupUserRepository,
     private val userRepository: UserRepository,
     private val folderRepository: FolderRepository,
-    private val folderAttachmentRepository: FolderAttachmentRepository,
     private val contentRepository: ContentRepository,
 ) {
     fun readAll(
@@ -105,7 +103,7 @@ class BookmarkService(
             }
             else -> {
                 val folderAttachment =
-                    folderAttachmentRepository.findByIdOrNull(bookmark.contentId) ?: throw RestException.notFound(
+                    contentRepository.findByIdOrNull(bookmark.contentId) ?: throw RestException.notFound(
                         ErrorMessage.NOT_FOUND_FOLDER_FILE.message,
                     )
                 return folderAttachment.toBookmarkResponse(bookmark.id)
@@ -133,7 +131,7 @@ class BookmarkService(
             }
             else -> {
                 val folderAttachment =
-                    folderAttachmentRepository.findByIdOrNull(contentId) ?: throw RestException.notFound(
+                    contentRepository.findByIdOrNull(contentId) ?: throw RestException.notFound(
                         ErrorMessage.NOT_FOUND_FOLDER_FILE.message,
                     )
                 return folderAttachment.id!!

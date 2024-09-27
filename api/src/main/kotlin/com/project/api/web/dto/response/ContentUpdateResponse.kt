@@ -15,7 +15,7 @@ data class ContentUpdateResponse(
     companion object {
         fun Content.toContentUpdateResponse(): ContentUpdateResponse =
             ContentUpdateResponse(
-                name = this.title,
+                name = this.name,
                 content = this.content,
                 description = this.codeDescription,
                 type = this.type,

@@ -12,7 +12,7 @@ data class ContentCreateResponse(
         fun Content.toContentCreateResponse() =
             ContentCreateResponse(
                 contentId = this.id,
-                name = this.title,
+                name = this.name,
                 type = this.type,
             )
     }

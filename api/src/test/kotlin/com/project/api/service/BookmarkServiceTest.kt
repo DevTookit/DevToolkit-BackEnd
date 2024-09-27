@@ -2,7 +2,7 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.fixture.BookmarkFixture
-import com.project.api.fixture.FolderAttachmentFixture
+import com.project.api.fixture.ContentFixture
 import com.project.api.fixture.FolderFixture
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
@@ -11,9 +11,11 @@ import com.project.api.fixture.UserFixture
 import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.web.dto.request.BookmarkCreateRequest
 import com.project.core.domain.group.Group
+import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.BookmarkType
+import com.project.core.internal.ContentType
 import com.project.core.internal.GroupRole
 import com.project.core.internal.SectionType
 import org.assertj.core.api.Assertions
@@ -36,25 +38,27 @@ class BookmarkServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val sectionFixture: SectionFixture,
     @Autowired private val folderFixture: FolderFixture,
-    @Autowired private val folderAttachmentFixture: FolderAttachmentFixture,
     @Autowired private val bookmarkRepository: BookmarkRepository,
+    @Autowired private val contentFixture: ContentFixture,
 ) {
     lateinit var user: User
     lateinit var group: Group
     lateinit var section: Section
+    lateinit var groupUser: GroupUser
 
     @BeforeEach
     fun setUp() {
         user = userFixture.create()
         group = groupFixture.create(user)
+        groupUser = groupUserFixture.create(user = userFixture.create(), group = group)
         section = sectionFixture.create(group = group, type = SectionType.REPOSITORY)
     }
 
     @AfterEach
     fun tearDown() {
         bookmarkFixture.tearDown()
-        folderAttachmentFixture.tearDown()
         folderFixture.tearDown()
+        contentFixture.tearDown()
         sectionFixture.tearDown()
         groupUserFixture.tearDown()
         groupFixture.tearDown()
@@ -64,7 +68,14 @@ class BookmarkServiceTest(
     @Test
     fun readAll() {
         val folder = folderFixture.create(section = section, group = group)
-        val folderAttachment = folderAttachmentFixture.create(folder = folder)
+        val folderAttachment =
+            contentFixture.create(
+                groupUser = groupUser,
+                group = group,
+                section = section,
+                type = ContentType.FILE,
+                folder = folder,
+            )
         bookmarkFixture.create(
             contentId = folder.id!!,
             group = group,
@@ -114,7 +125,14 @@ class BookmarkServiceTest(
     @Test
     fun readAllTypeIsFile() {
         val folder = folderFixture.create(section = section, group = group)
-        val folderAttachment = folderAttachmentFixture.create(folder = folder)
+        val folderAttachment =
+            contentFixture.create(
+                groupUser = groupUser,
+                group = group,
+                section = section,
+                type = ContentType.FILE,
+                folder = folder,
+            )
         bookmarkFixture.create(
             contentId = folder.id!!,
             group = group,
@@ -155,7 +173,14 @@ class BookmarkServiceTest(
     @Test
     fun readAllNotFoundFolder() {
         val folder = folderFixture.create(section = section, group = group)
-        val folderAttachment = folderAttachmentFixture.create(folder = folder)
+        val folderAttachment =
+            contentFixture.create(
+                groupUser = groupUser,
+                group = group,
+                section = section,
+                type = ContentType.FILE,
+                folder = folder,
+            )
         bookmarkFixture.create(
             contentId = 100L,
             group = group,
