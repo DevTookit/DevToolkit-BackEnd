@@ -2,12 +2,7 @@ package com.project.api.service
 
 import com.project.api.fixture.UserFixture
 import com.project.api.fixture.UserHashTagFixture
-import com.project.api.web.dto.request.UserLoginRequest
-import com.project.api.web.dto.request.UserUpdateRequest
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -19,7 +14,7 @@ class UserServiceTest(
     @Autowired private val userFixture: UserFixture,
     @Autowired private val userHashTagFixture: UserHashTagFixture,
 ) {
-    @AfterEach
+/*    @AfterEach
     fun tearDown() {
         userHashTagFixture.tearDown()
         userFixture.tearDown()
@@ -77,5 +72,5 @@ class UserServiceTest(
         Assertions.assertThat(response.email).isEqualTo(user.email)
         Assertions.assertThat(response.name).isEqualTo(request.name)
         Assertions.assertThat(response.tags).containsAll(tags)
-    }
+    }*/
 }

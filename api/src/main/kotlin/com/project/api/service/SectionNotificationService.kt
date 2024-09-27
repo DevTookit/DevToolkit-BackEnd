@@ -2,39 +2,39 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
-import com.project.api.repository.category.CategoryNotificationRepository
-import com.project.api.repository.category.CategoryRepository
+import com.project.api.repository.category.SectionNotificationRepository
+import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
-import com.project.api.web.dto.request.CategoryNotificationUpdateRequest
+import com.project.api.web.dto.request.SectionNotificationUpdateRequest
 import com.project.api.web.dto.response.CategoryNotificationUpdateResponse
 import com.project.api.web.dto.response.CategoryNotificationUpdateResponse.Companion.toCategoryNotificationUpdateResponse
-import com.project.core.domain.category.Category
-import com.project.core.domain.category.CategoryNotification
 import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
+import com.project.core.domain.section.Section
+import com.project.core.domain.section.SectionNotification
 import com.project.core.internal.CategoryNotificationType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class CategoryNotificationService(
-    private val categoryNotificationRepository: CategoryNotificationRepository,
-    private val categoryRepository: CategoryRepository,
+class SectionNotificationService(
+    private val sectionNotificationRepository: SectionNotificationRepository,
+    private val sectionRepository: SectionRepository,
     private val userRepository: UserRepository,
     private val groupUserRepository: GroupUserRepository,
     private val groupRepository: GroupRepository,
 ) {
     @Transactional
     fun create(
-        category: Category,
+        section: Section,
         groupUser: GroupUser,
     ) {
-        categoryNotificationRepository.save(
-            CategoryNotification(
-                category = category,
+        sectionNotificationRepository.save(
+            SectionNotification(
+                section = section,
                 groupUser = groupUser,
             ),
         )
@@ -43,7 +43,7 @@ class CategoryNotificationService(
     @Transactional
     fun update(
         email: String,
-        request: CategoryNotificationUpdateRequest,
+        request: SectionNotificationUpdateRequest,
     ): CategoryNotificationUpdateResponse {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val group =
@@ -58,25 +58,25 @@ class CategoryNotificationService(
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
         }
 
-        val category =
-            categoryRepository.findByIdOrNull(request.categoryId) ?: throw RestException.notFound(
-                ErrorMessage.NOT_FOUND_CATEGORY.message,
+        val section =
+            sectionRepository.findByIdAndParentIsNull(request.sectionId) ?: throw RestException.notFound(
+                ErrorMessage.IMPOSSIBLE_NOTIFICATION.message,
             )
 
-        val categoryNotification =
-            categoryNotificationRepository.findByCategoryAndGroupUser(category, groupUser)?.apply {
+        val sectionNotification =
+            sectionNotificationRepository.findBySectionAndGroupUser(section, groupUser)?.apply {
                 this.type = request.type
             } ?: run {
-                categoryNotificationRepository.save(
-                    CategoryNotification(
-                        category = category,
+                sectionNotificationRepository.save(
+                    SectionNotification(
+                        section = section,
                         groupUser = groupUser,
                         type = request.type,
                     ),
                 )
             }
 
-        return categoryNotification.toCategoryNotificationUpdateResponse(category.id)
+        return sectionNotification.toCategoryNotificationUpdateResponse(section.id)
     }
 
     @Transactional
@@ -85,19 +85,19 @@ class CategoryNotificationService(
         groupUser: GroupUser,
         type: CategoryNotificationType,
     ) {
-        categoryRepository
-            .findByGroup(group)
-            .map { category ->
-                categoryNotificationRepository
-                    .findByCategoryAndGroupUser(
-                        category,
+        sectionRepository
+            .findByGroupAndParentIsNull(group)
+            .map { section ->
+                sectionNotificationRepository
+                    .findBySectionAndGroupUser(
+                        section,
                         groupUser,
                     )?.apply {
                         this.type = type
                     } ?: run {
-                    categoryNotificationRepository.save(
-                        CategoryNotification(
-                            category = category,
+                    sectionNotificationRepository.save(
+                        SectionNotification(
+                            section = section,
                             groupUser = groupUser,
                             type = type,
                         ),

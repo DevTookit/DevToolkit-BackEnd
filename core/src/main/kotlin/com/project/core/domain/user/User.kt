@@ -14,6 +14,7 @@ class User(
     val email: String,
     var password: String,
     var name: String,
+    var job: String?,
     var img: String?,
 ) : BaseEntity() {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
@@ -21,6 +22,8 @@ class User(
     var isVerified: Boolean = false
 
     var isEnabled = true
+    var isOnBoardingComplete: Boolean = false
+
     var failCount = 0
         set(value) {
             if (value >= 5) {

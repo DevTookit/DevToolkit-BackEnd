@@ -41,16 +41,14 @@ class UserController(
     @PatchMapping("verify-email")
     @Operation(summary = "이메일 인증 성공시", description = "인증코드 일치시 해당 요청보내줘야 로그인 가능")
     fun updateVerifyEmail(
+        @RequestParam code: String,
         @RequestParam email: String,
-    ): ResponseEntity<Unit> {
-        userService.updateVerifyEmail(email)
-        return ResponseEntity.accepted().build()
-    }
+    ): Boolean = userService.updateVerifyEmail(code = code, email = email)
 
     @PostMapping("create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "유저 생성")
     fun create(
-        @Valid @RequestPart request: UserCreateRequest,
+        @Valid @RequestPart(value = "UserCreateRequest") request: UserCreateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): ResponseEntity<Unit> {
         userService.create(request, img)
@@ -85,7 +83,7 @@ class UserController(
     @Operation(summary = "내정보 수정")
     fun updatePassword(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: UserUpdateRequest,
+        @RequestPart(name = "UserUpdateRequest") request: UserUpdateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): UserResponse = userService.update(jwt.subject, request, img)
 
@@ -100,4 +98,22 @@ class UserController(
     fun readOne(
         @PathVariable userId: Long,
     ): UserResponse = userService.readOne(userId)
+
+    @GetMapping("onboarding")
+    @Operation(summary = "온보딩 다 했는지 확인")
+    fun checkOnBoarding(
+        @AuthenticationPrincipal jwt: Jwt,
+    ) = userService.checkOnBoarding(jwt.subject)
+
+    @PatchMapping("onboarding")
+    @Operation(summary = "온보딩 완료 update(데이터 수정)")
+    fun updateOnBoarding(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam isOnBoarding: Boolean,
+    ): ResponseEntity<Unit> {
+        userService.updateOnBoarding(jwt.subject, isOnBoarding)
+        return ResponseEntity
+            .accepted()
+            .build()
+    }
 }

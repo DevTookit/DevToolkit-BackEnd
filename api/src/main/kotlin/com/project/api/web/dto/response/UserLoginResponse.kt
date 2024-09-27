@@ -6,6 +6,7 @@ data class UserLoginResponse(
     val token: TokenResponse,
     val email: String,
     val id: Long?,
+    val isOnBoardingComplete: Boolean,
 ) {
     companion object {
         fun User.toUserLoginResponse(tokenResponse: TokenResponse) =
@@ -13,6 +14,7 @@ data class UserLoginResponse(
                 token = tokenResponse,
                 email = email,
                 id = id,
+                isOnBoardingComplete = isOnBoardingComplete,
             )
     }
 }

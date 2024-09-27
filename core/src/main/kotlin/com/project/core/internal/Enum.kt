@@ -40,3 +40,21 @@ enum class NotificationType {
     INVITATION,
     NOTICE,
 }
+
+enum class SectionType {
+    MENU,
+    REPOSITORY,
+}
+
+enum class ContentType {
+    CODE,
+    BOARD,
+    FILE,
+}
+
+enum class BookmarkType {
+    FILE,
+    CODE,
+    FOLDER,
+    BOARD,
+}

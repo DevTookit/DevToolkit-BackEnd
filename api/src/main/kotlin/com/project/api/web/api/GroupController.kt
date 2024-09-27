@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
@@ -30,6 +29,23 @@ import org.springframework.web.multipart.MultipartFile
 class GroupController(
     private val groupService: GroupService,
 ) {
+    @GetMapping("mine")
+    @Operation(summary = "내가 생성한 그룹들")
+    fun readMine(
+        @AuthenticationPrincipal jwt: Jwt,
+        @ParameterObject pageable: Pageable,
+    ) = groupService.readMine(
+        email = jwt.subject,
+        pageable = pageable,
+    )
+
+    @GetMapping("/me")
+    @Operation(summary = "내가 속한 그룹")
+    fun readMe(
+        @AuthenticationPrincipal jwt: Jwt,
+        @ParameterObject pageable: Pageable,
+    ): List<GroupResponse> = groupService.readMe(jwt.subject, pageable)
+
     @GetMapping
     @Operation(summary = "그룹 검색")
     fun readAll(
@@ -48,16 +64,17 @@ class GroupController(
     @Operation(summary = "그룹 생성")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestPart request: GroupCreateRequest,
+        @RequestPart(name = "GroupCreateRequest") request: GroupCreateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): GroupResponse = groupService.create(jwt.subject, request, img)
 
-    @PatchMapping
+    @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "그룹 수정")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
-        @RequestBody request: GroupUpdateRequest,
-    ): GroupResponse = groupService.update(jwt.subject, request)
+        @RequestPart(name = "GroupUpdateRequest") request: GroupUpdateRequest,
+        @RequestPart(required = false) img: MultipartFile?,
+    ): GroupResponse = groupService.update(jwt.subject, request, img)
 
     @DeleteMapping
     @Operation(summary = "그룹 삭제")

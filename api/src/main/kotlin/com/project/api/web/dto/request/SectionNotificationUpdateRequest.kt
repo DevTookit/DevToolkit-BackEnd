@@ -2,8 +2,8 @@ package com.project.api.web.dto.request
 
 import com.project.core.internal.CategoryNotificationType
 
-data class CategoryNotificationUpdateRequest(
+data class SectionNotificationUpdateRequest(
     val groupId: Long,
-    val categoryId: Long,
+    val sectionId: Long,
     val type: CategoryNotificationType,
 )

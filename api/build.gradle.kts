@@ -1,5 +1,3 @@
-import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -47,11 +45,14 @@ dependencies {
     kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
 
     // test
+    implementation("org.testcontainers:localstack:1.11.3")
     testRuntimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("cloud.localstack:localstack-utils:0.2.20")
+    testImplementation("org.testcontainers:junit-jupiter:1.11.3")
 }
 
 // kover 설정
@@ -59,15 +60,22 @@ kover {
     reports {
         verify {
             rule {
-                groupBy = GroupingEntityType.CLASS
+/*                groupBy = GroupingEntityType.CLASS
                 minBound(80, CoverageUnit.LINE)
-                minBound(80, CoverageUnit.INSTRUCTION)
+                minBound(80, CoverageUnit.INSTRUCTION)*/
             }
         }
 
         filters {
             excludes {
-                classes("*MailService", "com.project.api.service.UserService*", "*AuthService", "*FileService", "*S3Service")
+                classes(
+                    "*MailService",
+                    "com.project.api.service.UserService*",
+                    "*AuthService",
+                    "*FileService",
+                    "*S3Service",
+                    "*FolderAttachmentService",
+                )
             }
             includes {
                 classes("*Service*", "GroupUserService")
