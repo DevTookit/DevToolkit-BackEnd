@@ -23,6 +23,7 @@ class UserFixture(
                 password = passwordEncoder.encode(password),
                 name = name,
                 img = img,
+                job = null,
             ).apply {
                 this.isVerified = true
             },

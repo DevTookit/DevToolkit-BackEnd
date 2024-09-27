@@ -14,6 +14,7 @@ class User(
     val email: String,
     var password: String,
     var name: String,
+    var job: String?,
     var img: String?,
 ) : BaseEntity() {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)

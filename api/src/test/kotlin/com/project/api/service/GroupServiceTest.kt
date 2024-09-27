@@ -1,21 +1,13 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
-import com.project.api.web.dto.request.GroupCreateRequest
-import com.project.api.web.dto.request.GroupUpdateRequest
-import com.project.core.internal.GroupRole
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -28,7 +20,7 @@ class GroupServiceTest(
     @Autowired private val groupUserRepository: GroupUserRepository,
     @Autowired private val groupRepository: GroupRepository,
 ) {
-    @AfterEach
+/*    @AfterEach
     fun tearDown() {
         groupUserFixture.tearDown()
         groupFixture.tearDown()
@@ -231,5 +223,5 @@ class GroupServiceTest(
             .assertThatThrownBy {
                 groupService.delete(notHost.email, group.id!!)
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }

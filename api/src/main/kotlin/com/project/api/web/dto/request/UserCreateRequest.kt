@@ -8,4 +8,5 @@ data class UserCreateRequest(
     val name: String,
     val tags: List<String>?,
     val password: String,
+    val job: String?,
 )

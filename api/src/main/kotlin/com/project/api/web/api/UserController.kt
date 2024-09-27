@@ -41,11 +41,9 @@ class UserController(
     @PatchMapping("verify-email")
     @Operation(summary = "이메일 인증 성공시", description = "인증코드 일치시 해당 요청보내줘야 로그인 가능")
     fun updateVerifyEmail(
+        @RequestParam code: String,
         @RequestParam email: String,
-    ): ResponseEntity<Unit> {
-        userService.updateVerifyEmail(email)
-        return ResponseEntity.accepted().build()
-    }
+    ): Boolean = userService.updateVerifyEmail(code = code, email = email)
 
     @PostMapping("create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "유저 생성")

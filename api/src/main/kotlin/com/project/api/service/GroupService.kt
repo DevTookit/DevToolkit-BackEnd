@@ -10,6 +10,7 @@ import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
 import com.project.api.web.dto.response.GroupResponse
+import com.project.api.web.dto.response.GroupResponse.Companion.toGroupResponse
 import com.project.api.web.dto.response.GroupResponse.Companion.toResponse
 import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
@@ -39,6 +40,18 @@ class GroupService(
         return groupRepository.findByUser(user, pageable).map {
             it.toResponse()
         }
+    }
+
+    fun readMe(
+        email: String,
+        pageable: Pageable,
+    ): List<GroupResponse> {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        return groupUserRepository
+            .findByUserAndRoleIn(user, listOf(GroupRole.USER, GroupRole.TOP_MANAGER, GroupRole.MANAGER))
+            .map {
+                it.toGroupResponse()
+            }
     }
 
     fun readAll(
@@ -113,6 +126,7 @@ class GroupService(
     fun update(
         email: String,
         request: GroupUpdateRequest,
+        img: MultipartFile?,
     ): GroupResponse {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val group =
@@ -127,7 +141,7 @@ class GroupService(
             .save(
                 group.apply {
                     this.name = request.name
-                    this.img = request.img
+                    this.img = img?.let { fileService.upload(it, FilePath.PROFILE.name).url }
                     this.description = request.description
                     this.isPublic = request.isPublic
                 },

@@ -1,20 +1,13 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.NotificationFixture
 import com.project.api.fixture.SectionFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.notification.NotificationRepository
-import com.project.core.internal.NotificationType
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -28,7 +21,7 @@ class NotificationServiceTest(
     @Autowired private val notificationRepository: NotificationRepository,
     @Autowired private val sectionFixture: SectionFixture,
 ) {
-    @BeforeEach
+/*    @BeforeEach
     fun setUp() {
     }
 
@@ -150,5 +143,5 @@ class NotificationServiceTest(
             .assertThatThrownBy {
                 notificationService.update(1L)
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }

@@ -29,4 +29,9 @@ interface GroupUserRepository :
         user: User,
         role: GroupRole,
     ): List<GroupUser>
+
+    fun findByUserAndRoleIn(
+        user: User,
+        roles: List<GroupRole>,
+    ): List<GroupUser>
 }

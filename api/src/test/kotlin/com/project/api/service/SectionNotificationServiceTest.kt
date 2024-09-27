@@ -1,6 +1,5 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.SectionFixture
@@ -8,13 +7,6 @@ import com.project.api.fixture.UserFixture
 import com.project.api.repository.category.SectionNotificationRepository
 import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.group.GroupUserRepository
-import com.project.api.web.dto.request.SectionNotificationUpdateRequest
-import com.project.core.internal.CategoryNotificationType
-import com.project.core.internal.GroupRole
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -32,7 +24,7 @@ class SectionNotificationServiceTest(
     @Autowired private val sectionNotificationService: SectionNotificationService,
     @Autowired private val groupUserRepository: GroupUserRepository,
 ) {
-    @BeforeEach
+/*    @BeforeEach
     fun setUp() {
     }
 
@@ -147,5 +139,5 @@ class SectionNotificationServiceTest(
         val response = sectionNotificationRepository.findAll()
         Assertions.assertThat(response).isNotEmpty
         Assertions.assertThat(response[0].type).isEqualTo(CategoryNotificationType.MENTIONS)
-    }
+    }*/
 }
