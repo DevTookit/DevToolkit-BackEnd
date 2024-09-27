@@ -12,6 +12,8 @@ enum class ErrorMessage(
     NOT_FOUND_CATEGORY("해당 카테고리를 찾을 수 없습니다."),
     NOT_FOUND_NOTIFICATION("해당 알림을 찾을 수 없습니다."),
     NOT_FOUND_SECTION("해당 섹션을 찾을 수 없습니다."),
+    NOT_FOUND_CONTENT("해당 컨텐츠를 찾을 수 없습니다"),
+    NOT_FOUND_BOOKMARK("해당 북마크를 찾을 수 없습니다"),
     NOT_FOUND_FOLDER("해당 폴더를 찾을 수 없습니다."),
     NOT_FOUND_FOLDER_FILE("해당 폴더 파일를 찾을 수 없습니다."),
     NEW_PASSWORD_MATCH_OLD_PASSWORD("새로운 패스워드가 이전 패스워드와 일치합니다."),
@@ -33,4 +35,16 @@ enum class EmailForm(
 enum class FilePath {
     PROFILE,
     CONTENT,
+}
+
+enum class SortType {
+    NEW,
+    NAME,
+    DEFAULT,
+}
+
+enum class FolderReadType {
+    FILE,
+    FOLDER,
+    DEFAULT,
 }

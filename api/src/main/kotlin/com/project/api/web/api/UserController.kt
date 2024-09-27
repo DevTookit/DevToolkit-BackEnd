@@ -50,7 +50,7 @@ class UserController(
     @PostMapping("create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "유저 생성")
     fun create(
-        @Valid @RequestPart request: UserCreateRequest,
+        @Valid @RequestPart(value = "UserCreateRequest") request: UserCreateRequest,
         @RequestPart(required = false) img: MultipartFile?,
     ): ResponseEntity<Unit> {
         userService.create(request, img)

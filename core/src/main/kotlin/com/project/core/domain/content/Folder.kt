@@ -23,5 +23,5 @@ class Folder(
     val children: MutableSet<Folder> = mutableSetOf()
 
     @OneToMany(mappedBy = "folder", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
-    val attachments: MutableSet<FolderAttachment> = mutableSetOf()
+    val attachments: MutableSet<Content> = mutableSetOf()
 }

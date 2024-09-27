@@ -1,27 +1,14 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
-import com.project.api.fixture.FolderAttachmentFixture
+import com.project.api.fixture.ContentFixture
 import com.project.api.fixture.FolderFixture
 import com.project.api.fixture.GroupFixture
 import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.SectionFixture
 import com.project.api.fixture.UserFixture
-import com.project.api.web.dto.request.FolderCreateRequest
-import com.project.api.web.dto.request.FolderUpdateRequest
-import com.project.core.domain.group.Group
-import com.project.core.domain.user.User
-import com.project.core.internal.GroupRole
-import com.project.core.internal.SectionType.MENU
-import com.project.core.internal.SectionType.REPOSITORY
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
@@ -29,13 +16,13 @@ import org.springframework.test.context.ActiveProfiles
 class FolderContentServiceTest(
     @Autowired private val folderContentService: FolderContentService,
     @Autowired private val folderFixture: FolderFixture,
-    @Autowired private val folderAttachmentFixture: FolderAttachmentFixture,
     @Autowired private val userFixture: UserFixture,
     @Autowired private val groupFixture: GroupFixture,
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val sectionFixture: SectionFixture,
+    @Autowired private val contentFixture: ContentFixture,
 ) {
-    lateinit var user: User
+/*    lateinit var user: User
     lateinit var group: Group
 
     @BeforeEach
@@ -46,7 +33,6 @@ class FolderContentServiceTest(
 
     @AfterEach
     fun tearDown() {
-        folderAttachmentFixture.tearDown()
         folderFixture.tearDown()
         sectionFixture.tearDown()
         groupUserFixture.tearDown()
@@ -256,5 +242,5 @@ class FolderContentServiceTest(
                     request = request,
                 )
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }

@@ -14,7 +14,7 @@ data class UserLoginResponse(
                 token = tokenResponse,
                 email = email,
                 id = id,
-                isOnBoardingComplete = isOnBoardingComplete
+                isOnBoardingComplete = isOnBoardingComplete,
             )
     }
 }
