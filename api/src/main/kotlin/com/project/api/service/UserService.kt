@@ -58,6 +58,7 @@ class UserService(
         user.apply {
             this.isVerified = true
         }
+        println("user ${user.isVerified}")
         return true
     }
 
@@ -83,9 +84,7 @@ class UserService(
                             fileService.upload(it, FilePath.PROFILE.name).url
                         },
                     job = request.job,
-                ).apply {
-                    isVerified = true
-                },
+                ),
             ).also { user ->
                 if (request.tags != null) {
                     userHashTagRepository.saveAll(

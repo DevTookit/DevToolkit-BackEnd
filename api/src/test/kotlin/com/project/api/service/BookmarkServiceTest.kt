@@ -1,6 +1,5 @@
 package com.project.api.service
 
-import com.project.api.commons.exception.RestException
 import com.project.api.fixture.BookmarkFixture
 import com.project.api.fixture.ContentFixture
 import com.project.api.fixture.FolderFixture
@@ -9,23 +8,9 @@ import com.project.api.fixture.GroupUserFixture
 import com.project.api.fixture.SectionFixture
 import com.project.api.fixture.UserFixture
 import com.project.api.repository.bookmark.BookmarkRepository
-import com.project.api.web.dto.request.BookmarkCreateRequest
-import com.project.core.domain.group.Group
-import com.project.core.domain.group.GroupUser
-import com.project.core.domain.section.Section
-import com.project.core.domain.user.User
-import com.project.core.internal.BookmarkType
-import com.project.core.internal.ContentType
-import com.project.core.internal.GroupRole
-import com.project.core.internal.SectionType
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest
