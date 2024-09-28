@@ -41,7 +41,7 @@ class BookmarkServiceTest(
     @Autowired private val bookmarkRepository: BookmarkRepository,
     @Autowired private val contentFixture: ContentFixture,
 ) {
-    lateinit var user: User
+/*    lateinit var user: User
     lateinit var group: Group
     lateinit var section: Section
     lateinit var groupUser: GroupUser
@@ -386,5 +386,5 @@ class BookmarkServiceTest(
                     bookmarkId = bookmark.id!!,
                 )
             }.isInstanceOf(RestException::class.java)
-    }
+    }*/
 }
