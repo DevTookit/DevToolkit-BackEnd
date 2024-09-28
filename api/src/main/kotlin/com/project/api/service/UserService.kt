@@ -34,11 +34,12 @@ class UserService(
     private val mailService: MailService,
     private val passwordEncoder: PasswordEncoder,
     private val fileService: FileService,
+    private val redisService: RedisService,
 ) {
-    fun verifyEmail(email: String): String {
+    fun verifyEmail(email: String) {
         val code = UUID.randomUUID().toString().substring(0, 10)
         mailService.send(email, code, EmailForm.VERIFY_EMAIL)
-        return code
+        redisService.add(makeVerifyKey(email), code, 180)
     }
 
     @Transactional
@@ -46,12 +47,17 @@ class UserService(
         email: String,
         code: String,
     ): Boolean {
-        // redis 이용해서 해당 code와 email이 동일한지 검증
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val verifyCode =
+            redisService.get(makeVerifyKey(email))
+                ?: throw RestException.badRequest(ErrorMessage.NOT_EXIST_CODE.message)
+
+        if (!verifyCode.toString().replace("\"", "").equals(code)) {
+            return false
+        }
         user.apply {
             this.isVerified = true
         }
-
         return true
     }
 
@@ -153,7 +159,16 @@ class UserService(
     }
 
     @Transactional
-    fun createToken(email: String): TokenResponse = authService.create(email)
+    fun createToken(
+        email: String,
+        refreshToken: String,
+    ): TokenResponse {
+        val validate = authService.validate(email, refreshToken)
+        if (!validate) {
+            throw RestException.forbidden(ErrorMessage.INCORRECT_REFRESH_TOKEN.message)
+        }
+        return authService.create(email)
+    }
 
     fun readOne(userId: Long): UserResponse {
         val user =
@@ -178,6 +193,8 @@ class UserService(
             isOnBoardingComplete = isOnBoarding
         }
     }
+
+    private fun makeVerifyKey(email: String) = "verify_$email"
 
     private fun updateUser(
         request: UserUpdateRequest,

@@ -9,6 +9,7 @@ import com.project.api.web.dto.response.TokenResponse
 import com.project.api.web.dto.response.UserLoginResponse
 import com.project.api.web.dto.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
@@ -36,10 +37,10 @@ class UserController(
     @Operation(summary = "이메일 인증", description = "response값으로 인증코드 값 보냄")
     fun verifyEmail(
         @RequestParam email: String,
-    ): String = userService.verifyEmail(email)
+    ) = userService.verifyEmail(email)
 
     @PatchMapping("verify-email")
-    @Operation(summary = "이메일 인증 성공시", description = "인증코드 일치시 해당 요청보내줘야 로그인 가능")
+    @Operation(summary = "이메일 인증 성공시")
     fun updateVerifyEmail(
         @RequestParam code: String,
         @RequestParam email: String,
@@ -91,7 +92,8 @@ class UserController(
     @Operation(summary = "토큰 발급")
     fun createToken(
         @AuthenticationPrincipal jwt: Jwt,
-    ): TokenResponse = userService.createToken(jwt.subject)
+        @Parameter(description = "리프레쉬토큰") @RequestBody refreshToken: String,
+    ): TokenResponse = userService.createToken(jwt.subject, refreshToken)
 
     @GetMapping("{userId}")
     @Operation(summary = "한 회원 검색")
