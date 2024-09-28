@@ -14,12 +14,26 @@ import java.util.Date
 @Service
 class AuthService(
     private val properties: SecurityProperties,
+    private val redisService: RedisService,
 ) {
-    fun create(email: String): TokenResponse =
-        TokenResponse(
+    fun create(email: String): TokenResponse {
+        val refreshToken = createToken(email, properties.tokenRefresh.toLong())
+        redisService.add(createKey(email), refreshToken, properties.tokenRefresh.toLong())
+        return TokenResponse(
             accessToken = createToken(email, properties.tokenAccess.toLong()),
-            refreshToken = createToken(email, properties.tokenRefresh.toLong()),
+            refreshToken = refreshToken,
         )
+    }
+
+    fun validate(
+        email: String,
+        refreshToken: String,
+    ): Boolean {
+        val token = redisService.get(createKey(email))?.toString() ?: return false
+        return true
+    }
+
+    private fun createKey(email: String) = "REFRESH_$email"
 
     private fun createToken(
         email: String,
