@@ -4,6 +4,7 @@ import com.project.api.service.GroupService
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
 import com.project.api.web.dto.response.GroupResponse
+import com.project.api.web.dto.response.HotGroupResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -85,4 +86,8 @@ class GroupController(
         groupService.delete(jwt.subject, groupId)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("hot")
+    @Operation(summary = "핫 그룹 조회")
+    fun readHot(): List<HotGroupResponse> = groupService.readHot()
 }

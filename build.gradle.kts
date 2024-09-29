@@ -56,3 +56,6 @@ project(":api") {
 
 project(":core") {
 }
+
+project(":job") {
+}

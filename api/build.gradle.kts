@@ -31,11 +31,6 @@ dependencies {
     // spring doc
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-    // spatial
-    implementation("org.hibernate:hibernate-spatial:6.2.2.Final")
-    implementation("org.locationtech.jts:jts-core:1.18.2")
-    implementation("com.bedatadriven:jackson-datatype-jts:2.4")
-
     // aws, s3
     implementation(platform("software.amazon.awssdk:bom:2.27.17"))
     implementation("software.amazon.awssdk:s3")

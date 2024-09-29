@@ -30,6 +30,7 @@ class Content(
     var size: Long? = null
     var extension: String? = null
     var url: String? = null
+    var visitCnt: Long = 0
 
     @ManyToOne(fetch = FetchType.LAZY)
     var folder: Folder? = null

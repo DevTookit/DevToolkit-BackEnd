@@ -20,6 +20,8 @@ class Group(
     var description: String?,
     var isPublic: Boolean,
 ) : BaseEntity() {
+    var visitCnt: Long = 0
+
     @OneToMany(mappedBy = "group", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     val groupUsers: MutableSet<GroupUser> = mutableSetOf()
 }

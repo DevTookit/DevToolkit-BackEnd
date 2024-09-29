@@ -1,5 +1,7 @@
 package com.project.api.service
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
@@ -22,6 +24,8 @@ import com.project.api.web.dto.response.ContentResponse.Companion.toResponse
 import com.project.api.web.dto.response.ContentSearchResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
 import com.project.api.web.dto.response.ContentUpdateResponse.Companion.toContentUpdateResponse
+import com.project.api.web.dto.response.HotContentResponse
+import com.project.api.web.dto.response.HotContentResponse.Companion.toHotContentResponse
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.content.Content
 import com.project.core.domain.content.ContentAttachment
@@ -31,6 +35,7 @@ import com.project.core.domain.group.QGroup.group
 import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
 import com.project.core.internal.SectionType
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -41,6 +46,7 @@ import org.springframework.web.multipart.MultipartFile
 class ContentService(
     private val contentRepository: ContentRepository,
     private val userRepository: UserRepository,
+    private val redisService: RedisService,
     private val contentAttachmentRepository: ContentAttachmentRepository,
     private val contentSkillRepository: ContentSkillRepository,
     private val contentLanguageRepository: ContentLanguageRepository,
@@ -49,6 +55,7 @@ class ContentService(
     private val sectionRepository: SectionRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val fileService: FileService,
+    private val objectMapper: ObjectMapper,
 ) {
     fun readAll(
         email: String,
@@ -110,7 +117,13 @@ class ContentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
         )
 
+        increaseVisitCnt(contentId)
+
         return content.toResponse()
+    }
+
+    private fun increaseVisitCnt(contentId: Long) {
+        redisService.addList("VISIT_CONTENT", contentId)
     }
 
     @Transactional
@@ -182,6 +195,26 @@ class ContentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
         contentRepository.deleteById(contentId)
+    }
+
+    fun readHost(): List<HotContentResponse> {
+        val contentList = redisService.get("HOT_CONTENT")
+
+        return if (contentList != null) {
+            println("Redis")
+            val typeRef = object : TypeReference<List<HotContentResponse>>() {}
+            objectMapper.readValue(contentList.toString(), typeRef)
+        } else {
+            val list =
+                contentRepository
+                    .findAllByGroupIsPublicTrueOrderByVisitCntDesc(PageRequest.of(0, 10))
+                    .map {
+                        it.toHotContentResponse()
+                    }
+            redisService.add("HOT_CONTENT", list, 14400)
+
+            return list
+        }
     }
 
     private fun Content.updateContent(
