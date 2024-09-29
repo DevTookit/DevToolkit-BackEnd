@@ -1,4 +1,4 @@
-package com.project.api.service
+package com.project.job.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.redis.core.RedisTemplate

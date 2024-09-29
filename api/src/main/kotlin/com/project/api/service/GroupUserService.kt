@@ -36,6 +36,7 @@ class GroupUserService(
     private val userRepository: UserRepository,
     private val sectionNotificationService: SectionNotificationService,
     private val notificationService: NotificationService,
+    private val redisService: RedisService,
 ) {
     @Transactional
     fun create(
@@ -51,6 +52,7 @@ class GroupUserService(
             if (it) {
                 throw RestException.conflict(ErrorMessage.CONFLICT_ENTITY.message)
             } else {
+                redisService.addList("JOIN_GROUP", group.id!!)
                 return groupUserRepository
                     .save(
                         GroupUser(

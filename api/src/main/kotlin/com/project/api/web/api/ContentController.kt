@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-@RequestMapping("/v1/contents/{groupId}")
+@RequestMapping("/v1/contents")
 class ContentController(
     private val contentService: ContentService,
 ) {
@@ -34,7 +34,7 @@ class ContentController(
     @Operation(summary = "컨텐츠 검색(코드, 게시판형, 파일)")
     fun readAll(
         @AuthenticationPrincipal jwt: Jwt,
-        @PathVariable groupId: Long?,
+        @RequestParam groupId: Long?,
         @RequestParam name: String?,
         @RequestParam languages: List<String>?,
         @RequestParam skills: List<String>?,
@@ -56,7 +56,7 @@ class ContentController(
         type = type,
     )
 
-    @GetMapping("/{sectionId}/{contentId}")
+    @GetMapping("/{sectionId}/{contentId}/{groupId}")
     @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형, 파일)")
     fun read(
         @AuthenticationPrincipal jwt: Jwt,
@@ -71,7 +71,7 @@ class ContentController(
             contentId = contentId,
         )
 
-    @PostMapping(path = ["/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(path = ["/{sectionId}/{groupId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 생성(코드, 게시판형)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
@@ -88,7 +88,7 @@ class ContentController(
             files = files,
         )
 
-    @PatchMapping(path = ["/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PatchMapping(path = ["/{sectionId}/{groupId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 수정(코드, 게시판형)")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
@@ -105,7 +105,7 @@ class ContentController(
             files = files,
         )
 
-    @DeleteMapping("/{sectionId}")
+    @DeleteMapping("/{sectionId}/{groupId}")
     @Operation(summary = "컨텐츠 삭제(코드, 게시판형)")
     fun delete(
         @AuthenticationPrincipal jwt: Jwt,
@@ -116,4 +116,8 @@ class ContentController(
         contentService.delete(email = jwt.subject, groupId, sectionId = sectionId, contentId = contentId)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/hot")
+    @Operation(summary = "핫 게시글")
+    fun readHot() = contentService.readHost()
 }

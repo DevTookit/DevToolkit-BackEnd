@@ -5,6 +5,7 @@ import com.project.core.domain.content.Folder
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.internal.ContentType
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
@@ -31,4 +32,6 @@ interface ContentRepository :
     ): Content?
 
     fun findByFolder(folder: Folder): List<Content>
+
+    fun findAllByGroupIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
 }

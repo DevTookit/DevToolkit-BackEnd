@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfiguration
 import javax.crypto.spec.SecretKeySpec
 
 @Configuration
@@ -33,8 +34,18 @@ class SecurityConfig(
 
         return httpSecurity
             .csrf { it.disable() }
-            .cors { it.disable() }
-            .httpBasic { it.disable() }
+            .cors {
+                it.configurationSource {
+                    return@configurationSource CorsConfiguration()
+                        .apply {
+                            // TODO : base url yml에 추가
+                            setAllowedOriginPatterns(listOf())
+                            allowCredentials = true
+                            addAllowedHeader("*")
+                            addAllowedMethod("*")
+                        }
+                }
+            }.httpBasic { it.disable() }
             .formLogin { it.disable() }
             .logout { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
