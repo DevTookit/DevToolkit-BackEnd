@@ -3,6 +3,7 @@ package com.project.api.service
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
 import com.project.api.repository.bookmark.BookmarkRepository
+import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.content.ContentRepository
 import com.project.api.repository.content.FolderRepository
 import com.project.api.repository.group.GroupRepository
@@ -32,6 +33,7 @@ class BookmarkService(
     private val userRepository: UserRepository,
     private val folderRepository: FolderRepository,
     private val contentRepository: ContentRepository,
+    private val sectionRepository: SectionRepository,
 ) {
     fun readAll(
         email: String,
@@ -61,7 +63,9 @@ class BookmarkService(
         val userInfo = validate(email, request.groupId)
 
         val contentId = validate(request.type, request.contentId)
-
+        val section =
+            sectionRepository.findByIdOrNull(request.sectionId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
         return bookmarkRepository
             .save(
                 Bookmark(
@@ -69,6 +73,7 @@ class BookmarkService(
                     user = userInfo.user,
                     group = userInfo.group,
                     type = request.type,
+                    section = section,
                 ),
             ).toBookmarkCreateResponse()
     }

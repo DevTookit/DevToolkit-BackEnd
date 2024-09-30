@@ -140,6 +140,7 @@ class FolderContentService(
                     group = userResponse.group,
                     section = section,
                     parent = request.parentFolderId?.let { folderRepository.findByIdOrNull(it) },
+                    groupUser = userResponse.groupUser!!,
                 ),
             ).run {
                 toFolderCreateResponse(

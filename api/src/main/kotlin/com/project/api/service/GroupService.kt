@@ -6,11 +6,14 @@ import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
 import com.project.api.internal.FilePath
+import com.project.api.repository.group.GroupFileAccessLogRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
+import com.project.api.web.dto.response.GroupFileAccessResponse
+import com.project.api.web.dto.response.GroupFileAccessResponse.Companion.toGroupFileAccessResponse
 import com.project.api.web.dto.response.GroupResponse
 import com.project.api.web.dto.response.GroupResponse.Companion.toGroupResponse
 import com.project.api.web.dto.response.GroupResponse.Companion.toResponse
@@ -37,6 +40,7 @@ class GroupService(
     private val fileService: FileService,
     private val redisService: RedisService,
     private val objectMapper: ObjectMapper,
+    private val groupFileAccessLogRepository: GroupFileAccessLogRepository,
 ) {
     fun readMine(
         email: String,
@@ -190,5 +194,34 @@ class GroupService(
 
             return list
         }
+    }
+
+    fun readRecentFiles(
+        groupId: Long,
+        email: String,
+        pageable: Pageable,
+    ): List<GroupFileAccessResponse> {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        if (!group.isPublic) {
+            val groupUser =
+                groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(
+                    ErrorMessage.NOT_FOUND_GROUP_USER.message,
+                )
+
+            if (!groupUser.role.isActive()) {
+                throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+            }
+        }
+
+        return groupFileAccessLogRepository
+            .findByUserAndGroup(user, group, pageable)
+            .map {
+                it.toGroupFileAccessResponse()
+            }
     }
 }

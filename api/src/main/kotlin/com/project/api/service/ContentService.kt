@@ -12,6 +12,7 @@ import com.project.api.repository.content.ContentAttachmentRepository
 import com.project.api.repository.content.ContentLanguageRepository
 import com.project.api.repository.content.ContentRepository
 import com.project.api.repository.content.ContentSkillRepository
+import com.project.api.repository.group.GroupLogRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
@@ -31,6 +32,7 @@ import com.project.core.domain.content.Content
 import com.project.core.domain.content.ContentAttachment
 import com.project.core.domain.content.ContentLanguage
 import com.project.core.domain.content.ContentSkill
+import com.project.core.domain.group.GroupLog
 import com.project.core.domain.group.QGroup.group
 import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
@@ -55,6 +57,7 @@ class ContentService(
     private val sectionRepository: SectionRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val fileService: FileService,
+    private val groupLogRepository: GroupLogRepository,
     private val objectMapper: ObjectMapper,
 ) {
     fun readAll(
@@ -74,7 +77,7 @@ class ContentService(
         if (groupId == null) {
             user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         } else {
-            user = validate(email, groupId).user
+            user = validatePublic(email, groupId).user
         }
         return contentRepository
             .search(
@@ -107,7 +110,7 @@ class ContentService(
         sectionId: Long,
         contentId: Long,
     ): ContentResponse {
-        val userResponse = validate(email, groupId)
+        val userResponse = validatePublic(email, groupId)
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
@@ -138,12 +141,11 @@ class ContentService(
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
-
         return contentRepository
             .save(
                 Content(
                     name = request.name,
-                    groupUser = userResponse.groupUser,
+                    groupUser = userResponse.groupUser!!,
                     section = section,
                     type = request.type,
                     content = request.content,
@@ -156,7 +158,18 @@ class ContentService(
                     createContentExtraInfo(request, it)
                     createContentAttachment(request, files, it)
                 },
-            ).toContentCreateResponse()
+            ).also {
+                groupLogRepository.save(
+                    GroupLog(
+                        user = userResponse.user,
+                        group = userResponse.group,
+                        type = request.type,
+                        contentId = it.id!!,
+                        contentName = it.name,
+                        sectionId = section.id!!,
+                    ),
+                )
+            }.toContentCreateResponse()
     }
 
     @Transactional
@@ -173,7 +186,7 @@ class ContentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
         val content =
-            contentRepository.findByIdAndTypeAndGroupUser(request.contentId, request.type, userResponse.groupUser)
+            contentRepository.findByIdAndTypeAndGroupUser(request.contentId, request.type, userResponse.groupUser!!)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
 
         return content
@@ -207,7 +220,7 @@ class ContentService(
         } else {
             val list =
                 contentRepository
-                    .findAllByGroupIsPublicTrueOrderByVisitCntDesc(PageRequest.of(0, 10))
+                    .findAllBySectionIsPublicTrueOrderByVisitCntDesc(PageRequest.of(0, 10))
                     .map {
                         it.toHotContentResponse()
                     }
@@ -349,6 +362,36 @@ class ContentService(
         )
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return UserValidateResponse(
+            user = user,
+            group = group,
+            groupUser = groupUser,
+        )
+    }
+
+    private fun validatePublic(
+        email: String,
+        groupId: Long,
+    ): UserValidateResponse {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser =
+            groupUserRepository.findByUserAndGroup(user, group)
+
+        if (group.isPublic) {
+            UserValidateResponse(
+                user = user,
+                group = group,
+                groupUser = groupUser,
+            )
+        }
+
+        if (!groupUser!!.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         return UserValidateResponse(
             user = user,

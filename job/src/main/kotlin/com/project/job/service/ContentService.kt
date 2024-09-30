@@ -25,7 +25,7 @@ class ContentService(
     fun updateHotContentCache() {
         val hotContentList =
             contentRepository
-                .findAllByGroupIsPublicTrueAndTypeOrderByVisitCntDesc(ContentType.BOARD, PageRequest.of(0, 10))
+                .findAllBySectionIsPublicTrueAndTypeOrderByVisitCntDesc(ContentType.BOARD, PageRequest.of(0, 10))
                 .map {
                     it.toHotContentResponse()
                 }

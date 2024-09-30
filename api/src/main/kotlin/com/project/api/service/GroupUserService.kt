@@ -145,7 +145,7 @@ class GroupUserService(
         groupUserId: Long,
     ) {
         val userResponse = validate(email, groupId)
-        if (!userResponse.groupUser.role.isAdmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!userResponse.groupUser!!.role.isAdmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         val expelUser =
             groupUserRepository.findByIdAndGroup(groupUserId, userResponse.group) ?: throw RestException.notFound(
@@ -167,7 +167,7 @@ class GroupUserService(
         val userResponse = validate(email, request.groupId)
 
         // groupRole 거르고 만약 Manager가 Manger로 승격시키는 것은 불가능
-        if (!userResponse.groupUser.role.isAdmin() ||
+        if (!userResponse.groupUser!!.role.isAdmin() ||
             userResponse.groupUser.role == request.role
         ) {
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
@@ -198,7 +198,7 @@ class GroupUserService(
     ): GroupRoleResponse {
         val userResponse = validate(email, groupId)
 
-        return userResponse.groupUser.toGroupRoleResponse(userResponse.group.id)
+        return userResponse.groupUser!!.toGroupRoleResponse(userResponse.group.id)
     }
 
     fun readAll(
@@ -251,6 +251,14 @@ class GroupUserService(
             groupUserRepository.findByUserAndGroup(user, group)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
         )
+
+        if (group.isPublic) {
+            return UserValidateResponse(
+                user = user,
+                group = group,
+                groupUser = groupUser,
+            )
+        }
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
