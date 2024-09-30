@@ -6,4 +6,5 @@ data class BookmarkCreateRequest(
     val groupId: Long,
     val type: BookmarkType,
     val contentId: Long,
+    val sectionId: Long,
 )

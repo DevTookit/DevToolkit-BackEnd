@@ -59,7 +59,7 @@ class SectionService(
     ): SectionCreateResponse {
         val userResponse = validate(email, request.groupId)
 
-        if (!userResponse.groupUser.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!userResponse.groupUser!!.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         val parent = request.parentSectionId?.let { sectionRepository.findByIdOrNull(it) }
 
@@ -84,7 +84,7 @@ class SectionService(
     ): CategoryUpdateResponse {
         val userResponse = validate(email, request.groupId)
 
-        if (!userResponse.groupUser.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!userResponse.groupUser!!.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         val category =
             sectionRepository.findByIdAndTypeIn(request.categoryId, listOf(SectionType.MENU, SectionType.REPOSITORY))

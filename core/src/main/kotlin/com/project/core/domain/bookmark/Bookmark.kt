@@ -2,6 +2,7 @@ package com.project.core.domain.bookmark
 
 import com.project.core.domain.BaseEntity
 import com.project.core.domain.group.Group
+import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.BookmarkType
 import jakarta.persistence.Entity
@@ -19,4 +20,6 @@ class Bookmark(
     val type: BookmarkType,
     @ManyToOne(fetch = FetchType.LAZY)
     val user: User,
+    @ManyToOne(fetch = FetchType.LAZY)
+    val section: Section,
 ) : BaseEntity()

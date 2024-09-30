@@ -6,6 +6,6 @@ import com.project.core.domain.user.User
 
 data class UserValidateResponse(
     val user: User,
-    val groupUser: GroupUser,
+    val groupUser: GroupUser?,
     val group: Group,
 )

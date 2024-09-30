@@ -1,10 +1,14 @@
 package com.project.api.web.api
 
+import com.project.api.service.GroupLogService
 import com.project.api.service.GroupService
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
+import com.project.api.web.dto.response.GroupFileAccessResponse
+import com.project.api.web.dto.response.GroupLogResponse
 import com.project.api.web.dto.response.GroupResponse
 import com.project.api.web.dto.response.HotGroupResponse
+import com.project.core.internal.ContentType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -29,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile
 @Tag(name = "Groups", description = "Group API")
 class GroupController(
     private val groupService: GroupService,
+    private val groupLogService: GroupLogService,
 ) {
     @GetMapping("mine")
     @Operation(summary = "내가 생성한 그룹들")
@@ -90,4 +95,32 @@ class GroupController(
     @GetMapping("hot")
     @Operation(summary = "핫 그룹 조회")
     fun readHot(): List<HotGroupResponse> = groupService.readHot()
+
+    @GetMapping("{groupId}/logs")
+    @Operation(summary = "그룹내 로그 읽기")
+    fun readLogs(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable groupId: Long,
+        @RequestParam typ: ContentType?,
+        @ParameterObject pageable: Pageable,
+    ): List<GroupLogResponse> =
+        groupLogService.readAll(
+            groupId = groupId,
+            email = jwt.subject,
+            pageable = pageable,
+            type = typ,
+        )
+
+    @GetMapping("{groupId}/recent")
+    @Operation(summary = "최근연 파일 읽기")
+    fun readRecentFiles(
+        @PathVariable groupId: Long,
+        @AuthenticationPrincipal jwt: Jwt,
+        @ParameterObject pageable: Pageable,
+    ): List<GroupFileAccessResponse> =
+        groupService.readRecentFiles(
+            groupId = groupId,
+            email = jwt.subject,
+            pageable = pageable,
+        )
 }

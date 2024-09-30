@@ -1,23 +1,20 @@
 package com.project.core.domain.group
 
 import com.project.core.domain.BaseEntity
+import com.project.core.domain.content.Content
 import com.project.core.domain.user.User
-import com.project.core.internal.ContentType
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.ManyToOne
 
 @Entity
-class GroupLog(
+class GroupFileAccessLog(
+    // 공개된 그룹이면 그룹유저가 아니더라도 볼 수 있어서
     @ManyToOne(fetch = FetchType.LAZY)
     val user: User,
     @ManyToOne(fetch = FetchType.LAZY)
+    val content: Content,
+    @ManyToOne(fetch = FetchType.LAZY)
     val group: Group,
-    @Enumerated(EnumType.STRING)
-    val type: ContentType,
-    val contentId: Long,
-    val contentName: String,
-    val sectionId: Long,
+    var lastAccessAt: Long,
 ) : BaseEntity()

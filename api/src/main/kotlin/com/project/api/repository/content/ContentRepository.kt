@@ -34,4 +34,6 @@ interface ContentRepository :
     fun findByFolder(folder: Folder): List<Content>
 
     fun findAllByGroupIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
+
+    fun findAllBySectionIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
 }

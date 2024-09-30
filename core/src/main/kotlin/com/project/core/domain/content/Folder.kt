@@ -2,6 +2,7 @@ package com.project.core.domain.content
 
 import com.project.core.domain.BaseEntity
 import com.project.core.domain.group.Group
+import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -18,6 +19,8 @@ class Folder(
     val section: Section,
     @ManyToOne(fetch = FetchType.LAZY)
     val parent: Folder? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    val groupUser: GroupUser,
 ) : BaseEntity() {
     @OneToMany(mappedBy = "parent", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     val children: MutableSet<Folder> = mutableSetOf()
