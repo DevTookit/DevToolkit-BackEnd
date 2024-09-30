@@ -75,7 +75,7 @@ class GroupController(
     ): GroupResponse = groupService.create(jwt.subject, request, img)
 
     @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    @Operation(summary = "그룹 수정")
+    @Operation(summary = "그룹 수정 (그룹을 생성한 유저만이 수정가능하다)")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestPart(name = "GroupUpdateRequest") request: GroupUpdateRequest,
@@ -83,7 +83,7 @@ class GroupController(
     ): GroupResponse = groupService.update(jwt.subject, request, img)
 
     @DeleteMapping
-    @Operation(summary = "그룹 삭제")
+    @Operation(summary = "그룹 삭제 (그룹을 생성한 유저만이 수정가능하다)")
     fun delete(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestParam groupId: Long,
@@ -91,10 +91,6 @@ class GroupController(
         groupService.delete(jwt.subject, groupId)
         return ResponseEntity.noContent().build()
     }
-
-    @GetMapping("hot")
-    @Operation(summary = "핫 그룹 조회")
-    fun readHot(): List<HotGroupResponse> = groupService.readHot()
 
     @GetMapping("{groupId}/logs")
     @Operation(summary = "그룹내 로그 읽기")
@@ -112,7 +108,7 @@ class GroupController(
         )
 
     @GetMapping("{groupId}/recent")
-    @Operation(summary = "최근연 파일 읽기")
+    @Operation(summary = "최근 연 파일 읽기")
     fun readRecentFiles(
         @PathVariable groupId: Long,
         @AuthenticationPrincipal jwt: Jwt,
@@ -123,4 +119,8 @@ class GroupController(
             email = jwt.subject,
             pageable = pageable,
         )
+
+    @GetMapping("hot")
+    @Operation(summary = "메인 페이지 핫 그룹 조회")
+    fun readHot(): List<HotGroupResponse> = groupService.readHot()
 }

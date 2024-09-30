@@ -1,18 +1,22 @@
 package com.project.api.service
 
-import com.project.api.fixture.GroupFixture
-import com.project.api.fixture.GroupUserFixture
-import com.project.api.fixture.SectionFixture
-import com.project.api.fixture.UserFixture
+import com.project.api.commons.exception.RestException
 import com.project.api.repository.category.SectionNotificationRepository
 import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.group.GroupUserRepository
+import com.project.api.supprot.fixture.GroupFixture
+import com.project.api.supprot.fixture.GroupUserFixture
+import com.project.api.supprot.fixture.SectionFixture
+import com.project.api.supprot.fixture.UserFixture
+import com.project.api.web.dto.request.SectionNotificationUpdateRequest
+import com.project.core.internal.GroupRole
+import com.project.core.internal.SectionNotificationType
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest
-@ActiveProfiles("test")
 class SectionNotificationServiceTest(
     @Autowired private val sectionFixture: SectionFixture,
     @Autowired private val sectionService: SectionService,
@@ -23,8 +27,8 @@ class SectionNotificationServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val sectionNotificationService: SectionNotificationService,
     @Autowired private val groupUserRepository: GroupUserRepository,
-) {
-/*    @BeforeEach
+) : TestCommonSetting() {
+    @BeforeEach
     fun setUp() {
     }
 
@@ -44,7 +48,7 @@ class SectionNotificationServiceTest(
             SectionNotificationUpdateRequest(
                 groupId = group.id!!,
                 sectionId = category.id!!,
-                type = CategoryNotificationType.NONE,
+                type = SectionNotificationType.NONE,
             )
 
         val response = sectionNotificationService.update(user.email, request)
@@ -60,7 +64,7 @@ class SectionNotificationServiceTest(
             SectionNotificationUpdateRequest(
                 groupId = 1L,
                 sectionId = 1L,
-                type = CategoryNotificationType.NONE,
+                type = SectionNotificationType.NONE,
             )
 
         Assertions
@@ -79,7 +83,7 @@ class SectionNotificationServiceTest(
             SectionNotificationUpdateRequest(
                 groupId = group.id!!,
                 sectionId = category.id!!,
-                type = CategoryNotificationType.NONE,
+                type = SectionNotificationType.NONE,
             )
 
         Assertions
@@ -99,7 +103,7 @@ class SectionNotificationServiceTest(
             SectionNotificationUpdateRequest(
                 groupId = group.id!!,
                 sectionId = category.id!!,
-                type = CategoryNotificationType.NONE,
+                type = SectionNotificationType.NONE,
             )
 
         Assertions
@@ -118,7 +122,7 @@ class SectionNotificationServiceTest(
             SectionNotificationUpdateRequest(
                 groupId = group.id!!,
                 sectionId = 1L,
-                type = CategoryNotificationType.NONE,
+                type = SectionNotificationType.NONE,
             )
 
         Assertions
@@ -134,10 +138,10 @@ class SectionNotificationServiceTest(
         val groupAdmin = groupUserRepository.findByUserAndGroup(admin, group)!!
         val category = sectionFixture.create(group = group)
 
-        sectionNotificationService.update(group = group, groupUser = groupAdmin, type = CategoryNotificationType.MENTIONS)
+        sectionNotificationService.update(group = group, groupUser = groupAdmin, type = SectionNotificationType.MENTIONS)
 
         val response = sectionNotificationRepository.findAll()
         Assertions.assertThat(response).isNotEmpty
-        Assertions.assertThat(response[0].type).isEqualTo(CategoryNotificationType.MENTIONS)
-    }*/
+        Assertions.assertThat(response[0].type).isEqualTo(SectionNotificationType.MENTIONS)
+    }
 }

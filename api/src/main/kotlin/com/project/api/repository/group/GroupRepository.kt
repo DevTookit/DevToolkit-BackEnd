@@ -17,4 +17,9 @@ interface GroupRepository :
 
     @Query("SELECT g FROM Group g WHERE g.isPublic = true ORDER BY SIZE(g.groupUsers) DESC")
     fun findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(pageable: Pageable): List<Group>
+
+    fun findByUserEmail(
+        email: String,
+        pageable: Pageable,
+    ): List<Group>
 }

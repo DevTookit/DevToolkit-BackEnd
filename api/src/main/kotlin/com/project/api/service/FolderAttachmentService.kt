@@ -46,7 +46,7 @@ class FolderAttachmentService(
         sectionId: Long,
         folderAttachmentId: Long,
     ): FolderAttachmentResponse {
-        val userResponse = validate(email, groupId)
+        val userResponse = validatePublic(email, groupId)
         sectionRepository.findByIdOrNull(sectionId)?.let { section ->
             if (!section.isPublic && userResponse.groupUser == null) {
                 throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
@@ -209,6 +209,30 @@ class FolderAttachmentService(
             groupUserRepository.findByUserAndGroup(user, group)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
         )
+
+        if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return UserValidateResponse(
+            user = user,
+            group = group,
+            groupUser = groupUser,
+        )
+    }
+
+    private fun validatePublic(
+        email: String,
+        groupId: Long,
+    ): UserValidateResponse {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser = (
+                groupUserRepository.findByUserAndGroup(user, group)
+                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+                )
 
         if (group.isPublic) {
             return UserValidateResponse(

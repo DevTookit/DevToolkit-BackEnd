@@ -1,4 +1,4 @@
-package com.project.api.fixture
+package com.project.api.supprot.fixture
 
 import com.project.api.repository.notification.NotificationRepository
 import com.project.core.domain.group.Group

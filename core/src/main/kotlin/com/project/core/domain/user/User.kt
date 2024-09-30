@@ -20,8 +20,14 @@ class User(
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var hashTags: MutableSet<UserHashTag> = mutableSetOf()
     var isVerified: Boolean = false
+        set(value) {
+            if (value) {
+                field = value
+                isEnabled = true
+            }
+        }
 
-    var isEnabled = true
+    var isEnabled = false
     var isOnBoardingComplete: Boolean = false
 
     var failCount = 0

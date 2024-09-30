@@ -49,6 +49,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("cloud.localstack:localstack-utils:0.2.20")
     testImplementation("org.testcontainers:junit-jupiter:1.11.3")
+    testImplementation("org.testcontainers:testcontainers:1.20.1")
 }
 
 // kover 설정
@@ -71,6 +72,7 @@ kover {
                     "*FileService",
                     "*S3Service",
                     "*FolderAttachmentService",
+                    "*RedisService",
                 )
             }
             includes {

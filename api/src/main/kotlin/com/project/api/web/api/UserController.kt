@@ -33,19 +33,6 @@ import org.springframework.web.multipart.MultipartFile
 class UserController(
     private val userService: UserService,
 ) {
-    @GetMapping("verify-email")
-    @Operation(summary = "이메일 인증", description = "response값으로 인증코드 값 보냄")
-    fun verifyEmail(
-        @RequestParam email: String,
-    ) = userService.verifyEmail(email)
-
-    @PatchMapping("verify-email")
-    @Operation(summary = "이메일 인증 성공시")
-    fun updateVerifyEmail(
-        @RequestParam code: String,
-        @RequestParam email: String,
-    ): Boolean = userService.updateVerifyEmail(code = code, email = email)
-
     @PostMapping("create", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "유저 생성")
     fun create(
@@ -58,21 +45,34 @@ class UserController(
             .build()
     }
 
-    @PostMapping("login")
-    @Operation(summary = "로그인")
-    fun login(
-        @RequestBody request: UserLoginRequest,
-    ): UserLoginResponse = userService.login(request)
+    @GetMapping("verify-email")
+    @Operation(summary = "이메일 인증")
+    fun verifyEmail(
+        @RequestParam email: String,
+    ) = userService.verifyEmail(email)
+
+    @PatchMapping("verify-email")
+    @Operation(summary = "이메일 인증 성공시")
+    fun updateVerifyEmail(
+        @RequestParam code: String,
+        @RequestParam email: String,
+    ): Boolean = userService.updateVerifyEmail(code = code, email = email)
 
     @GetMapping("find-email")
     @Operation(summary = "아이디 찾기")
-    fun findEmail(email: String) = userService.findEmail(email)
+    fun findEmail(email: String): Boolean = userService.findEmail(email)
 
     @PatchMapping("reset-password")
     @Operation(summary = "비밀번호 찾기(재설정)")
     fun resetPassword(
         @RequestBody request: UserResetPasswordRequest,
     ) = userService.resetPassword(request)
+
+    @PostMapping("login")
+    @Operation(summary = "로그인")
+    fun login(
+        @RequestBody request: UserLoginRequest,
+    ): UserLoginResponse = userService.login(request)
 
     @GetMapping("me")
     @Operation(summary = "내정보 조회")
@@ -105,7 +105,7 @@ class UserController(
     @Operation(summary = "온보딩 다 했는지 확인")
     fun checkOnBoarding(
         @AuthenticationPrincipal jwt: Jwt,
-    ) = userService.checkOnBoarding(jwt.subject)
+    ): Boolean = userService.checkOnBoarding(jwt.subject)
 
     @PatchMapping("onboarding")
     @Operation(summary = "온보딩 완료 update(데이터 수정)")

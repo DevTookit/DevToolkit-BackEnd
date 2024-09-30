@@ -28,7 +28,7 @@ enum class GroupRole {
         }
 }
 
-enum class CategoryNotificationType {
+enum class SectionNotificationType {
     ALL,
     MENTIONS,
     NONE,

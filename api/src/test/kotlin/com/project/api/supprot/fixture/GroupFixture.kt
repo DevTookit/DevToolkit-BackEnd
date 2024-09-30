@@ -1,4 +1,4 @@
-package com.project.api.fixture
+package com.project.api.supprot.fixture
 
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository

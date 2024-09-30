@@ -20,6 +20,7 @@ import com.project.api.web.dto.response.FolderResponse
 import com.project.api.web.dto.response.FolderResponse.Companion.toResponse
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.content.Folder
+import com.project.core.internal.ContentType
 import com.project.core.internal.SectionType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -43,7 +44,7 @@ class FolderContentService(
         sectionId: Long,
         parentFolderId: Long?,
     ): FolderResponse {
-        val userResponse = validate(email, groupId)
+        val userResponse = validatePublic(email, groupId)
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.badRequest(ErrorMessage.NOT_FOUND_SECTION.message)
@@ -70,7 +71,7 @@ class FolderContentService(
 
             val subAttachments =
                 contentRepository
-                    .findByFolder(parentFolder)
+                    .findByFolderAndType(parentFolder, ContentType.FILE)
                     .map {
                         it.toFolderReadResponse()
                     }
@@ -183,6 +184,37 @@ class FolderContentService(
             groupUserRepository.findByUserAndGroup(user, group)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
         )
+
+        if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return UserValidateResponse(
+            user = user,
+            group = group,
+            groupUser = groupUser,
+        )
+    }
+
+    private fun validatePublic(
+        email: String,
+        groupId: Long,
+    ): UserValidateResponse {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser = (
+                groupUserRepository.findByUserAndGroup(user, group)
+                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+                )
+        if(group.isPublic) {
+            return UserValidateResponse(
+                user = user,
+                group = group,
+                groupUser = groupUser,
+            )
+        }
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 

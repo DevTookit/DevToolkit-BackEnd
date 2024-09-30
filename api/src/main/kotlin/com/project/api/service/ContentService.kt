@@ -6,6 +6,7 @@ import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
 import com.project.api.internal.FilePath
+import com.project.api.internal.RedisType
 import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.content.ContentAttachmentRepository
@@ -60,6 +61,7 @@ class ContentService(
     private val groupLogRepository: GroupLogRepository,
     private val objectMapper: ObjectMapper,
 ) {
+    @Transactional(readOnly = true)
     fun readAll(
         email: String,
         groupId: Long?,
@@ -79,6 +81,7 @@ class ContentService(
         } else {
             user = validatePublic(email, groupId).user
         }
+
         return contentRepository
             .search(
                 user = user,
@@ -104,13 +107,14 @@ class ContentService(
             }
     }
 
+    @Transactional(readOnly = true)
     fun read(
         email: String,
         groupId: Long,
         sectionId: Long,
         contentId: Long,
     ): ContentResponse {
-        val userResponse = validatePublic(email, groupId)
+        validatePublic(email, groupId)
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
@@ -126,7 +130,7 @@ class ContentService(
     }
 
     private fun increaseVisitCnt(contentId: Long) {
-        redisService.addList("VISIT_CONTENT", contentId)
+        redisService.addList(RedisType.VISIT_CONTENT.name, contentId)
     }
 
     @Transactional
@@ -181,9 +185,8 @@ class ContentService(
         files: List<MultipartFile>?,
     ): ContentUpdateResponse {
         val userResponse = validate(email, groupId)
-        val section =
-            sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
+            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
         val content =
             contentRepository.findByIdAndTypeAndGroupUser(request.contentId, request.type, userResponse.groupUser!!)
@@ -202,19 +205,17 @@ class ContentService(
         sectionId: Long,
         contentId: Long,
     ) {
-        val userResponse = validate(email, groupId)
-        val section =
-            sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        validate(email, groupId)
+        sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
+            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
         contentRepository.deleteById(contentId)
     }
 
-    fun readHost(): List<HotContentResponse> {
-        val contentList = redisService.get("HOT_CONTENT")
+    fun readHot(): List<HotContentResponse> {
+        val contentList = redisService.get(RedisType.HOT_CONTENT.name)
 
         return if (contentList != null) {
-            println("Redis")
             val typeRef = object : TypeReference<List<HotContentResponse>>() {}
             objectMapper.readValue(contentList.toString(), typeRef)
         } else {
@@ -241,7 +242,7 @@ class ContentService(
             this.content = it
         }
         if (type == ContentType.CODE) {
-            request.description?.let {
+            request.codeDescription?.let {
                 this.codeDescription = it
             }
         }
@@ -323,7 +324,7 @@ class ContentService(
         request: ContentCreateRequest,
         content: Content,
     ) {
-        request.languages.forEach { language ->
+        request.languages?.forEach { language ->
             contentLanguageRepository.save(
                 ContentLanguage(
                     content = content,
@@ -332,7 +333,7 @@ class ContentService(
             )
         }
 
-        request.skills.forEach { skill ->
+        request.skills?.forEach { skill ->
             contentSkillRepository.save(
                 ContentSkill(
                     content = content,

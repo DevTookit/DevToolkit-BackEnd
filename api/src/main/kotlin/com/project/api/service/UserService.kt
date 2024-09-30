@@ -36,32 +36,6 @@ class UserService(
     private val fileService: FileService,
     private val redisService: RedisService,
 ) {
-    fun verifyEmail(email: String) {
-        val code = UUID.randomUUID().toString().substring(0, 10)
-        mailService.send(email, code, EmailForm.VERIFY_EMAIL)
-        redisService.add(makeVerifyKey(email), code, 180)
-    }
-
-    @Transactional
-    fun updateVerifyEmail(
-        email: String,
-        code: String,
-    ): Boolean {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
-        val verifyCode =
-            redisService.get(makeVerifyKey(email))
-                ?: throw RestException.badRequest(ErrorMessage.NOT_EXIST_CODE.message)
-
-        if (!verifyCode.toString().replace("\"", "").equals(code)) {
-            return false
-        }
-        user.apply {
-            this.isVerified = true
-        }
-        println("user ${user.isVerified}")
-        return true
-    }
-
     @Transactional
     fun create(
         request: UserCreateRequest,
@@ -88,7 +62,7 @@ class UserService(
             ).also { user ->
                 if (request.tags != null) {
                     userHashTagRepository.saveAll(
-                        request.tags!!.map {
+                        request.tags.map {
                             UserHashTag(
                                 content = it.lowercase().replaceFirstChar { it.uppercase() },
                                 user = user,
@@ -97,6 +71,37 @@ class UserService(
                     )
                 }
             }
+    }
+
+    fun verifyEmail(email: String) {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        if (user.isVerified) {
+            throw RestException.badRequest(ErrorMessage.ALREADY_VERIFIED_EMAIL.message)
+        }
+        val code = UUID.randomUUID().toString().substring(0, 10)
+        mailService.send(email, code, EmailForm.VERIFY_EMAIL)
+        redisService.add(makeVerifyKey(email), code, 180)
+    }
+
+    @Transactional
+    fun updateVerifyEmail(
+        email: String,
+        code: String,
+    ): Boolean {
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val verifyCode =
+            redisService.get(makeVerifyKey(email))
+                ?: throw RestException.badRequest(ErrorMessage.NOT_EXIST_CODE.message)
+
+        if (!verifyCode.toString().replace("\"", "").equals(code)) {
+            return false
+        }
+
+        user.apply {
+            this.isVerified = true
+        }
+        return true
     }
 
     fun findEmail(email: String): Boolean = userRepository.existsByEmail(email)
