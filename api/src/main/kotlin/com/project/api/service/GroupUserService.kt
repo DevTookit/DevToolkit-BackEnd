@@ -20,9 +20,9 @@ import com.project.api.web.dto.response.GroupUserResponse.Companion.toGroupUserR
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
-import com.project.core.internal.SectionNotificationType
 import com.project.core.internal.GroupRole
 import com.project.core.internal.NotificationType
+import com.project.core.internal.SectionNotificationType
 import com.querydsl.core.BooleanBuilder
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

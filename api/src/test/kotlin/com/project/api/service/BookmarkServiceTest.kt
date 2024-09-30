@@ -20,7 +20,7 @@ class BookmarkServiceTest(
     @Autowired private val folderFixture: FolderFixture,
     @Autowired private val bookmarkRepository: BookmarkRepository,
     @Autowired private val contentFixture: ContentFixture,
-): TestCommonSetting() {
+) : TestCommonSetting() {
 /*    lateinit var user: User
     lateinit var group: Group
     lateinit var section: Section

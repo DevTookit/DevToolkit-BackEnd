@@ -2,7 +2,6 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.repository.user.UserRepository
-import com.project.api.supprot.container.RedisTestContainer
 import com.project.api.supprot.fixture.UserFixture
 import com.project.api.supprot.fixture.UserHashTagFixture
 import com.project.api.web.dto.request.UserCreateRequest
@@ -12,17 +11,14 @@ import com.project.api.web.dto.request.UserUpdateRequest
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 
 class UserServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val userFixture: UserFixture,
     @Autowired private val userHashTagFixture: UserHashTagFixture,
     @Autowired private val userRepository: UserRepository,
-): TestCommonSetting()  {
+) : TestCommonSetting() {
     @AfterEach
     fun tearDown() {
         userHashTagFixture.tearDown()

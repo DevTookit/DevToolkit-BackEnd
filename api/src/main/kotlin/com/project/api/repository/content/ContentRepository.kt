@@ -31,7 +31,7 @@ interface ContentRepository :
         section: Section,
     ): Content?
 
-    fun findByFolder(folder: Folder): List<Content>
+    fun findByFolderAndType(folder: Folder, type: ContentType): List<Content>
 
     fun findAllByGroupIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
 

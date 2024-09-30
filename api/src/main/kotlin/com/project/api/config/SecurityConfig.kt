@@ -38,8 +38,7 @@ class SecurityConfig(
                 it.configurationSource {
                     return@configurationSource CorsConfiguration()
                         .apply {
-                            // TODO : base url yml에 추가
-                            setAllowedOriginPatterns(listOf())
+                            setAllowedOriginPatterns(listOf("https://devtoolkit.kro.kr/", "http://localhost:5173"))
                             allowCredentials = true
                             addAllowedHeader("*")
                             addAllowedMethod("*")

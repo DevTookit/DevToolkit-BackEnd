@@ -6,6 +6,7 @@ import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
+import com.project.api.web.dto.response.HotContentResponse
 import com.project.core.internal.ContentType
 import io.swagger.v3.oas.annotations.Operation
 import org.springdoc.core.annotations.ParameterObject
@@ -71,7 +72,7 @@ class ContentController(
             contentId = contentId,
         )
 
-    @PostMapping(path = ["/{sectionId}/{groupId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(path = ["{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 생성(코드, 게시판형)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
@@ -119,5 +120,5 @@ class ContentController(
 
     @GetMapping("/hot")
     @Operation(summary = "핫 게시글")
-    fun readHot() = contentService.readHost()
+    fun readHot(): List<HotContentResponse> = contentService.readHot()
 }

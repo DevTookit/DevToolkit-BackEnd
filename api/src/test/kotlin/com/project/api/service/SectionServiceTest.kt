@@ -26,8 +26,8 @@ class SectionServiceTest(
     @Autowired private val userFixture: UserFixture,
     @Autowired private val sectionRepository: SectionRepository,
     @Autowired private val groupUserFixture: GroupUserFixture,
-): TestCommonSetting(){
-   @BeforeEach
+) : TestCommonSetting() {
+    @BeforeEach
     fun setUp() {
     }
 

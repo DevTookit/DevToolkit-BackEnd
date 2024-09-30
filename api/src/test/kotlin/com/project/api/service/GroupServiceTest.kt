@@ -30,7 +30,7 @@ class GroupServiceTest(
     @Autowired private val groupFileAccessLogFixture: GroupFileAccessLogFixture,
     @Autowired private val contentFixture: ContentFixture,
     @Autowired private val sectionFixture: SectionFixture,
-): TestCommonSetting() {
+) : TestCommonSetting() {
     @AfterEach
     fun tearDown() {
         groupFileAccessLogFixture.tearDown()

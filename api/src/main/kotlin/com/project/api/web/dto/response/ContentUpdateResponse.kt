@@ -4,6 +4,7 @@ import com.project.core.domain.content.Content
 import com.project.core.internal.ContentType
 
 data class ContentUpdateResponse(
+    val contentId: Long?,
     val name: String?,
     val languages: List<String>?,
     val skills: List<String>?,
@@ -15,6 +16,7 @@ data class ContentUpdateResponse(
     companion object {
         fun Content.toContentUpdateResponse(): ContentUpdateResponse =
             ContentUpdateResponse(
+                contentId = this.id,
                 name = this.name,
                 content = this.content,
                 description = this.codeDescription,

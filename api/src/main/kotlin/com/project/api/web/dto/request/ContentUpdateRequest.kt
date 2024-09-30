@@ -8,6 +8,6 @@ data class ContentUpdateRequest(
     val languages: List<String>?,
     val skills: List<String>?,
     val content: String?,
-    val description: String?,
+    val codeDescription: String?,
     val type: ContentType,
 )

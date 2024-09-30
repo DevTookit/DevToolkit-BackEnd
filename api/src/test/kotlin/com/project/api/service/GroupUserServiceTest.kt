@@ -3,7 +3,6 @@ package com.project.api.service
 import com.project.api.commons.exception.RestException
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.notification.NotificationRepository
-import com.project.api.supprot.container.RedisTestContainer
 import com.project.api.supprot.fixture.GroupFixture
 import com.project.api.supprot.fixture.GroupUserFixture
 import com.project.api.supprot.fixture.UserFixture
@@ -16,12 +15,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.Pageable
-import org.springframework.test.context.ActiveProfiles
-
 
 class GroupUserServiceTest(
     @Autowired private val groupUserService: GroupUserService,
@@ -30,7 +25,7 @@ class GroupUserServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val groupUserRepository: GroupUserRepository,
     @Autowired private val notificationRepository: NotificationRepository,
-): TestCommonSetting()  {
+) : TestCommonSetting() {
     @BeforeEach
     fun setUp() {
     }
