@@ -1,23 +1,91 @@
 package com.project.api.service
 
-import com.project.api.fixture.UserFixture
-import com.project.api.fixture.UserHashTagFixture
-import org.junit.jupiter.api.Assertions.*
+import com.project.api.commons.exception.RestException
+import com.project.api.repository.user.UserRepository
+import com.project.api.supprot.container.RedisTestContainer
+import com.project.api.supprot.fixture.UserFixture
+import com.project.api.supprot.fixture.UserHashTagFixture
+import com.project.api.web.dto.request.UserCreateRequest
+import com.project.api.web.dto.request.UserLoginRequest
+import com.project.api.web.dto.request.UserResetPasswordRequest
+import com.project.api.web.dto.request.UserUpdateRequest
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest
-@ActiveProfiles("test")
 class UserServiceTest(
     @Autowired private val userService: UserService,
     @Autowired private val userFixture: UserFixture,
     @Autowired private val userHashTagFixture: UserHashTagFixture,
-) {
-/*    @AfterEach
+    @Autowired private val userRepository: UserRepository,
+): TestCommonSetting()  {
+    @AfterEach
     fun tearDown() {
         userHashTagFixture.tearDown()
         userFixture.tearDown()
+    }
+
+    @Test
+    fun create() {
+        val userCreateRequest =
+            UserCreateRequest(
+                email = "test@test.com",
+                password = "test",
+                name = "test",
+                tags = null,
+                job = "Engineering",
+            )
+
+        userService.create(userCreateRequest, null)
+
+        val response = userRepository.findAll()
+
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response[0].email).isEqualTo(userCreateRequest.email)
+        Assertions.assertThat(response[0].name).isEqualTo(userCreateRequest.name)
+        Assertions.assertThat(response[0].job).isEqualTo(userCreateRequest.job)
+    }
+
+    @Test
+    fun verifyEmailAlreadyVerified() {
+        val user = userFixture.create()
+
+        Assertions
+            .assertThatThrownBy {
+                userService.verifyEmail(user.email)
+            }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun resetPassword() {
+        val user = userFixture.create()
+        val request =
+            UserResetPasswordRequest(
+                email = user.email,
+                newPassword = user.password + "1234",
+            )
+
+        userService.resetPassword(request)
+    }
+
+    @Test
+    fun resetPasswordImpossible() {
+        val password = "dasdfjawoeifdvs"
+        val user = userFixture.create(password = password)
+        val request =
+            UserResetPasswordRequest(
+                email = user.email,
+                newPassword = password,
+            )
+
+        Assertions
+            .assertThatThrownBy {
+                userService.resetPassword(request)
+            }.isInstanceOf(RestException::class.java)
     }
 
     @Test
@@ -61,6 +129,7 @@ class UserServiceTest(
             UserUpdateRequest(
                 name = "hello",
                 tags = tags,
+                job = "Front",
             )
         val response =
             userService.update(
@@ -72,5 +141,32 @@ class UserServiceTest(
         Assertions.assertThat(response.email).isEqualTo(user.email)
         Assertions.assertThat(response.name).isEqualTo(request.name)
         Assertions.assertThat(response.tags).containsAll(tags)
-    }*/
+    }
+
+    @Test
+    fun checkOnBoarding() {
+        val user =
+            userFixture.create(
+                isOnBoardingComplete = false,
+            )
+
+        val response = userService.checkOnBoarding(user.email)
+
+        Assertions.assertThat(response).isEqualTo(user.isOnBoardingComplete)
+    }
+
+    @Test
+    fun updateOnBoarding() {
+        val user =
+            userFixture.create(
+                isOnBoardingComplete = false,
+            )
+
+        userService.updateOnBoarding(user.email, true)
+
+        val response = userRepository.findAll()
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response[0].email).isEqualTo(user.email)
+        Assertions.assertThat(response[0].isOnBoardingComplete).isTrue()
+    }
 }

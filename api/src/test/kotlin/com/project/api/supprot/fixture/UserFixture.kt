@@ -1,4 +1,4 @@
-package com.project.api.fixture
+package com.project.api.supprot.fixture
 
 import com.project.api.repository.user.UserRepository
 import com.project.core.domain.user.User
@@ -16,6 +16,8 @@ class UserFixture(
         password: String = "test",
         name: String = UUID.randomUUID().toString(),
         img: String? = null,
+        isVerified: Boolean = true,
+        isOnBoardingComplete: Boolean = true,
     ): User =
         userRepository.save(
             User(
@@ -25,7 +27,8 @@ class UserFixture(
                 img = img,
                 job = null,
             ).apply {
-                this.isVerified = true
+                this.isVerified = isVerified
+                this.isOnBoardingComplete = isOnBoardingComplete
             },
         )
 

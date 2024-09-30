@@ -27,7 +27,7 @@ class SectionController(
 ) {
     @GetMapping
     @Operation(summary = "해당 그룹의 카테고리(메뉴, 저장소) 조회")
-    fun readAllCategories(
+    fun readAll(
         @AuthenticationPrincipal jwt: Jwt,
         @ParameterObject pageable: Pageable,
         @RequestParam groupId: Long,
@@ -40,7 +40,7 @@ class SectionController(
     )
 
     @PostMapping
-    @Operation(summary = "카테고리 생성")
+    @Operation(summary = "카테고리 생성(그룹 생성자만이 카테고리를 생성가능)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: SectionCreateRequest,

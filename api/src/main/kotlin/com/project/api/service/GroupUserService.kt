@@ -2,6 +2,7 @@ package com.project.api.service
 
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
+import com.project.api.internal.RedisType
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
@@ -19,7 +20,7 @@ import com.project.api.web.dto.response.GroupUserResponse.Companion.toGroupUserR
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.group.QGroupUser
-import com.project.core.internal.CategoryNotificationType
+import com.project.core.internal.SectionNotificationType
 import com.project.core.internal.GroupRole
 import com.project.core.internal.NotificationType
 import com.querydsl.core.BooleanBuilder
@@ -52,7 +53,8 @@ class GroupUserService(
             if (it) {
                 throw RestException.conflict(ErrorMessage.CONFLICT_ENTITY.message)
             } else {
-                redisService.addList("JOIN_GROUP", group.id!!)
+                redisService.addList(RedisType.JOIN_GROUP.name, group.id!!)
+
                 return groupUserRepository
                     .save(
                         GroupUser(
@@ -79,11 +81,9 @@ class GroupUserService(
             groupRepository.findByIdOrNull(request.groupId)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
 
-        val groupUser =
-            groupUserRepository.findByUserAndGroup(admin, group)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-
-        if (!groupUser.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!group.user.id!!.equals(admin.id)) {
+            throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        }
 
         val user =
             userRepository.findByIdOrNull(request.userId)
@@ -121,7 +121,7 @@ class GroupUserService(
         groupUserId: Long,
         isAccepted: Boolean,
     ) {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val groupUser =
             groupUserRepository.findByIdOrNull(groupUserId) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
 
@@ -187,8 +187,8 @@ class GroupUserService(
                     this.isApproved = true
                 }
             }.also {
-                val categoryNotificationType = if (!request.role.isActive()) CategoryNotificationType.NONE else CategoryNotificationType.ALL
-                sectionNotificationService.update(userResponse.group, groupUser, categoryNotificationType)
+                val sectionNotificationType = if (!request.role.isActive()) SectionNotificationType.NONE else SectionNotificationType.ALL
+                sectionNotificationService.update(userResponse.group, groupUser, sectionNotificationType)
             }.toGroupUserResponse()
     }
 

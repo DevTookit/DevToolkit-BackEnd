@@ -45,20 +45,23 @@ class NotificationService(
         email: String,
         isRead: Boolean?,
         pageable: Pageable,
-    ): Page<NotificationResponse> =
-        notificationRepository
+    ): Page<NotificationResponse> {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        return notificationRepository
             .findAll(
                 BooleanBuilder()
                     .and(
                         isRead?.let { QNotification.notification.isRead.eq(it) },
                     ).and(
-                        QNotification.notification.user.email
-                            .eq(email),
+                        QNotification.notification.user.id
+                            .eq(user.id),
                     ),
                 pageable,
             ).map {
                 it.toResponse(createNotificationContent(it.type, it.section, it.group))
             }
+    }
 
     @Transactional
     fun update(notificationId: Long) {

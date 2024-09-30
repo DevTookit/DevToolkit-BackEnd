@@ -1,17 +1,23 @@
 package com.project.api.service
 
-import com.project.api.fixture.GroupFixture
-import com.project.api.fixture.GroupUserFixture
-import com.project.api.fixture.SectionFixture
-import com.project.api.fixture.UserFixture
+import com.project.api.commons.exception.RestException
 import com.project.api.repository.category.SectionNotificationRepository
 import com.project.api.repository.category.SectionRepository
+import com.project.api.supprot.fixture.GroupFixture
+import com.project.api.supprot.fixture.GroupUserFixture
+import com.project.api.supprot.fixture.SectionFixture
+import com.project.api.supprot.fixture.UserFixture
+import com.project.api.web.dto.request.CategoryUpdateRequest
+import com.project.api.web.dto.request.SectionCreateRequest
+import com.project.core.internal.SectionNotificationType
+import com.project.core.internal.SectionType
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.data.domain.Pageable
 
-@SpringBootTest
-@ActiveProfiles("test")
 class SectionServiceTest(
     @Autowired private val sectionFixture: SectionFixture,
     @Autowired private val sectionService: SectionService,
@@ -20,8 +26,8 @@ class SectionServiceTest(
     @Autowired private val userFixture: UserFixture,
     @Autowired private val sectionRepository: SectionRepository,
     @Autowired private val groupUserFixture: GroupUserFixture,
-) {
-/*    @BeforeEach
+): TestCommonSetting(){
+   @BeforeEach
     fun setUp() {
     }
 
@@ -98,7 +104,7 @@ class SectionServiceTest(
         Assertions.assertThat(response.isPublic).isEqualTo(request.isPublic)
         Assertions.assertThat(response.type).isEqualTo(request.type)
         Assertions.assertThat(notificationResponse).isNotEmpty
-        Assertions.assertThat(notificationResponse[0].type).isEqualTo(CategoryNotificationType.ALL)
+        Assertions.assertThat(notificationResponse[0].type).isEqualTo(SectionNotificationType.ALL)
     }
 
     @Test
@@ -348,5 +354,5 @@ class SectionServiceTest(
             .assertThatThrownBy {
                 sectionService.delete(email = user.email, sectionId = category.id!!)
             }.isInstanceOf(RestException::class.java)
-    }*/
+    }
 }

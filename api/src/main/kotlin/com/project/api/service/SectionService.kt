@@ -86,16 +86,16 @@ class SectionService(
 
         if (!userResponse.groupUser!!.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
-        val category =
+        val section =
             sectionRepository.findByIdAndTypeIn(request.categoryId, listOf(SectionType.MENU, SectionType.REPOSITORY))
                 ?: throw RestException.notFound(
                     ErrorMessage.NOT_FOUND_CATEGORY.message,
                 )
 
-        return category
+        return section
             .apply {
                 this.name = request.name ?: this.name
-                this.isPublic = if (category.parent == null && request.isPublic != null) request.isPublic else this.isPublic
+                this.isPublic = if (this.parent == null && request.isPublic != null) request.isPublic else this.isPublic
             }.toCategoryUpdateResponse(userResponse.group.id)
     }
 

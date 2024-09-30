@@ -9,6 +9,7 @@ data class GroupResponse(
     val img: String?,
     val description: String?,
     val isPublic: Boolean,
+    val userCnt: Long? = null,
 ) {
     companion object {
         fun Group.toResponse(): GroupResponse =
@@ -18,6 +19,7 @@ data class GroupResponse(
                 img = this.img,
                 description = this.description,
                 isPublic = this.isPublic,
+                userCnt = this.groupUsers.size.toLong(),
             )
 
         fun GroupUser.toGroupResponse(): GroupResponse =

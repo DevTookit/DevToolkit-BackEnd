@@ -6,6 +6,7 @@ import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
 import com.project.api.internal.ErrorMessage
 import com.project.api.internal.FilePath
+import com.project.api.internal.RedisType
 import com.project.api.repository.group.GroupFileAccessLogRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
@@ -42,17 +43,20 @@ class GroupService(
     private val objectMapper: ObjectMapper,
     private val groupFileAccessLogRepository: GroupFileAccessLogRepository,
 ) {
+    // 내가 생성한 그룹
+    @Transactional(readOnly = true)
     fun readMine(
         email: String,
         pageable: Pageable,
     ): List<GroupResponse> {
         val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
 
-        return groupRepository.findByUser(user, pageable).map {
+        return groupRepository.findByUserEmail(user.email, pageable).map {
             it.toResponse()
         }
     }
 
+    // 내가 속한 그룹
     fun readMe(
         email: String,
         pageable: Pageable,
@@ -65,6 +69,7 @@ class GroupService(
             }
     }
 
+    @Transactional(readOnly = true)
     fun readAll(
         name: String?,
         pageable: Pageable,
@@ -72,6 +77,7 @@ class GroupService(
         groupRepository
             .findAll(
                 BooleanBuilder()
+                    .and(QGroup.group.isPublic.isTrue)
                     .and(
                         name?.let { QGroup.group.name.containsIgnoreCase(name) },
                     ),
@@ -80,22 +86,25 @@ class GroupService(
                 it.toResponse()
             }
 
+    // 그룹이 public이면 누구나 접속가능함
+    @Transactional(readOnly = true)
     fun readOne(
         email: String,
         groupId: Long,
     ): GroupResponse {
-        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val group =
             groupRepository.findByIdOrNull(groupId)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
 
         if (group.isPublic) {
-            redisService.addList("VISIT_GROUP", groupId)
+            redisService.addList(RedisType.VISIT_GROUP.name, groupId)
             return group.toResponse()
         }
 
+        val user = userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val groupUser =
             groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         return group.toResponse()
@@ -125,7 +134,6 @@ class GroupService(
                             group = it,
                             role = GroupRole.TOP_MANAGER,
                         ).apply {
-                            isAccepted = true
                             isApproved = true
                         },
                     )
@@ -177,25 +185,6 @@ class GroupService(
         groupRepository.delete(group)
     }
 
-    fun readHot(): List<HotGroupResponse> {
-        val groupList = redisService.get("HOT_GROUP")
-
-        return if (groupList != null) {
-            val typeRef = object : TypeReference<List<HotGroupResponse>>() {}
-            objectMapper.readValue(groupList.toString(), typeRef)
-        } else {
-            val list =
-                groupRepository
-                    .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
-                    .map {
-                        it.toHotGroupResponse()
-                    }
-            redisService.add("HOT_GROUP", list, 14400)
-
-            return list
-        }
-    }
-
     fun readRecentFiles(
         groupId: Long,
         email: String,
@@ -223,5 +212,25 @@ class GroupService(
             .map {
                 it.toGroupFileAccessResponse()
             }
+    }
+
+    @Transactional(readOnly = true)
+    fun readHot(): List<HotGroupResponse> {
+        val groupList = redisService.get(RedisType.HOT_GROUP.name)
+
+        return if (groupList != null) {
+            val typeRef = object : TypeReference<List<HotGroupResponse>>() {}
+            objectMapper.readValue(groupList.toString(), typeRef)
+        } else {
+            val list =
+                groupRepository
+                    .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
+                    .map {
+                        it.toHotGroupResponse()
+                    }
+            redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
+
+            return list
+        }
     }
 }

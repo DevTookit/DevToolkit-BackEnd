@@ -1,18 +1,16 @@
 package com.project.api.service
 
-import com.project.api.fixture.ContentFixture
-import com.project.api.fixture.FolderFixture
-import com.project.api.fixture.GroupFixture
-import com.project.api.fixture.GroupUserFixture
-import com.project.api.fixture.SectionFixture
-import com.project.api.fixture.UserFixture
+import com.project.api.supprot.fixture.ContentFixture
+import com.project.api.supprot.fixture.FolderFixture
+import com.project.api.supprot.fixture.GroupFixture
+import com.project.api.supprot.fixture.GroupUserFixture
+import com.project.api.supprot.fixture.SectionFixture
+import com.project.api.supprot.fixture.UserFixture
 import org.junit.jupiter.api.Assertions.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest
-@ActiveProfiles("test")
 class FolderContentServiceTest(
     @Autowired private val folderContentService: FolderContentService,
     @Autowired private val folderFixture: FolderFixture,
@@ -21,7 +19,7 @@ class FolderContentServiceTest(
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val sectionFixture: SectionFixture,
     @Autowired private val contentFixture: ContentFixture,
-) {
+): TestCommonSetting() {
 /*    lateinit var user: User
     lateinit var group: Group
 

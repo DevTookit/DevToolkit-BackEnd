@@ -14,7 +14,7 @@ import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.domain.section.SectionNotification
-import com.project.core.internal.CategoryNotificationType
+import com.project.core.internal.SectionNotificationType
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -83,7 +83,7 @@ class SectionNotificationService(
     fun update(
         group: Group,
         groupUser: GroupUser,
-        type: CategoryNotificationType,
+        type: SectionNotificationType,
     ) {
         sectionRepository
             .findByGroupAndParentIsNull(group)

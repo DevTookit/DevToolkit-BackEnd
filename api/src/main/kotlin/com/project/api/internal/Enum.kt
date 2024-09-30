@@ -24,6 +24,7 @@ enum class ErrorMessage(
     IMPOSSIBLE_PASSWORD("이전 비밀번호와 다른 비밀번호로 설정해주세요"),
     IMPOSSIBLE_NOTIFICATION("최상위 카테고리만 알림설정이 가능합니다"),
     UNAUTHORIZED("해당권한으로 불가능한 요청입니다."),
+    ALREADY_VERIFIED_EMAIL("이미 검증한 이메일입니다."),
     CONFLICT_ENTITY("이미 존재하는 리소스 입니다."),
 }
 
@@ -51,10 +52,12 @@ enum class FolderReadType {
     DEFAULT,
 }
 
-enum class RedisType {
+enum class RedisType(
+    val expiredTime: Long? = null,
+) {
     VISIT_CONTENT,
     VISIT_GROUP,
-    HOT_GROUP,
+    HOT_GROUP(14400),
     JOIN_GROUP,
     HOT_CONTENT,
 }

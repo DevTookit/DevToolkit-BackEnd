@@ -1,3 +1,5 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -49,6 +51,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("cloud.localstack:localstack-utils:0.2.20")
     testImplementation("org.testcontainers:junit-jupiter:1.11.3")
+    testImplementation("org.testcontainers:testcontainers:1.20.1")
 }
 
 // kover 설정
@@ -56,9 +59,9 @@ kover {
     reports {
         verify {
             rule {
-/*                groupBy = GroupingEntityType.CLASS
+                groupBy = GroupingEntityType.CLASS
                 minBound(80, CoverageUnit.LINE)
-                minBound(80, CoverageUnit.INSTRUCTION)*/
+                minBound(80, CoverageUnit.INSTRUCTION)
             }
         }
 
@@ -71,6 +74,7 @@ kover {
                     "*FileService",
                     "*S3Service",
                     "*FolderAttachmentService",
+                    "*RedisService",
                 )
             }
             includes {

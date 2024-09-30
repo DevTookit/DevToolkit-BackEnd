@@ -1,4 +1,4 @@
-package com.project.api.config
+package com.project.api.supprot.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

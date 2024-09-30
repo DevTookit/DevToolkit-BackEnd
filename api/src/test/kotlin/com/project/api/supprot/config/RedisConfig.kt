@@ -1,4 +1,4 @@
-package com.project.api.config
+package com.project.api.supprot.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.api.config.properties.RedisProperties
@@ -12,7 +12,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
-@Profile("!test")
+@Profile("test")
 class RedisConfig(
     private val redisProperties: RedisProperties,
 ) {

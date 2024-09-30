@@ -13,14 +13,10 @@ import jakarta.persistence.OneToMany
 @Entity
 class Folder(
     var name: String,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val group: Group,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val section: Section,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val parent: Folder? = null,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val groupUser: GroupUser,
+    @ManyToOne(fetch = FetchType.LAZY) val group: Group,
+    @ManyToOne(fetch = FetchType.LAZY) val section: Section,
+    @ManyToOne(fetch = FetchType.LAZY) val parent: Folder? = null,
+    @ManyToOne(fetch = FetchType.LAZY) val groupUser: GroupUser,
 ) : BaseEntity() {
     @OneToMany(mappedBy = "parent", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     val children: MutableSet<Folder> = mutableSetOf()
