@@ -1,13 +1,17 @@
 package com.project.core.domain.group
 
 import com.project.core.domain.BaseEntity
+import com.project.core.domain.content.Content
+import com.project.core.domain.section.SectionNotification
 import com.project.core.domain.user.User
 import com.project.core.internal.GroupRole
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
@@ -35,4 +39,10 @@ class GroupUser(
                 isAccepted = true
             }
         }
+
+    @OneToMany(mappedBy = "groupUser", cascade = [CascadeType.REMOVE], orphanRemoval = true)
+    var sectionNotifications: MutableSet<SectionNotification> = mutableSetOf()
+
+    @OneToMany(mappedBy = "groupUser", cascade = [CascadeType.REMOVE], orphanRemoval = true)
+    var contents: MutableSet<Content> = mutableSetOf()
 }
