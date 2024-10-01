@@ -36,8 +36,21 @@ class SectionService(
         groupId: Long,
         parentSectionId: Long?,
     ): List<SectionResponse>? {
-        val userResponse = validate(email, groupId)
-
+        val userResponse = validatePublic(email, groupId)
+        if (userResponse.groupUser == null) {
+            return parentSectionId?.let { id ->
+                sectionRepository.findByIdAndPublic(id, true)?.let { parentSection ->
+                    sectionRepository
+                        .findByParentAndTypeIn(
+                            section = parentSection,
+                            types = listOf(SectionType.MENU, SectionType.REPOSITORY),
+                            pageable = pageable,
+                        ).map { it.toResponse() }
+                }
+            } ?: sectionRepository.findByGroupAndTypeAndPublicAndParentIsNull(userResponse.group, SectionType.MENU, true, pageable).map {
+                it.toResponse()
+            }
+        }
         return parentSectionId?.let { id ->
             sectionRepository.findByIdOrNull(id)?.let { parentSection ->
                 sectionRepository
@@ -135,6 +148,35 @@ class SectionService(
         )
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        return UserValidateResponse(
+            user = user,
+            group = group,
+            groupUser = groupUser,
+        )
+    }
+
+    private fun validatePublic(
+        email: String,
+        groupId: Long,
+    ): UserValidateResponse {
+        val user =
+            userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
+        val group =
+            groupRepository.findByIdOrNull(groupId)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
+
+        val groupUser = groupUserRepository.findByUserAndGroup(user, group)
+
+        if (group.isPublic) {
+            return UserValidateResponse(
+                user = user,
+                group = group,
+                groupUser = groupUser,
+            )
+        }
+
+        if (!groupUser!!.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         return UserValidateResponse(
             user = user,
