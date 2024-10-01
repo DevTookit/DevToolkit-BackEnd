@@ -39,7 +39,7 @@ class SectionService(
         val userResponse = validatePublic(email, groupId)
         if (userResponse.groupUser == null) {
             return parentSectionId?.let { id ->
-                sectionRepository.findByIdAndPublic(id, true)?.let { parentSection ->
+                sectionRepository.findByIdAndIsPublic(id, true)?.let { parentSection ->
                     sectionRepository
                         .findByParentAndTypeIn(
                             section = parentSection,
@@ -47,7 +47,7 @@ class SectionService(
                             pageable = pageable,
                         ).map { it.toResponse() }
                 }
-            } ?: sectionRepository.findByGroupAndTypeAndPublicAndParentIsNull(userResponse.group, SectionType.MENU, true, pageable).map {
+            } ?: sectionRepository.findByGroupAndTypeAndIsPublicAndParentIsNull(userResponse.group, SectionType.MENU, true, pageable).map {
                 it.toResponse()
             }
         }
