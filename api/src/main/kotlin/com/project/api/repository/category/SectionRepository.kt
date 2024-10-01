@@ -16,7 +16,7 @@ interface SectionRepository : JpaRepository<Section, Long> {
     fun findByGroupAndTypeAndIsPublicAndParentIsNull(
         group: Group,
         type: SectionType,
-        public: Boolean,
+        isPublic: Boolean,
         pageable: Pageable,
     ): List<Section>
 
@@ -48,6 +48,6 @@ interface SectionRepository : JpaRepository<Section, Long> {
 
     fun findByIdAndIsPublic(
         id: Long,
-        public: Boolean,
+        isPublic: Boolean,
     ): Section?
 }
