@@ -10,6 +10,7 @@ import com.project.api.internal.RedisType
 import com.project.api.repository.group.GroupFileAccessLogRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
+import com.project.api.repository.group.HotGroupRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
@@ -42,6 +43,7 @@ class GroupService(
     private val redisService: RedisService,
     private val objectMapper: ObjectMapper,
     private val groupFileAccessLogRepository: GroupFileAccessLogRepository,
+    private val hotGroupRepository: HotGroupRepository,
 ) {
     // 내가 생성한 그룹
     @Transactional(readOnly = true)
@@ -181,7 +183,7 @@ class GroupService(
         if (group.user.id != user.id) {
             throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
         }
-
+        hotGroupRepository.deleteByGroup(group)
         groupRepository.delete(group)
     }
 
