@@ -11,6 +11,5 @@ import org.springframework.web.bind.annotation.RestController
 class ServerController {
     @GetMapping("time")
     @Operation(summary = "서버 시간")
-    fun read(): ResponseEntity<Long> =
-        ResponseEntity.ok(System.currentTimeMillis())
+    fun read(): ResponseEntity<Long> = ResponseEntity.ok(System.currentTimeMillis())
 }

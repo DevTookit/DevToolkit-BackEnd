@@ -230,9 +230,9 @@ class FolderAttachmentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
 
         val groupUser = (
-                groupUserRepository.findByUserAndGroup(user, group)
-                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-                )
+            groupUserRepository.findByUserAndGroup(user, group)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+        )
 
         if (group.isPublic) {
             return UserValidateResponse(

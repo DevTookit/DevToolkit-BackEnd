@@ -8,6 +8,7 @@ data class UserResponse(
     val name: String,
     val img: String?,
     val tags: List<String>,
+    val job: String?,
 ) {
     companion object {
         fun User.toUserResponse() =
@@ -17,6 +18,7 @@ data class UserResponse(
                 name = this.name,
                 img = this.img,
                 tags = this.hashTags.map { it.content },
+                job = this.job,
             )
     }
 }
