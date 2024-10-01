@@ -229,10 +229,7 @@ class FolderAttachmentService(
             groupRepository.findByIdOrNull(groupId)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
 
-        val groupUser = (
-            groupUserRepository.findByUserAndGroup(user, group)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-        )
+        val groupUser = groupUserRepository.findByUserAndGroup(user, group)
 
         if (group.isPublic) {
             return UserValidateResponse(
@@ -242,7 +239,7 @@ class FolderAttachmentService(
             )
         }
 
-        if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        if (!groupUser!!.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         return UserValidateResponse(
             user = user,
