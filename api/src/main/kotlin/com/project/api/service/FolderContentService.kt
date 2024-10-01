@@ -205,10 +205,10 @@ class FolderContentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP.message)
 
         val groupUser = (
-                groupUserRepository.findByUserAndGroup(user, group)
-                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
-                )
-        if(group.isPublic) {
+            groupUserRepository.findByUserAndGroup(user, group)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
+        )
+        if (group.isPublic) {
             return UserValidateResponse(
                 user = user,
                 group = group,

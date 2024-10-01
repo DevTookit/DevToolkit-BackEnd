@@ -15,14 +15,14 @@ import java.time.LocalDateTime
 @RestControllerAdvice
 class RestControllerAdvice {
     private val logger = LoggerFactory.getLogger(this.javaClass)
-    private val logFormat = "Exception 발생 : {}, {} ,{}"
+    private val logFormat = "Exception 발생 : {}, {}, {} ,{}"
 
     @ExceptionHandler(RestException::class)
     fun handleRestException(
         e: RestException,
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        logger.error(logFormat, e.message, e.status, LocalDateTime.now())
+        logger.error(logFormat, request.requestURI, e.message, e.status, LocalDateTime.now())
         return ResponseEntity.status(e.status).body(e.toResponse(request.requestURI))
     }
 
@@ -31,7 +31,7 @@ class RestControllerAdvice {
         e: NullPointerException,
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        logger.error(logFormat, e.message, HttpStatus.NOT_FOUND, LocalDateTime.now())
+        logger.error(logFormat, request.requestURI, e.message, HttpStatus.NOT_FOUND, LocalDateTime.now())
         return ResponseEntity
             .status(
                 HttpStatus.NOT_FOUND,
@@ -49,7 +49,7 @@ class RestControllerAdvice {
         e: MethodArgumentNotValidException,
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        logger.error(logFormat, e.message, e.statusCode, LocalDateTime.now())
+        logger.error(logFormat, request.requestURI, e.message, e.statusCode, LocalDateTime.now())
         return ResponseEntity
             .status(
                 e.statusCode,
