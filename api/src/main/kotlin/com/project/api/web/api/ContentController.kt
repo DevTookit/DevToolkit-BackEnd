@@ -36,6 +36,7 @@ class ContentController(
     fun readAll(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestParam groupId: Long?,
+        @RequestParam sectionId: Long?,
         @RequestParam name: String?,
         @RequestParam languages: List<String>?,
         @RequestParam skills: List<String>?,
@@ -47,6 +48,7 @@ class ContentController(
     ) = contentService.readAll(
         email = jwt.subject,
         groupId = groupId,
+        sectionId = sectionId,
         name = name,
         languages = languages,
         skills = skills,
