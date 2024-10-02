@@ -67,6 +67,7 @@ class ContentServiceTest(
             contentService.readAll(
                 email = user.email,
                 groupId = group.id,
+                sectionId = section.id,
                 name = null,
                 languages = null,
                 skills = null,
@@ -91,6 +92,7 @@ class ContentServiceTest(
             contentService.readAll(
                 email = user.email,
                 groupId = null,
+                sectionId = null,
                 name = null,
                 languages = null,
                 skills = null,
