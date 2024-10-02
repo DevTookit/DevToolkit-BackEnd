@@ -10,6 +10,7 @@ interface ContentRepositorySupport {
         user: User,
         name: String?,
         groupId: Long?,
+        sectionId: Long?,
         languages: List<String>?,
         skills: List<String>?,
         writer: String?,

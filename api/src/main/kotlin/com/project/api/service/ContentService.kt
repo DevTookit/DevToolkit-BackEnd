@@ -65,6 +65,7 @@ class ContentService(
     fun readAll(
         email: String,
         groupId: Long?,
+        sectionId: Long?,
         name: String?,
         languages: List<String>?,
         skills: List<String>?,
@@ -86,6 +87,7 @@ class ContentService(
             .search(
                 user = user,
                 groupId = groupId,
+                sectionId = sectionId,
                 name = name,
                 languages =
                     languages?.map {

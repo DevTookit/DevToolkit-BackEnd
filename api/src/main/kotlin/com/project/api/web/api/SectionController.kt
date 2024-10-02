@@ -3,6 +3,9 @@ package com.project.api.web.api
 import com.project.api.service.SectionService
 import com.project.api.web.dto.request.CategoryUpdateRequest
 import com.project.api.web.dto.request.SectionCreateRequest
+import com.project.api.web.dto.response.CategoryUpdateResponse
+import com.project.api.web.dto.response.SectionCreateResponse
+import com.project.api.web.dto.response.SectionResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -32,26 +35,27 @@ class SectionController(
         @ParameterObject pageable: Pageable,
         @RequestParam groupId: Long,
         @RequestParam parentSectionId: Long?,
-    ) = sectionService.readAll(
-        email = jwt.subject,
-        pageable = pageable,
-        groupId = groupId,
-        parentSectionId = parentSectionId,
-    )
+    ): List<SectionResponse>? =
+        sectionService.readAll(
+            email = jwt.subject,
+            pageable = pageable,
+            groupId = groupId,
+            parentSectionId = parentSectionId,
+        )
 
     @PostMapping
     @Operation(summary = "카테고리 생성(그룹 생성자만이 카테고리를 생성가능)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: SectionCreateRequest,
-    ) = sectionService.create(jwt.subject, request)
+    ): SectionCreateResponse = sectionService.create(jwt.subject, request)
 
     @PatchMapping
     @Operation(summary = "카테고리 수정")
     fun updateCategory(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody request: CategoryUpdateRequest,
-    ) = sectionService.update(jwt.subject, request)
+    ): CategoryUpdateResponse = sectionService.update(jwt.subject, request)
 
     @DeleteMapping
     @Operation(summary = "카테고리 삭제")
@@ -62,4 +66,11 @@ class SectionController(
         sectionService.delete(jwt.subject, sectionId)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/exist/repository")
+    @Operation(summary = "최상위카테고리안에 REPOSITORY 타입 카테고리가 존재확인")
+    fun existRepository(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam sectionId: Long,
+    ): Boolean = sectionService.existRepository(jwt.subject, sectionId)
 }

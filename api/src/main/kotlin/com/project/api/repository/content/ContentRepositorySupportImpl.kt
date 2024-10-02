@@ -19,6 +19,7 @@ class ContentRepositorySupportImpl(
         user: User,
         name: String?,
         groupId: Long?,
+        sectionId: Long?,
         languages: List<String>?,
         skills: List<String>?,
         writer: String?,
@@ -27,7 +28,18 @@ class ContentRepositorySupportImpl(
         pageable: Pageable,
         type: ContentType?,
     ): List<ContentSearchResponse> {
-        val builder = createBuilder(groupId, name, languages, skills, writer, startDate, endDate, type)
+        val builder =
+            createBuilder(
+                groupId = groupId,
+                sectionId = sectionId,
+                name = name,
+                languages = languages,
+                skills = skills,
+                writer = writer,
+                startDate = startDate,
+                endDate = endDate,
+                type = type,
+            )
         val queryBuilder =
             query
                 .select(
@@ -58,6 +70,7 @@ class ContentRepositorySupportImpl(
 
     private fun createBuilder(
         groupId: Long?,
+        sectionId: Long?,
         name: String?,
         languages: List<String>?,
         skills: List<String>?,
@@ -75,6 +88,12 @@ class ContentRepositorySupportImpl(
             )
         } ?: run {
             builder.and(QContent.content1.groupUser.group.isPublic.isTrue)
+        }
+        sectionId?.let {
+            builder.and(
+                QContent.content1.section.id
+                    .eq(sectionId),
+            )
         }
         name?.let { builder.and(QContent.content1.name.containsIgnoreCase(it)) }
         languages?.let { builder.and(QContentLanguage.contentLanguage.name.`in`(it)) }
