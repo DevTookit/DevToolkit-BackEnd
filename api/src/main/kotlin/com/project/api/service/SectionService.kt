@@ -51,6 +51,7 @@ class SectionService(
                 it.toResponse()
             }
         }
+
         return parentSectionId?.let { id ->
             sectionRepository.findByIdOrNull(id)?.let { parentSection ->
                 sectionRepository
@@ -130,6 +131,27 @@ class SectionService(
         if (!groupUser.role.isTopAmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
         sectionRepository.delete(section)
+    }
+
+    fun existRepository(
+        email: String,
+        sectionId: Long,
+    ): Boolean {
+        val section = sectionRepository.findByIdOrNull(sectionId)
+        return findRepository(section)
+    }
+
+    private fun findRepository(section: Section?): Boolean {
+        if (section == null) {
+            return false
+        } else if (section.type == SectionType.REPOSITORY) {
+            return true
+        }
+
+        val nextSection =
+            sectionRepository.findByIdOrNull(section.id)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        return findRepository(nextSection)
     }
 
     private fun validate(
