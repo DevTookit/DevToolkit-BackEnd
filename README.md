@@ -1,5 +1,6 @@
 ## ⚙️ AWS Infrastructure
 
+![image](https://github.com/user-attachments/assets/4cd2b914-5927-46ea-add9-477020308ae4)
 
 &nbsp;
 
