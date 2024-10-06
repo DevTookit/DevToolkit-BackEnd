@@ -16,6 +16,7 @@ data class ContentResponse(
     val languages: List<String>?,
     val skills: List<String>?,
     val attachments: List<String>?,
+    var isBookmark: Boolean = false,
 ) {
     companion object {
         fun Content.toResponse() =
@@ -34,4 +35,6 @@ data class ContentResponse(
                 attachments = this.attachments.map { it.name },
             )
     }
+
+    fun bookmark(isBookmark: Boolean) = this.isBookmark == isBookmark
 }
