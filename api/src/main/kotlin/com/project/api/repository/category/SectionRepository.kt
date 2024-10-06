@@ -50,4 +50,6 @@ interface SectionRepository : JpaRepository<Section, Long> {
         id: Long,
         isPublic: Boolean,
     ): Section?
+
+    fun findByParent(section: Section): List<Section>
 }

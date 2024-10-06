@@ -148,10 +148,14 @@ class SectionService(
             return true
         }
 
-        val nextSection =
-            sectionRepository.findByIdOrNull(section.id)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
-        return findRepository(nextSection)
+        val childSections = sectionRepository.findByParent(section)
+        for (childSection in childSections) {
+            if (findRepository(childSection)) {
+                return true
+            }
+        }
+
+        return false
     }
 
     private fun validate(

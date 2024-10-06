@@ -116,7 +116,8 @@ class ContentService(
         sectionId: Long,
         contentId: Long,
     ): ContentResponse {
-        validatePublic(email, groupId)
+        val userResponse = validatePublic(email, groupId)
+
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
@@ -128,7 +129,12 @@ class ContentService(
 
         increaseVisitCnt(contentId)
 
-        return content.toResponse()
+        return content
+            .toResponse()
+            .apply {
+                val isBookmark = bookmarkRepository.existsByContentIdAndUser(this.contentId!!, userResponse.user)
+                this.isBookmark = isBookmark
+            }
     }
 
     private fun increaseVisitCnt(contentId: Long) {

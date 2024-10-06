@@ -5,6 +5,7 @@ import com.project.api.web.dto.request.ContentCreateRequest
 import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentResponse
+import com.project.api.web.dto.response.ContentSearchResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
 import com.project.api.web.dto.response.HotContentResponse
 import com.project.core.internal.ContentType
@@ -45,19 +46,20 @@ class ContentController(
         @RequestParam endDate: Long?,
         @RequestParam type: ContentType?,
         @ParameterObject pageable: Pageable,
-    ) = contentService.readAll(
-        email = jwt.subject,
-        groupId = groupId,
-        sectionId = sectionId,
-        name = name,
-        languages = languages,
-        skills = skills,
-        writer = writer,
-        startDate = startDate,
-        endDate = endDate,
-        pageable = pageable,
-        type = type,
-    )
+    ): List<ContentSearchResponse> =
+        contentService.readAll(
+            email = jwt.subject,
+            groupId = groupId,
+            sectionId = sectionId,
+            name = name,
+            languages = languages,
+            skills = skills,
+            writer = writer,
+            startDate = startDate,
+            endDate = endDate,
+            pageable = pageable,
+            type = type,
+        )
 
     @GetMapping("/{sectionId}/{contentId}/{groupId}")
     @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형, 파일)")
