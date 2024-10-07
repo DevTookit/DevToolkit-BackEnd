@@ -62,7 +62,7 @@ class BookmarkService(
     ): BookmarkCreateResponse {
         val userInfo = validate(email, request.groupId)
 
-        val contentId = validate(request.type, request.contentId)
+        val contentId = validateBookmark(request.type, request.contentId)
         val section =
             sectionRepository.findByIdOrNull(request.sectionId)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
@@ -116,7 +116,7 @@ class BookmarkService(
         }
     }
 
-    private fun validate(
+    private fun validateBookmark(
         type: BookmarkType,
         contentId: Long,
     ): Long {

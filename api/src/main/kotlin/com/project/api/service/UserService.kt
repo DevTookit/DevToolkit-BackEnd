@@ -124,17 +124,7 @@ class UserService(
     @Transactional(noRollbackFor = [RestException::class])
     fun login(request: UserLoginRequest): UserLoginResponse {
         val user = userRepository.findByEmail(request.email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
-        val errorMessage =
-            when {
-                !user.isVerified -> ErrorMessage.NOT_EMAIL_VERIFIED.message
-                !user.isEnabled -> ErrorMessage.CONTACT_ADMIN.message
-                !passwordEncoder.matches(request.password, user.password) -> {
-                    user.failCount = ++user.failCount
-                    ErrorMessage.NOT_MATCH_PASSWORD.message
-                }
-                else -> null
-            }
-        errorMessage?.let { throw RestException.authorized(it) }
+        validateLogin(user, request)
 
         return user
             .apply { failCount = 0 }
@@ -199,6 +189,24 @@ class UserService(
         user.apply {
             isOnBoardingComplete = isOnBoarding
         }
+    }
+
+    private fun validateLogin(
+        user: User,
+        request: UserLoginRequest,
+    ) {
+        val errorMessage =
+            when {
+                !user.isVerified -> ErrorMessage.NOT_EMAIL_VERIFIED.message
+                !user.isEnabled -> ErrorMessage.CONTACT_ADMIN.message
+                !passwordEncoder.matches(request.password, user.password) -> {
+                    user.failCount = ++user.failCount
+                    ErrorMessage.NOT_MATCH_PASSWORD.message
+                }
+
+                else -> null
+            }
+        errorMessage?.let { throw RestException.authorized(it) }
     }
 
     private fun makeVerifyKey(email: String) = "verify_$email"

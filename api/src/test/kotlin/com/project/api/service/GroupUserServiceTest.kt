@@ -299,7 +299,7 @@ class GroupUserServiceTest(
 
         Assertions
             .assertThatThrownBy {
-                groupUserService.delete(manager.email, group.id!!, 100L)
+                groupUserService.delete(manager.email, group.id!!, 0L)
             }.isInstanceOf(RestException::class.java)
     }
 

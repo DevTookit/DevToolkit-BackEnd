@@ -42,12 +42,33 @@ class SectionServiceTest(
     fun readAll() {
         val user = userFixture.create()
         val group = groupFixture.create(user)
-        val section1 = sectionFixture.create(group = group)
-        val section2 = sectionFixture.create(group = group)
+        val section1 = sectionFixture.create(group = group, type = SectionType.MENU)
+        val section2 = sectionFixture.create(group = group, type = SectionType.MENU)
 
         val response =
             sectionService.readAll(
                 email = user.email,
+                pageable = Pageable.unpaged(),
+                groupId = group.id!!,
+                parentSectionId = null,
+            )
+
+        Assertions.assertThat(response!!.size).isEqualTo(2)
+        Assertions.assertThat(response[0].type).isEqualTo(SectionType.MENU)
+        Assertions.assertThat(response[1].type).isEqualTo(SectionType.MENU)
+    }
+
+    @Test
+    fun readAllNotGroupUser() {
+        val user1 = userFixture.create()
+        val user2 = userFixture.create()
+        val group = groupFixture.create(user = user1, isPublic = true)
+        val section1 = sectionFixture.create(group = group, type = SectionType.MENU)
+        val section2 = sectionFixture.create(group = group, type = SectionType.MENU)
+
+        val response =
+            sectionService.readAll(
+                email = user2.email,
                 pageable = Pageable.unpaged(),
                 groupId = group.id!!,
                 parentSectionId = null,
@@ -354,5 +375,29 @@ class SectionServiceTest(
             .assertThatThrownBy {
                 sectionService.delete(email = user.email, sectionId = category.id!!)
             }.isInstanceOf(RestException::class.java)
+    }
+
+    @Test
+    fun existRepositoryIsFalse() {
+        val user = userFixture.create()
+        val group = groupFixture.create(user)
+        val section1 = sectionFixture.create(group = group, type = SectionType.MENU)
+        val section2 = sectionFixture.create(group = group, type = SectionType.MENU, parent = section1)
+
+        val response = sectionService.existRepository(user.email, section1.id!!)
+
+        Assertions.assertThat(response).isFalse()
+    }
+
+    @Test
+    fun existRepositoryIsTrue() {
+        val user = userFixture.create()
+        val group = groupFixture.create(user)
+        val section1 = sectionFixture.create(group = group, type = SectionType.MENU)
+        val section2 = sectionFixture.create(group = group, type = SectionType.REPOSITORY, parent = section1)
+
+        val response = sectionService.existRepository(user.email, section1.id!!)
+
+        Assertions.assertThat(response).isTrue()
     }
 }
