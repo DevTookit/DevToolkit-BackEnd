@@ -139,27 +139,6 @@ class GroupUserService(
     }
 
     @Transactional
-    fun delete(
-        email: String,
-        groupId: Long,
-        groupUserId: Long,
-    ) {
-        val userResponse = validate(email, groupId)
-        if (!userResponse.groupUser!!.role.isAdmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
-
-        val expelUser =
-            groupUserRepository.findByIdAndGroup(groupUserId, userResponse.group) ?: throw RestException.notFound(
-                ErrorMessage.NOT_FOUND_GROUP_USER.message,
-            )
-
-        if (userResponse.groupUser.role == expelUser.role) {
-            throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
-        } else {
-            groupUserRepository.delete(expelUser)
-        }
-    }
-
-    @Transactional
     fun update(
         email: String,
         request: GroupUserUpdateRequest,
@@ -190,6 +169,39 @@ class GroupUserService(
                 val sectionNotificationType = if (!request.role.isActive()) SectionNotificationType.NONE else SectionNotificationType.ALL
                 sectionNotificationService.update(userResponse.group, groupUser, sectionNotificationType)
             }.toGroupUserResponse()
+    }
+
+    @Transactional
+    fun delete(
+        email: String,
+        groupId: Long,
+        groupUserId: Long,
+    ) {
+        val userResponse = validate(email, groupId)
+        if (!userResponse.groupUser!!.role.isAdmin()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+
+        val expelUser =
+            groupUserRepository.findByIdAndGroup(groupUserId, userResponse.group) ?: throw RestException.notFound(
+                ErrorMessage.NOT_FOUND_GROUP_USER.message,
+            )
+
+        if (userResponse.groupUser.role == expelUser.role) {
+            throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
+        } else {
+            groupUserRepository.delete(expelUser)
+        }
+    }
+
+    @Transactional
+    fun deleteMe(
+        email: String,
+        groupId: Long,
+    ) {
+        val userResponse = validate(email, groupId)
+        if (userResponse.group.user.id == userResponse.user.id) {
+            throw RestException.conflict(ErrorMessage.GROUP_OWNER_CANNOT_LEAVE.message)
+        }
+        groupUserRepository.delete(userResponse.groupUser!!)
     }
 
     fun readRole(
@@ -251,14 +263,6 @@ class GroupUserService(
             groupUserRepository.findByUserAndGroup(user, group)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
         )
-
-        if (group.isPublic) {
-            return UserValidateResponse(
-                user = user,
-                group = group,
-                groupUser = groupUser,
-            )
-        }
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
 
