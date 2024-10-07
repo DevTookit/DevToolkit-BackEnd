@@ -34,7 +34,6 @@ import com.project.core.domain.content.ContentAttachment
 import com.project.core.domain.content.ContentLanguage
 import com.project.core.domain.content.ContentSkill
 import com.project.core.domain.group.GroupLog
-import com.project.core.domain.group.QGroup.group
 import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
 import com.project.core.internal.SectionType

@@ -13,7 +13,6 @@ import com.project.core.internal.ContentType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupLogService(
@@ -22,10 +21,6 @@ class GroupLogService(
     private val userRepository: UserRepository,
     private val groupUserRepository: GroupUserRepository,
 ) {
-    @Transactional
-    fun create() {
-    }
-
     fun readAll(
         email: String,
         pageable: Pageable,
