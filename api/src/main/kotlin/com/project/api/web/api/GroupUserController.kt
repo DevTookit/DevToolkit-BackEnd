@@ -80,6 +80,16 @@ class GroupUserController(
         return ResponseEntity.noContent().build()
     }
 
+    @DeleteMapping("withdraw")
+    @Operation(summary = "그룹 탈퇴")
+    fun deleteMe(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam groupId: Long,
+    ): ResponseEntity<Unit> {
+        groupUserService.deleteMe(jwt.subject, groupId)
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping("role/me")
     @Operation(summary = "해당 그룹내 내 role 확인")
     fun readMyRole(

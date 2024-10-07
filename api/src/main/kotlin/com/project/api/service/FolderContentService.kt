@@ -128,7 +128,7 @@ class FolderContentService(
         val section =
             sectionRepository.findByIdOrNull(
                 sectionId,
-            ) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND.message)
+            ) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
         if (section.type != SectionType.REPOSITORY) {
             throw RestException.badRequest(ErrorMessage.IMPOSSIBLE_CREATE_CONTENT.message)
@@ -162,7 +162,7 @@ class FolderContentService(
         validate(email, groupId)
         val folder =
             folderRepository.findByIdOrNull(request.folderId)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND.message)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER.message)
 
         return folder
             .apply {

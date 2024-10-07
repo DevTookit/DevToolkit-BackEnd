@@ -4,7 +4,7 @@ enum class ErrorMessage(
     val message: String,
 ) {
     INVALID_ENTITY("처리불가능한 엔티티입니다."),
-    NOT_FOUND("해당 엔티티를 찾을 수 없습니다."),
+    NULL("NullPointException 관련 에러입니다."),
     NOT_MATCH_PASSWORD("비밀번호가 틀렸습니다."),
     NOT_FOUND_USER("해당 유저를 찾을 수 없습니다."),
     NOT_FOUND_GROUP("해당 그룹을 찾을 수 없습니다."),
@@ -27,6 +27,7 @@ enum class ErrorMessage(
     UNAUTHORIZED("해당권한으로 불가능한 요청입니다."),
     ALREADY_VERIFIED_EMAIL("이미 검증한 이메일입니다."),
     CONFLICT_ENTITY("이미 존재하는 리소스 입니다."),
+    GROUP_OWNER_CANNOT_LEAVE("그룹의 소유자는 탈퇴할 수 없습니다."),
 }
 
 enum class EmailForm(

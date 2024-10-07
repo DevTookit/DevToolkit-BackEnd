@@ -51,7 +51,7 @@ class RestControllerAdvice(
                 HttpStatus.NOT_FOUND,
             ).body(
                 ErrorResponse(
-                    message = ErrorMessage.NOT_FOUND.message,
+                    message = ErrorMessage.NULL.message,
                     status = status,
                     path = request.requestURI,
                 ),
