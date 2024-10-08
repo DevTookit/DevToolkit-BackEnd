@@ -1,5 +1,3 @@
-import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {

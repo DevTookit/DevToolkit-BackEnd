@@ -4,6 +4,7 @@ import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.user.User
 import com.project.core.internal.GroupRole
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
@@ -14,6 +15,11 @@ interface GroupUserRepository :
         user: User,
         group: Group,
     ): GroupUser?
+
+    fun findByGroupAndUserImgIsNotNull(
+        group: Group,
+        pageable: Pageable,
+    ): List<GroupUser>
 
     fun existsByUserAndGroup(
         user: User,

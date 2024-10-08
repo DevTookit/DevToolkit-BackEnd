@@ -1,6 +1,8 @@
 package com.project.api.web.dto.response
 
+import com.project.api.web.dto.response.HotGroupResponse.HotGroupUserImg.Companion.toHotGroupUserImg
 import com.project.core.domain.group.Group
+import com.project.core.domain.group.GroupUser
 
 data class HotGroupResponse(
     val groupId: Long?,
@@ -12,9 +14,10 @@ data class HotGroupResponse(
     val groupCreator: Long?,
     val groupCreatorName: String,
     val groupCreatorImg: String?,
+    val groupUserImgs: List<HotGroupUserImg>? = null,
 ) {
     companion object {
-        fun Group.toHotGroupResponse() =
+        fun Group.toHotGroupResponse(groupUsers: List<GroupUser>) =
             HotGroupResponse(
                 groupId = this.id,
                 groupName = this.name,
@@ -24,6 +27,23 @@ data class HotGroupResponse(
                 groupCreator = this.user.id,
                 groupCreatorName = this.user.name,
                 groupCreatorImg = this.user.img,
+                groupUserImgs =
+                    groupUsers.map {
+                        it.toHotGroupUserImg()
+                    },
             )
+    }
+
+    class HotGroupUserImg(
+        val img: String?,
+        val groupUserId: Long?,
+    ) {
+        companion object {
+            fun GroupUser.toHotGroupUserImg() =
+                HotGroupUserImg(
+                    img = this.user.img,
+                    groupUserId = this.id,
+                )
+        }
     }
 }
