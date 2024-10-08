@@ -228,10 +228,10 @@ class GroupService(
                 groupRepository
                     .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
                     .map {
-                        it.toHotGroupResponse()
+                        val groupUsers = groupUserRepository.findByGroupAndUserImgIsNotNull(it, PageRequest.of(0, 3))
+                        it.toHotGroupResponse(groupUsers)
                     }
             redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
-
             return list
         }
     }
