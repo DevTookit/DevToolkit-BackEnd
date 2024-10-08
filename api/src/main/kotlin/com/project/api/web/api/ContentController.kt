@@ -2,6 +2,8 @@ package com.project.api.web.api
 
 import com.project.api.service.ContentService
 import com.project.api.web.dto.request.ContentCreateRequest
+import com.project.api.web.dto.request.ContentFileCreateRequest
+import com.project.api.web.dto.request.ContentFileCreateResponse
 import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentResponse
@@ -77,7 +79,7 @@ class ContentController(
         )
 
     @PostMapping(path = ["{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    @Operation(summary = "컨텐츠 생성(코드, 게시판형)")
+    @Operation(summary = "컨텐츠 생성(코드, 게시판형, 폴더)")
     fun create(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
@@ -86,6 +88,23 @@ class ContentController(
         @RequestPart(required = false) files: List<MultipartFile>?,
     ): ContentCreateResponse =
         contentService.create(
+            email = jwt.subject,
+            groupId = groupId,
+            sectionId = sectionId,
+            request = request,
+            files = files,
+        )
+
+    @PostMapping(path = ["/file/{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "컨텐츠 생성(파일)")
+    fun createFile(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable groupId: Long,
+        @PathVariable sectionId: Long,
+        @RequestPart(name = "ContentFileCreateRequest") request: ContentFileCreateRequest,
+        @RequestPart(required = true) files: List<MultipartFile>,
+    ): List<ContentFileCreateResponse> =
+        contentService.createFile(
             email = jwt.subject,
             groupId = groupId,
             sectionId = sectionId,

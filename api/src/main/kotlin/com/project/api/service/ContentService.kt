@@ -18,6 +18,9 @@ import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.ContentCreateRequest
+import com.project.api.web.dto.request.ContentFileCreateRequest
+import com.project.api.web.dto.request.ContentFileCreateResponse
+import com.project.api.web.dto.request.ContentFileCreateResponse.Companion.toContentFileCreateResponse
 import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentCreateResponse.Companion.toContentCreateResponse
@@ -33,7 +36,9 @@ import com.project.core.domain.content.Content
 import com.project.core.domain.content.ContentAttachment
 import com.project.core.domain.content.ContentLanguage
 import com.project.core.domain.content.ContentSkill
-import com.project.core.domain.group.GroupLog
+import com.project.core.domain.group.Group
+import com.project.core.domain.group.GroupUser
+import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
 import com.project.core.internal.SectionType
@@ -152,39 +157,143 @@ class ContentService(
         request: ContentCreateRequest,
         files: List<MultipartFile>?,
     ): ContentCreateResponse {
+        // 유저 및 그룹 검증
         val userResponse = validate(email, groupId)
         val section =
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
-        return contentRepository
-            .save(
-                Content(
-                    name = request.name,
-                    groupUser = userResponse.groupUser!!,
-                    section = section,
-                    type = request.type,
-                    content = request.content,
-                    group = userResponse.group,
-                ).apply {
-                    if (request.type == ContentType.CODE) {
-                        this.codeDescription = request.codeDescription
-                    }
-                }.also {
-                    createContentExtraInfo(request, it)
-                    createContentAttachment(request, files, it)
-                },
-            ).also {
-                groupLogRepository.save(
-                    GroupLog(
-                        user = userResponse.user,
+
+        return when (request.type) {
+            ContentType.FOLDER -> createFolder(userResponse, section, request, files).toContentCreateResponse()
+            else -> createContent(userResponse, section, request, files).toContentCreateResponse()
+        }
+    }
+
+    @Transactional
+    fun createFile(
+        email: String,
+        groupId: Long,
+        sectionId: Long,
+        request: ContentFileCreateRequest,
+        files: List<MultipartFile>,
+    ): List<ContentFileCreateResponse> {
+        val userResponse = validate(email, groupId)
+        val section =
+            sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+
+        val parent =
+            contentRepository.findByIdAndType(request.parentFolderId, ContentType.FOLDER)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER.message)
+
+        return files.map {
+            val response = fileService.upload(it, FilePath.CONTENT.name)
+            contentRepository
+                .save(
+                    Content(
+                        name = it.name,
+                        groupUser = userResponse.groupUser!!,
+                        section = section,
+                        type = ContentType.FILE,
+                        content = response.url,
                         group = userResponse.group,
-                        type = request.type,
-                        contentId = it.id!!,
-                        contentName = it.name,
-                        sectionId = section.id!!,
-                    ),
+                    ).apply {
+                        parentFolder = parent
+                        size = it.size
+                        extension = createExtension(it)
+                        url = response.url
+                    },
+                ).toContentFileCreateResponse()
+        }
+    }
+
+    private fun createFolder(
+        userResponse: UserValidateResponse,
+        section: Section,
+        request: ContentCreateRequest,
+        files: List<MultipartFile>?,
+    ): Content {
+        val content =
+            Content(
+                name = request.name,
+                groupUser = userResponse.groupUser!!,
+                section = section,
+                type = request.type,
+                content = request.content,
+                group = userResponse.group,
+            ).apply {
+                request.parentId?.let { folderId ->
+                    val parent =
+                        contentRepository.findByIdOrNull(folderId)
+                            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER.message)
+                    this.parentFolder = parent
+                }
+
+                files?.map {
+                    val file = uploadFileWithFolder(it, userResponse.groupUser, userResponse.group, section)
+                    file.parentFolder = this
+                    contentRepository.save(file)
+                    this.files.add(file)
+                }
+            }
+        return contentRepository.save(content)
+    }
+
+    private fun createFiles(
+        userResponse: UserValidateResponse,
+        section: Section,
+        request: ContentCreateRequest,
+        files: List<MultipartFile>?,
+    ) {
+        request.parentId?.let {
+            val parent =
+                contentRepository.findByIdOrNull(it)
+                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER.message)
+
+            files?.forEach {
+                val response = fileService.upload(it, FilePath.CONTENT.name)
+                contentRepository.save(
+                    Content(
+                        name = it.name,
+                        groupUser = userResponse.groupUser!!,
+                        section = section,
+                        type = ContentType.FILE,
+                        content = response.url,
+                        group = userResponse.group,
+                    ).apply {
+                        parentFolder = parent
+                        size = it.size
+                        extension = createExtension(it)
+                        url = response.url
+                    },
                 )
-            }.toContentCreateResponse()
+            }
+        }
+    }
+
+    private fun createContent(
+        userResponse: UserValidateResponse,
+        section: Section,
+        request: ContentCreateRequest,
+        files: List<MultipartFile>?,
+    ): Content {
+        val content =
+            Content(
+                name = request.name,
+                groupUser = userResponse.groupUser!!,
+                section = section,
+                type = request.type,
+                content = request.content,
+                group = userResponse.group,
+            ).apply {
+                if (request.type == ContentType.CODE) {
+                    this.codeDescription = request.codeDescription
+                }
+            }
+
+        createContentExtraInfo(request, content)
+        createContentAttachment(request, files, content)
+        return contentRepository.save(content)
     }
 
     @Transactional
@@ -326,6 +435,29 @@ class ContentService(
                         url = response.url!!,
                     ),
                 )
+        } else {
+            throw RestException.badRequest(message = response.errorMessage!!)
+        }
+    }
+
+    private fun uploadFileWithFolder(
+        file: MultipartFile,
+        groupUser: GroupUser,
+        group: Group,
+        section: Section,
+    ): Content {
+        val response = fileService.upload(file, FilePath.CONTENT.name)
+        return if (response.isSuccess) {
+            contentRepository.save(
+                Content(
+                    name = file.originalFilename!!,
+                    groupUser = groupUser,
+                    group = group,
+                    section = section,
+                    type = ContentType.FILE,
+                    content = response.url,
+                ),
+            )
         } else {
             throw RestException.badRequest(message = response.errorMessage!!)
         }

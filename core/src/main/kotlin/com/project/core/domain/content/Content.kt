@@ -32,8 +32,9 @@ class Content(
     var url: String? = null
     var visitCnt: Long = 0
 
+    // 부모 폴더
     @ManyToOne(fetch = FetchType.LAZY)
-    var folder: Folder? = null
+    var parentFolder: Content? = null
 
     @OneToMany(mappedBy = "content", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     var languages: MutableSet<ContentLanguage> = mutableSetOf()
@@ -43,6 +44,12 @@ class Content(
 
     @OneToMany(mappedBy = "content", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
     var attachments: MutableSet<ContentAttachment> = mutableSetOf()
+
+    @OneToMany(mappedBy = "parentFolder", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
+    val childrens: MutableSet<Content> = mutableSetOf()
+
+    @OneToMany(mappedBy = "parentFolder", cascade = [(CascadeType.REMOVE)], orphanRemoval = true)
+    var files: MutableSet<Content> = mutableSetOf()
 
     fun updateAttachments(attachments: List<ContentAttachment>) {
         this.attachments.clear()

@@ -10,4 +10,6 @@ data class ContentCreateRequest(
     // 코드 설명
     val codeDescription: String?,
     val type: ContentType,
+    // 폴더링 시스템에서
+    val parentId: Long?,
 )
