@@ -159,7 +159,6 @@ class FolderAttachmentService(
     ): List<FolderAttachmentResponse> =
         files.map { file ->
             val response = fileService.upload(file, FilePath.CONTENT.name)
-
             if (response.isSuccess) {
                 contentRepository
                     .save(
@@ -175,19 +174,19 @@ class FolderAttachmentService(
                             size = file.size
                             extension = createExtension(file)
                             url = response.url
-                        }.also {
-                            groupLongRepository.save(
-                                GroupLog(
-                                    user = userResponse.user,
-                                    group = userResponse.group,
-                                    type = it.type,
-                                    contentId = it.id!!,
-                                    contentName = it.name,
-                                    sectionId = folder.section.id!!,
-                                ),
-                            )
                         },
-                    ).toResponse()
+                    ).also {
+                        groupLongRepository.save(
+                            GroupLog(
+                                user = userResponse.user,
+                                group = userResponse.group,
+                                type = it.type,
+                                contentId = it.id!!,
+                                contentName = it.name,
+                                sectionId = folder.section.id!!,
+                            ),
+                        )
+                    }.toResponse()
             } else {
                 throw RestException.badRequest(message = response.errorMessage!!)
             }

@@ -102,8 +102,10 @@ class ContentService(
                 pageable = pageable,
                 type = type,
             ).map {
-                val isBookmark = bookmarkRepository.existsByContentIdAndUser(it.contentId!!, user)
-                it.isBookmark = isBookmark
+                val bookmark = bookmarkRepository.findByContentIdAndUser(it.contentId!!, user)
+                bookmark?.let { mark ->
+                    it.bookmarkId = mark.id
+                }
                 return@map it
             }
     }
@@ -131,8 +133,10 @@ class ContentService(
         return content
             .toResponse()
             .apply {
-                val isBookmark = bookmarkRepository.existsByContentIdAndUser(this.contentId!!, userResponse.user)
-                this.isBookmark = isBookmark
+                val bookmark = bookmarkRepository.findByContentIdAndUser(this.contentId!!, userResponse.user)
+                bookmark?.let { mark ->
+                    this.bookmarkId = mark.id
+                }
             }
     }
 
