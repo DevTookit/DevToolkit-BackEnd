@@ -17,4 +17,9 @@ interface BookmarkRepository :
         contentId: Long,
         user: User,
     ): Boolean
+
+    fun findByContentIdAndUser(
+        contentId: Long,
+        user: User,
+    ): Bookmark?
 }
