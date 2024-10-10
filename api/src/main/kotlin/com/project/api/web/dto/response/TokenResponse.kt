@@ -4,4 +4,6 @@ data class TokenResponse(
     val grantType: String = "Bearer",
     val accessToken: String,
     val refreshToken: String,
+    val accessTokenExpire: Long,
+    val refreshTokenExpire: Long,
 )

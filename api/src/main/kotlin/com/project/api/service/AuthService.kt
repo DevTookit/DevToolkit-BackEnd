@@ -17,11 +17,14 @@ class AuthService(
     private val redisService: RedisService,
 ) {
     fun create(email: String): TokenResponse {
-        val refreshToken = createToken(email, properties.tokenRefresh.toLong())
+        val (refreshToken, refreshTokenExpire) = createToken(email, properties.tokenRefresh.toLong())
         redisService.add(createKey(email), refreshToken, properties.tokenRefresh.toLong())
+        val (accessToken, accessTokenExpire) = createToken(email, properties.tokenAccess.toLong())
         return TokenResponse(
-            accessToken = createToken(email, properties.tokenAccess.toLong()),
+            accessToken = accessToken,
             refreshToken = refreshToken,
+            accessTokenExpire = accessTokenExpire.time,
+            refreshTokenExpire = refreshTokenExpire.time,
         )
     }
 
@@ -38,7 +41,7 @@ class AuthService(
     private fun createToken(
         email: String,
         period: Long,
-    ): String {
+    ): Pair<String, Date> {
         val now = Instant.now()
         val issuedAt = Date.from(now)
         val expiredAt = Date.from(now.plusMillis(period))
@@ -59,6 +62,6 @@ class AuthService(
             )
         signedJWT.sign(MACSigner(properties.key))
 
-        return signedJWT.serialize()
+        return signedJWT.serialize() to expiredAt
     }
 }
