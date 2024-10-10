@@ -12,7 +12,7 @@ data class ContentSearchResponse(
     val createdDate: Long?,
     val size: Long?,
     val type: ContentType,
-    var isBookmark: Boolean = false,
+    var bookmarkId: Long? = null,
 ) {
     companion object {
         fun Content.toContentSearchResponse() =
@@ -27,6 +27,4 @@ data class ContentSearchResponse(
                 type = this.type,
             )
     }
-
-    fun bookmark(isBookmark: Boolean) = this.isBookmark == isBookmark
 }
