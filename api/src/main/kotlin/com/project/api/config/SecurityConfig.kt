@@ -3,6 +3,7 @@ package com.project.api.config
 import com.nimbusds.jose.JWSAlgorithm
 import com.project.api.commons.security.JwtAccessDeniedHandler
 import com.project.api.commons.security.JwtAuthenticationEntryPoint
+import com.project.api.commons.security.JwtAuthenticationTokenFilter
 import com.project.api.config.properties.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import javax.crypto.spec.SecretKeySpec
 
@@ -26,6 +28,7 @@ import javax.crypto.spec.SecretKeySpec
 @EnableMethodSecurity
 class SecurityConfig(
     private val properties: SecurityProperties,
+    private val jwtAuthenticationTokenFilter: JwtAuthenticationTokenFilter,
 ) {
     @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
@@ -68,7 +71,8 @@ class SecurityConfig(
                 it.jwt { jwtConfigurer ->
                     jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 }
-            }.build()
+            }.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .build()
     }
 
     @Bean
