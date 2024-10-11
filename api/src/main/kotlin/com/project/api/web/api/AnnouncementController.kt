@@ -40,12 +40,12 @@ class AnnouncementController(
             email = jwt.subject,
         )
 
-    @GetMapping
+    @GetMapping("{announceId}")
     @Operation(summary = "해당 공지사항 읽기")
     fun read(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
-        @RequestParam announceId: Long,
+        @PathVariable announceId: Long,
     ): AnnouncementResponse =
         announcementService.read(
             groupId = groupId,
