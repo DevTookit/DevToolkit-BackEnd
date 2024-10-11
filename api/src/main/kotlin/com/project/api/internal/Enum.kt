@@ -17,6 +17,7 @@ enum class ErrorMessage(
     NOT_FOUND_BOOKMARK("해당 북마크를 찾을 수 없습니다"),
     NOT_FOUND_FOLDER("해당 폴더를 찾을 수 없습니다."),
     NOT_FOUND_FOLDER_FILE("해당 폴더 파일를 찾을 수 없습니다."),
+    NOT_FOUND_ANNOUNCE("해당 공지사항을 찾을 수 없습니다."),
     NEW_PASSWORD_MATCH_OLD_PASSWORD("새로운 패스워드가 이전 패스워드와 일치합니다."),
     IMPOSSIBLE_CREATE_CONTENT("해당 카테고리는 컨텐츠 생성이 불가능합니다"),
     INCORRECT_REFRESH_TOKEN("리프레쉬 토큰이 옳지 않습니다."),

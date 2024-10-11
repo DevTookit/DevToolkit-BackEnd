@@ -58,7 +58,7 @@ dependencies {
 kover {
     reports {
         verify {
-           rule {
+            rule {
                 groupBy = GroupingEntityType.CLASS
                 minBound(80, CoverageUnit.LINE)
                 minBound(80, CoverageUnit.INSTRUCTION)
