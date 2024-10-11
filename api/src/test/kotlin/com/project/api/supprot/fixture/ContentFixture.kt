@@ -5,7 +5,6 @@ import com.project.core.domain.content.Content
 import com.project.core.domain.content.ContentAttachment
 import com.project.core.domain.content.ContentLanguage
 import com.project.core.domain.content.ContentSkill
-import com.project.core.domain.content.Folder
 import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
@@ -28,10 +27,10 @@ class ContentFixture(
         size: Long = 200,
         extension: String = "jpg",
         url: String = UUID.randomUUID().toString(),
-        folder: Folder? = null,
         languages: List<ContentLanguage>? = null,
         skills: List<ContentSkill>? = null,
         attachments: List<ContentAttachment>? = null,
+        parent: Content? = null,
     ): Content =
         contentRepository.save(
             Content(
@@ -60,6 +59,10 @@ class ContentFixture(
                     skills?.let {
                         this.skills.addAll(it)
                     }
+                }
+
+                parent?.let {
+                    parentFolder = it
                 }
             },
         )

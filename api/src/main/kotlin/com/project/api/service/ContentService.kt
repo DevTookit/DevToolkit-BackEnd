@@ -24,6 +24,8 @@ import com.project.api.web.dto.request.ContentFileCreateResponse.Companion.toCon
 import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
 import com.project.api.web.dto.response.ContentCreateResponse.Companion.toContentCreateResponse
+import com.project.api.web.dto.response.ContentFolderResponse
+import com.project.api.web.dto.response.ContentFolderResponse.Companion.toContentFolderResponse
 import com.project.api.web.dto.response.ContentResponse
 import com.project.api.web.dto.response.ContentResponse.Companion.toResponse
 import com.project.api.web.dto.response.ContentSearchResponse
@@ -128,6 +130,10 @@ class ContentService(
             sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
 
+        if (userResponse.groupUser == null && !section.isPublic) {
+            throw RestException.forbidden(ErrorMessage.FORBIDDEN.message)
+        }
+
         val content = (
             contentRepository.findByIdAndSection(contentId, section)
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
@@ -143,6 +149,31 @@ class ContentService(
                     this.bookmarkId = mark.id
                 }
             }
+    }
+
+    @Transactional(readOnly = true)
+    fun readFolders(
+        email: String,
+        groupId: Long,
+        sectionId: Long,
+        folderId: Long,
+        pageable: Pageable,
+    ): ContentFolderResponse {
+        val userResponse = validatePublic(email, groupId)
+        val section =
+            sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        if (userResponse.groupUser == null && !section.isPublic) {
+            throw RestException.forbidden(ErrorMessage.FORBIDDEN.message)
+        }
+
+        val parent =
+            contentRepository.findByIdAndSectionAndType(folderId, section, ContentType.FOLDER)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
+
+        val contents = contentRepository.findByParentFolder(parent, pageable)
+
+        return parent.toContentFolderResponse(contents)
     }
 
     private fun increaseVisitCnt(contentId: Long) {
@@ -239,38 +270,6 @@ class ContentService(
         return contentRepository.save(content)
     }
 
-    private fun createFiles(
-        userResponse: UserValidateResponse,
-        section: Section,
-        request: ContentCreateRequest,
-        files: List<MultipartFile>?,
-    ) {
-        request.parentId?.let {
-            val parent =
-                contentRepository.findByIdOrNull(it)
-                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_FOLDER.message)
-
-            files?.forEach {
-                val response = fileService.upload(it, FilePath.CONTENT.name)
-                contentRepository.save(
-                    Content(
-                        name = it.name,
-                        groupUser = userResponse.groupUser!!,
-                        section = section,
-                        type = ContentType.FILE,
-                        content = response.url,
-                        group = userResponse.group,
-                    ).apply {
-                        parentFolder = parent
-                        size = it.size
-                        extension = createExtension(it)
-                        url = response.url
-                    },
-                )
-            }
-        }
-    }
-
     private fun createContent(
         userResponse: UserValidateResponse,
         section: Section,
@@ -325,14 +324,20 @@ class ContentService(
         sectionId: Long,
         contentId: Long,
     ) {
-        validate(email, groupId)
-        sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
-            ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        val userResponse = validate(email, groupId)
+        val section = (
+            sectionRepository.findByIdAndType(sectionId, SectionType.REPOSITORY)
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_SECTION.message)
+        )
 
-        contentRepository.deleteById(contentId)
+        bookmarkRepository.findByContentIdAndUser(contentId, userResponse.user)?.let {
+            bookmarkRepository.delete(it)
+        }
+
+        contentRepository.deleteByIdAndSection(contentId, section)
     }
 
-    fun readHot(): List<HotContentResponse> {
+    fun readHots(): List<HotContentResponse> {
         val contentList = redisService.get(RedisType.HOT_CONTENT.name)
 
         return if (contentList != null) {
@@ -394,16 +399,18 @@ class ContentService(
             this.updateSkills(newSkills)
         }
 
-        files?.let {
-            this.attachments.forEach {
-                fileService.delete(it.url)
-                contentAttachmentRepository.delete(it)
-            }
-            val newAttachments =
-                it.map {
-                    uploadFile(it, this)
+        if (type == ContentType.BOARD) {
+            files?.let {
+                this.attachments.forEach {
+                    fileService.delete(it.url)
+                    contentAttachmentRepository.delete(it)
                 }
-            this.updateAttachments(newAttachments)
+                val newAttachments =
+                    it.map {
+                        uploadFile(it, this)
+                    }
+                this.updateAttachments(newAttachments)
+            }
         }
     }
 
@@ -528,7 +535,7 @@ class ContentService(
             groupUserRepository.findByUserAndGroup(user, group)
 
         if (group.isPublic) {
-            UserValidateResponse(
+            return UserValidateResponse(
                 user = user,
                 group = group,
                 groupUser = groupUser,

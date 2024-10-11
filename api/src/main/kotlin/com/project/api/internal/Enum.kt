@@ -27,6 +27,7 @@ enum class ErrorMessage(
     UNAUTHORIZED("해당권한으로 불가능한 요청입니다."),
     ALREADY_VERIFIED_EMAIL("이미 검증한 이메일입니다."),
     CONFLICT_ENTITY("이미 존재하는 리소스 입니다."),
+    FORBIDDEN("권한이 없습니다"),
     GROUP_OWNER_CANNOT_LEAVE("그룹의 소유자는 탈퇴할 수 없습니다."),
 }
 

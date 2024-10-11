@@ -6,6 +6,7 @@ import com.project.api.web.dto.request.ContentFileCreateRequest
 import com.project.api.web.dto.request.ContentFileCreateResponse
 import com.project.api.web.dto.request.ContentUpdateRequest
 import com.project.api.web.dto.response.ContentCreateResponse
+import com.project.api.web.dto.response.ContentFolderResponse
 import com.project.api.web.dto.response.ContentResponse
 import com.project.api.web.dto.response.ContentSearchResponse
 import com.project.api.web.dto.response.ContentUpdateResponse
@@ -35,7 +36,7 @@ class ContentController(
     private val contentService: ContentService,
 ) {
     @GetMapping
-    @Operation(summary = "컨텐츠 검색(코드, 게시판형, 파일)")
+    @Operation(summary = "컨텐츠 검색(코드, 게시판형, 폴더)")
     fun readAll(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestParam groupId: Long?,
@@ -63,8 +64,8 @@ class ContentController(
             type = type,
         )
 
-    @GetMapping("/{sectionId}/{contentId}/{groupId}")
-    @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형, 파일)")
+    @GetMapping("/{groupId}/{sectionId}/{contentId}")
+    @Operation(summary = "해당 컨텐츠 읽기(코드, 게시판형, 파일)", description = "폴더유형탭의 경우 폴더+파일 list로 나와야해서 api분리")
     fun read(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
@@ -76,6 +77,23 @@ class ContentController(
             groupId = groupId,
             sectionId = sectionId,
             contentId = contentId,
+        )
+
+    @GetMapping("/folders/{groupId}/{sectionId}/{folderId}")
+    @Operation(summary = "폴더유형탭 파일안에 폴더+ 파일 읽기")
+    fun readFolders(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable groupId: Long,
+        @PathVariable sectionId: Long,
+        @PathVariable folderId: Long,
+        @ParameterObject pageable: Pageable,
+    ): ContentFolderResponse =
+        contentService.readFolders(
+            email = jwt.subject,
+            groupId = groupId,
+            sectionId = sectionId,
+            folderId = folderId,
+            pageable = pageable,
         )
 
     @PostMapping(path = ["{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -95,7 +113,7 @@ class ContentController(
             files = files,
         )
 
-    @PostMapping(path = ["/file/{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping(path = ["/folders/{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "컨텐츠 생성(파일)")
     fun createFile(
         @AuthenticationPrincipal jwt: Jwt,
@@ -112,8 +130,8 @@ class ContentController(
             files = files,
         )
 
-    @PatchMapping(path = ["/{sectionId}/{groupId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    @Operation(summary = "컨텐츠 수정(코드, 게시판형)")
+    @PatchMapping(path = ["/{groupId}/{sectionId}"], consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "컨텐츠 수정(코드, 게시판형, 폴더(이름만), 파일(이름만))")
     fun update(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestPart(value = "ContentUpdateRequest") request: ContentUpdateRequest,
@@ -129,8 +147,8 @@ class ContentController(
             files = files,
         )
 
-    @DeleteMapping("/{sectionId}/{groupId}")
-    @Operation(summary = "컨텐츠 삭제(코드, 게시판형)")
+    @DeleteMapping("/{groupId}/{sectionId}")
+    @Operation(summary = "컨텐츠 삭제")
     fun delete(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable groupId: Long,
@@ -143,5 +161,5 @@ class ContentController(
 
     @GetMapping("/hot")
     @Operation(summary = "핫 게시글")
-    fun readHot(): List<HotContentResponse> = contentService.readHot()
+    fun readHots(): List<HotContentResponse> = contentService.readHots()
 }

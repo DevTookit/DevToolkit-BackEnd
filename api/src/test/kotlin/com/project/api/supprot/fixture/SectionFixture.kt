@@ -26,7 +26,7 @@ class SectionFixture(
                 parent?.let {
                     this.parent = it
                 }
-                this.isPublic = group.isPublic
+                this.isPublic = isPublic
             },
     )
 
