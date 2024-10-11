@@ -4,7 +4,6 @@ import com.project.api.commons.exception.RestException
 import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.supprot.fixture.BookmarkFixture
 import com.project.api.supprot.fixture.ContentFixture
-import com.project.api.supprot.fixture.FolderFixture
 import com.project.api.supprot.fixture.GroupFixture
 import com.project.api.supprot.fixture.GroupUserFixture
 import com.project.api.supprot.fixture.SectionFixture
@@ -32,7 +31,6 @@ class BookmarkServiceTest(
     @Autowired private val groupFixture: GroupFixture,
     @Autowired private val groupUserFixture: GroupUserFixture,
     @Autowired private val sectionFixture: SectionFixture,
-    @Autowired private val folderFixture: FolderFixture,
     @Autowired private val bookmarkRepository: BookmarkRepository,
     @Autowired private val contentFixture: ContentFixture,
 ) : TestCommonSetting() {
@@ -52,7 +50,6 @@ class BookmarkServiceTest(
     @AfterEach
     fun tearDown() {
         bookmarkFixture.tearDown()
-        folderFixture.tearDown()
         contentFixture.tearDown()
         sectionFixture.tearDown()
         groupUserFixture.tearDown()
@@ -62,14 +59,13 @@ class BookmarkServiceTest(
 
     @Test
     fun readAll() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser, type = ContentType.FOLDER)
         val folderAttachment =
             contentFixture.create(
                 groupUser = groupUser,
                 group = group,
                 section = section,
                 type = ContentType.FILE,
-                folder = folder,
             )
         bookmarkFixture.create(
             contentId = folder.id!!,
@@ -98,7 +94,7 @@ class BookmarkServiceTest(
 
     @Test
     fun readAllTypeIsFolder() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser, type = ContentType.FOLDER)
         bookmarkFixture.create(
             contentId = folder.id!!,
             group = group,
@@ -122,14 +118,13 @@ class BookmarkServiceTest(
 
     @Test
     fun readAllTypeIsFile() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val folderAttachment =
             contentFixture.create(
                 groupUser = groupUser,
                 group = group,
                 section = section,
                 type = ContentType.FILE,
-                folder = folder,
             )
         bookmarkFixture.create(
             contentId = folder.id!!,
@@ -193,14 +188,13 @@ class BookmarkServiceTest(
 
     @Test
     fun readAllNotFoundFolder() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val folderAttachment =
             contentFixture.create(
                 groupUser = groupUser,
                 group = group,
                 section = section,
                 type = ContentType.FILE,
-                folder = folder,
             )
         bookmarkFixture.create(
             contentId = 100L,
@@ -230,7 +224,7 @@ class BookmarkServiceTest(
 
     @Test
     fun readAllNotFoundFile() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         bookmarkFixture.create(
             contentId = 1L,
             group = group,
@@ -258,7 +252,7 @@ class BookmarkServiceTest(
 
     @Test
     fun create() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser, type = ContentType.FOLDER)
         val request =
             BookmarkCreateRequest(
                 groupId = group.id!!,
@@ -319,7 +313,7 @@ class BookmarkServiceTest(
 
     @Test
     fun createNotFoundSection() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val request =
             BookmarkCreateRequest(
                 groupId = group.id!!,
@@ -339,7 +333,7 @@ class BookmarkServiceTest(
 
     @Test
     fun delete() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val bookmark =
             bookmarkFixture.create(
                 contentId = folder.id!!,
@@ -373,7 +367,7 @@ class BookmarkServiceTest(
 
     @Test
     fun deleteNotFoundGroup() {
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val bookmark =
             bookmarkFixture.create(
                 contentId = folder.id!!,
@@ -396,7 +390,7 @@ class BookmarkServiceTest(
     @Test
     fun deleteNotFoundGroupUser() {
         val user1 = userFixture.create()
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val bookmark =
             bookmarkFixture.create(
                 contentId = folder.id!!,
@@ -420,7 +414,7 @@ class BookmarkServiceTest(
     fun deleteNotAllowedGroupRoleIsNotActive() {
         val user1 = userFixture.create()
         val groupUser = groupUserFixture.create(group, user1, GroupRole.PENDING)
-        val folder = folderFixture.create(section = section, group = group, groupUser = groupUser)
+        val folder = contentFixture.create(section = section, group = group, groupUser = groupUser)
         val bookmark =
             bookmarkFixture.create(
                 contentId = folder.id!!,

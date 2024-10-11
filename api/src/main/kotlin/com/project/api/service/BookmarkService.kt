@@ -5,7 +5,6 @@ import com.project.api.internal.ErrorMessage
 import com.project.api.repository.bookmark.BookmarkRepository
 import com.project.api.repository.category.SectionRepository
 import com.project.api.repository.content.ContentRepository
-import com.project.api.repository.content.FolderRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
@@ -31,7 +30,6 @@ class BookmarkService(
     private val groupRepository: GroupRepository,
     private val groupUserRepository: GroupUserRepository,
     private val userRepository: UserRepository,
-    private val folderRepository: FolderRepository,
     private val contentRepository: ContentRepository,
     private val sectionRepository: SectionRepository,
 ) {
@@ -92,56 +90,20 @@ class BookmarkService(
     }
 
     private fun toResponse(bookmark: Bookmark): BookmarkResponse {
-        when (bookmark.type) {
-            BookmarkType.CODE, BookmarkType.BOARD -> {
-                val content =
-                    contentRepository.findByIdAndType(bookmark.contentId, ContentType.valueOf(bookmark.type.name))
-                        ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
-                return content.toBookmarkResponse(bookmark.id)
-            }
-            BookmarkType.FOLDER -> {
-                val folder =
-                    folderRepository.findByIdOrNull(bookmark.contentId) ?: throw RestException.notFound(
-                        ErrorMessage.NOT_FOUND_FOLDER.message,
-                    )
-                return folder.toBookmarkResponse(bookmark.id)
-            }
-            else -> {
-                val folderAttachment =
-                    contentRepository.findByIdOrNull(bookmark.contentId) ?: throw RestException.notFound(
-                        ErrorMessage.NOT_FOUND_FOLDER_FILE.message,
-                    )
-                return folderAttachment.toBookmarkResponse(bookmark.id)
-            }
-        }
+        val content =
+            contentRepository.findByIdAndType(bookmark.contentId, ContentType.valueOf(bookmark.type.name))
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
+        return content.toBookmarkResponse(bookmark.id)
     }
 
     private fun validateBookmark(
         type: BookmarkType,
         contentId: Long,
     ): Long {
-        when (type) {
-            BookmarkType.CODE, BookmarkType.BOARD -> {
-                val content =
-                    contentRepository.findByIdAndType(contentId, ContentType.valueOf(type.name))
-                        ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
-                return content.id!!
-            }
-            BookmarkType.FOLDER -> {
-                val folder =
-                    folderRepository.findByIdOrNull(contentId) ?: throw RestException.notFound(
-                        ErrorMessage.NOT_FOUND_FOLDER.message,
-                    )
-                return folder.id!!
-            }
-            else -> {
-                val folderAttachment =
-                    contentRepository.findByIdOrNull(contentId) ?: throw RestException.notFound(
-                        ErrorMessage.NOT_FOUND_FOLDER_FILE.message,
-                    )
-                return folderAttachment.id!!
-            }
-        }
+        val content =
+            contentRepository.findByIdAndType(contentId, ContentType.valueOf(type.name))
+                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
+        return content.id!!
     }
 
     private fun validate(

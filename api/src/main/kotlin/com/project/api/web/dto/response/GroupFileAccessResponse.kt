@@ -17,7 +17,7 @@ data class GroupFileAccessResponse(
                 lastAccessAt = this.lastAccessAt,
                 name = this.content.name,
                 extension = this.content.extension,
-                folderId = this.content.folder?.id,
+                folderId = this.content.parentFolder?.id,
                 size = this.content.size,
             )
     }

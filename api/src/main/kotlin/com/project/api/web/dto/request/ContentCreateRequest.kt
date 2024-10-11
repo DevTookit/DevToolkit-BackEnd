@@ -6,8 +6,10 @@ data class ContentCreateRequest(
     val name: String,
     val languages: List<String>?,
     val skills: List<String>?,
-    val content: String,
+    val content: String?,
     // 코드 설명
     val codeDescription: String?,
     val type: ContentType,
+    // 폴더링 시스템에서
+    val parentId: Long?,
 )

@@ -63,8 +63,8 @@ class SectionServiceTest(
         val user1 = userFixture.create()
         val user2 = userFixture.create()
         val group = groupFixture.create(user = user1, isPublic = true)
-        val section1 = sectionFixture.create(group = group, type = SectionType.MENU)
-        val section2 = sectionFixture.create(group = group, type = SectionType.MENU)
+        val section1 = sectionFixture.create(group = group, type = SectionType.MENU, isPublic = true)
+        val section2 = sectionFixture.create(group = group, type = SectionType.MENU, isPublic = true)
 
         val response =
             sectionService.readAll(
@@ -83,8 +83,8 @@ class SectionServiceTest(
     fun readAllChildSection() {
         val user = userFixture.create()
         val group = groupFixture.create(user)
-        val section1 = sectionFixture.create(group = group)
-        val section2 = sectionFixture.create(group = group, parent = section1)
+        val section1 = sectionFixture.create(group = group, isPublic = true)
+        val section2 = sectionFixture.create(group = group, parent = section1, isPublic = true)
 
         val response =
             sectionService.readAll(

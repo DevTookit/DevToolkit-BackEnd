@@ -57,7 +57,7 @@ class ContentRepositorySupportImpl(
         queryBuilder
             .where(builder)
             .groupBy(QContent.content1.id)
-        queryBuilder.orderBy(*QueryDslUtil.orders(pageable, QContent.content1::class.java))
+        queryBuilder.orderBy(*QueryDslUtil.orders(pageable, QContent.content1::class.java, "content1"))
 
         val results =
             queryBuilder
@@ -112,6 +112,16 @@ class ContentRepositorySupportImpl(
         type?.let {
             builder.and(
                 QContent.content1.type.eq(it),
+            )
+        }
+
+        if (type != null) {
+            builder.and(
+                QContent.content1.type.eq(type),
+            )
+        } else {
+            builder.and(
+                !QContent.content1.type.eq(ContentType.FILE),
             )
         }
         return builder

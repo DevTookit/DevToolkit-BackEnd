@@ -50,6 +50,7 @@ enum class ContentType {
     CODE,
     BOARD,
     FILE,
+    FOLDER,
 }
 
 enum class BookmarkType {

@@ -1,7 +1,6 @@
 package com.project.api.repository.content
 
 import com.project.core.domain.content.Content
-import com.project.core.domain.content.Folder
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.internal.ContentType
@@ -31,12 +30,25 @@ interface ContentRepository :
         section: Section,
     ): Content?
 
-    fun findByFolderAndType(
-        folder: Folder,
+    @EntityGraph(attributePaths = ["groupUser"])
+    fun findByIdAndSectionAndType(
+        id: Long,
+        section: Section,
         type: ContentType,
-    ): List<Content>
+    ): Content?
 
     fun findAllByGroupIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
 
     fun findAllBySectionIsPublicTrueOrderByVisitCntDesc(pageable: Pageable): List<Content>
+
+    @EntityGraph(attributePaths = ["groupUser"])
+    fun findByParentFolder(
+        parent: Content,
+        pageable: Pageable,
+    ): List<Content>
+
+    fun deleteByIdAndSection(
+        id: Long,
+        section: Section,
+    )
 }

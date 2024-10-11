@@ -1,3 +1,5 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.GroupingEntityType
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -41,7 +43,7 @@ dependencies {
     kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
 
     // test
-    implementation("org.testcontainers:localstack:1.11.3")
+    implementation("org.testcontainers:localstack")
     testRuntimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -56,11 +58,11 @@ dependencies {
 kover {
     reports {
         verify {
-/*            rule {
+           rule {
                 groupBy = GroupingEntityType.CLASS
                 minBound(80, CoverageUnit.LINE)
                 minBound(80, CoverageUnit.INSTRUCTION)
-            }*/
+            }
         }
 
         filters {

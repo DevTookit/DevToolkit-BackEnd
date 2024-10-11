@@ -2,7 +2,6 @@ package com.project.core.domain.group
 
 import com.project.core.domain.BaseEntity
 import com.project.core.domain.bookmark.Bookmark
-import com.project.core.domain.content.Folder
 import com.project.core.domain.section.Section
 import com.project.core.domain.user.User
 import jakarta.persistence.CascadeType
@@ -27,9 +26,6 @@ class Group(
 
     @OneToMany(mappedBy = "group", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var groupUsers: MutableSet<GroupUser> = mutableSetOf()
-
-    @OneToMany(mappedBy = "group", cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    var folders: MutableSet<Folder> = mutableSetOf()
 
     @OneToMany(mappedBy = "group", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     var groupFileAccessLogs: MutableSet<GroupFileAccessLog> = mutableSetOf()
