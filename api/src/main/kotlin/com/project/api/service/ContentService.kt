@@ -369,7 +369,7 @@ class ContentService(
                 .map {
                     it.toHotContentResponse()
                 }
-        redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
+        //redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
 
         return list
     }
