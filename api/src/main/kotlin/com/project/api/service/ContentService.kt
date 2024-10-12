@@ -1,6 +1,5 @@
 package com.project.api.service
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
@@ -65,6 +64,7 @@ class ContentService(
     private val bookmarkRepository: BookmarkRepository,
     private val fileService: FileService,
     private val groupLogRepository: GroupLogRepository,
+    private val groupLogService: GroupLogService,
     private val objectMapper: ObjectMapper,
 ) {
     @Transactional(readOnly = true)
@@ -234,7 +234,14 @@ class ContentService(
                         extension = createExtension(it)
                         url = response.url
                     },
-                ).toContentFileCreateResponse()
+                ).also {
+                    groupLogService.create(
+                        group = userResponse.group,
+                        user = userResponse.user,
+                        content = it,
+                        sectionId = sectionId,
+                    )
+                }.toContentFileCreateResponse()
         }
     }
 
@@ -292,7 +299,17 @@ class ContentService(
 
         createContentExtraInfo(request, content)
         createContentAttachment(request, files, content)
-        return contentRepository.save(content)
+
+        return contentRepository
+            .save(content)
+            .also {
+                groupLogService.create(
+                    group = userResponse.group,
+                    user = userResponse.user,
+                    sectionId = section.id!!,
+                    content = it,
+                )
+            }
     }
 
     @Transactional
@@ -338,22 +355,23 @@ class ContentService(
     }
 
     fun readHots(): List<HotContentResponse> {
-        val contentList = redisService.get(RedisType.HOT_CONTENT.name)
+        // 잠시 주석처리
+        // val contentList = null
+        // redisService.get(RedisType.HOT_CONTENT.name)
 
-        return if (contentList != null) {
+       /* return if (contentList != null) {
             val typeRef = object : TypeReference<List<HotContentResponse>>() {}
             objectMapper.readValue(contentList.toString(), typeRef)
-        } else {
-            val list =
-                contentRepository
-                    .findAllBySectionIsPublicTrueOrderByVisitCntDesc(PageRequest.of(0, 10))
-                    .map {
-                        it.toHotContentResponse()
-                    }
-            redisService.add("HOT_CONTENT", list, 14400)
+        } else {*/
+        val list =
+            contentRepository
+                .findAllBySectionIsPublicTrueOrderByVisitCntDesc(PageRequest.of(0, 10))
+                .map {
+                    it.toHotContentResponse()
+                }
+        redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
 
-            return list
-        }
+        return list
     }
 
     private fun Content.updateContent(

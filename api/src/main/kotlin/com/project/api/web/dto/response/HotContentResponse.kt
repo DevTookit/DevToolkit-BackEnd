@@ -8,9 +8,10 @@ data class HotContentResponse(
     val section: Long?,
     val writerId: Long?,
     val writerName: String,
-    val writerImg: String?,
+    val writerImg: String? = null,
+    val writerJob: String? = null,
     val contentName: String,
-    val content: String?,
+    val content: String? = null,
 ) {
     companion object {
         fun Content.toHotContentResponse(): HotContentResponse =
@@ -21,7 +22,8 @@ data class HotContentResponse(
                 writerId = this.groupUser.user.id,
                 writerName = this.groupUser.name,
                 writerImg = this.groupUser.user.img,
-                contentName = this.groupUser.name,
+                writerJob = this.groupUser.user.job,
+                contentName = this.name,
                 content = this.content,
             )
     }

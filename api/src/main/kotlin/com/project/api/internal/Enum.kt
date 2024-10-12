@@ -61,7 +61,7 @@ enum class RedisType(
 ) {
     VISIT_CONTENT,
     VISIT_GROUP,
-    HOT_GROUP(14400),
+    HOT_GROUP(600),
     JOIN_GROUP,
     HOT_CONTENT,
 }
