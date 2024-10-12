@@ -12,6 +12,7 @@ import com.project.core.internal.ContentType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -57,7 +58,7 @@ class GroupController(
     fun readAll(
         @ParameterObject pageable: Pageable,
         @RequestParam name: String?,
-    ) = groupService.readAll(name, pageable)
+    ): Page<GroupResponse> = groupService.readAll(name, pageable)
 
     @GetMapping("{groupId}")
     @Operation(summary = "각 그룹 조회")
