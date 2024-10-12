@@ -1,6 +1,5 @@
 package com.project.api.service
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.project.api.commons.exception.RestException
 import com.project.api.external.FileService
@@ -218,21 +217,21 @@ class GroupService(
 
     @Transactional(readOnly = true)
     fun readHot(): List<HotGroupResponse> {
-        val groupList = redisService.get(RedisType.HOT_GROUP.name)
+        /*val groupList = redisService.get(RedisType.HOT_GROUP.name)
 
         return if (groupList != null) {
             val typeRef = object : TypeReference<List<HotGroupResponse>>() {}
             objectMapper.readValue(groupList.toString(), typeRef)
-        } else {
-            val list =
-                groupRepository
-                    .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
-                    .map {
-                        val groupUsers = groupUserRepository.findByGroupAndUserImgIsNotNull(it, PageRequest.of(0, 3))
-                        it.toHotGroupResponse(groupUsers)
-                    }
-            redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
-            return list
-        }
+        } else {*/
+        val list =
+            groupRepository
+                .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
+                .map {
+                    val groupUsers = groupUserRepository
+                        .findByGroupAndUserImgIsNotNull(it, PageRequest.of(0, 3), it.user.id!!)
+                    it.toHotGroupResponse(groupUsers)
+                }
+        // redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)
+        return list
     }
 }

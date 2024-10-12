@@ -6,6 +6,7 @@ import com.project.core.domain.user.User
 import com.project.core.internal.GroupRole
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
 interface GroupUserRepository :
@@ -16,9 +17,11 @@ interface GroupUserRepository :
         group: Group,
     ): GroupUser?
 
+    @Query("SELECT gu FROM GroupUser gu WHERE gu.group = :group AND gu.user.img IS NOT NULL AND gu.user.id = :userId")
     fun findByGroupAndUserImgIsNotNull(
         group: Group,
         pageable: Pageable,
+        userId: Long,
     ): List<GroupUser>
 
     fun existsByUserAndGroup(
