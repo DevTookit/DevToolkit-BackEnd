@@ -73,7 +73,6 @@ kover {
                     "*AuthService",
                     "*FileService",
                     "*S3Service",
-                    "*FolderAttachmentService",
                     "*RedisService",
                 )
             }

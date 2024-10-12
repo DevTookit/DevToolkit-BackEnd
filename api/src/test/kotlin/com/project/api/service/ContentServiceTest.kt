@@ -600,4 +600,19 @@ class ContentServiceTest(
         Assertions.assertThat(response).isNotEmpty
         Assertions.assertThat(response.size).isEqualTo(2)
     }
+
+    @Test
+    fun readHotByCache() {
+        val section = sectionFixture.create(group = group, type = SectionType.REPOSITORY, isPublic = true)
+        val content1 =
+            contentFixture.create(group = group, groupUser = groupUser, type = ContentType.CODE, section = section)
+        val content2 =
+            contentFixture.create(group = group, groupUser = groupUser, type = ContentType.BOARD, section = section)
+
+        contentService.readHots()
+        val response = contentService.readHots()
+
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response.size).isEqualTo(2)
+    }
 }
