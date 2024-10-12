@@ -9,10 +9,15 @@ import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.response.GroupLogResponse
 import com.project.api.web.dto.response.GroupLogResponse.Companion.toGroupLogResponse
 import com.project.api.web.dto.response.UserValidateResponse
+import com.project.core.domain.content.Content
+import com.project.core.domain.group.Group
+import com.project.core.domain.group.GroupLog
+import com.project.core.domain.user.User
 import com.project.core.internal.ContentType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupLogService(
@@ -40,6 +45,25 @@ class GroupLogService(
                 it.toGroupLogResponse()
             }
         }
+    }
+
+    @Transactional
+    fun create(
+        group: Group,
+        user: User,
+        content: Content,
+        sectionId: Long,
+    ) {
+        groupLogRepository.save(
+            GroupLog(
+                user = user,
+                group = group,
+                sectionId = sectionId,
+                type = content.type,
+                contentId = content.id!!,
+                contentName = content.name,
+            ),
+        )
     }
 
     private fun validate(
