@@ -100,7 +100,7 @@ class GroupController(
         @PathVariable groupId: Long,
         @RequestParam typ: ContentType?,
         @ParameterObject pageable: Pageable,
-    ): List<GroupLogResponse> =
+    ): GroupLogResponse =
         groupLogService.readAll(
             groupId = groupId,
             email = jwt.subject,
@@ -114,7 +114,7 @@ class GroupController(
         @PathVariable groupId: Long,
         @AuthenticationPrincipal jwt: Jwt,
         @ParameterObject pageable: Pageable,
-    ): List<GroupFileAccessResponse> =
+    ): GroupFileAccessResponse =
         groupService.readRecentFiles(
             groupId = groupId,
             email = jwt.subject,

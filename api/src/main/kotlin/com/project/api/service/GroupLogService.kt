@@ -6,6 +6,7 @@ import com.project.api.repository.group.GroupLogRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
+import com.project.api.web.dto.response.GroupLogDetailResponse.Companion.toGroupLogDetailResponse
 import com.project.api.web.dto.response.GroupLogResponse
 import com.project.api.web.dto.response.GroupLogResponse.Companion.toGroupLogResponse
 import com.project.api.web.dto.response.UserValidateResponse
@@ -31,20 +32,22 @@ class GroupLogService(
         pageable: Pageable,
         groupId: Long,
         type: ContentType?,
-    ): List<GroupLogResponse> {
+    ): GroupLogResponse {
         val userResponse = validate(email, groupId)
-
-        return type?.let {
-            groupLogRepository
-                .findByGroupAndType(userResponse.group, it, pageable)
-                .map {
-                    it.toGroupLogResponse()
+        val logs =
+            type?.let {
+                groupLogRepository
+                    .findByGroupAndType(userResponse.group, it, pageable)
+                    .map {
+                        it.toGroupLogDetailResponse()
+                    }
+            } ?: run {
+                groupLogRepository.findByGroup(userResponse.group, pageable).map {
+                    it.toGroupLogDetailResponse()
                 }
-        } ?: run {
-            groupLogRepository.findByGroup(userResponse.group, pageable).map {
-                it.toGroupLogResponse()
             }
-        }
+
+        return userResponse.group.toGroupLogResponse(logs)
     }
 
     @Transactional

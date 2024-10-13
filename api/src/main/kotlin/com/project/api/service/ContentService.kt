@@ -139,6 +139,14 @@ class ContentService(
                 ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
         )
 
+        if (content.type == ContentType.FILE) {
+            groupLogService.create(
+                group = userResponse.group,
+                user = userResponse.user,
+                content = content,
+                sectionId = sectionId,
+            )
+        }
         increaseVisitCnt(contentId)
 
         return content

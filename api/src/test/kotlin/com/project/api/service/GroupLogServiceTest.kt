@@ -67,10 +67,10 @@ class GroupLogServiceTest(
                 type = ContentType.BOARD,
             )
 
-        Assertions.assertThat(response).isNotEmpty
-        Assertions.assertThat(response[0].type).isEqualTo(content.type)
-        Assertions.assertThat(response[0].contentId).isEqualTo(content.id)
-        Assertions.assertThat(response[0].sectionId).isEqualTo(content.section.id)
+        Assertions.assertThat(response.creatorId).isEqualTo(user.id)
+        Assertions.assertThat(response.creatorName).isEqualTo(user.name)
+        Assertions.assertThat(response.creatorImg).isEqualTo(user.img)
+        Assertions.assertThat(response.logs).isNotEmpty
     }
 
     @Test
@@ -102,10 +102,10 @@ class GroupLogServiceTest(
                 type = ContentType.BOARD,
             )
 
-        Assertions.assertThat(response).isNotEmpty
-        Assertions.assertThat(response[0].type).isEqualTo(content.type)
-        Assertions.assertThat(response[0].contentId).isEqualTo(content.id)
-        Assertions.assertThat(response[0].sectionId).isEqualTo(content.section.id)
+        Assertions.assertThat(response.creatorId).isEqualTo(user.id)
+        Assertions.assertThat(response.creatorName).isEqualTo(user.name)
+        Assertions.assertThat(response.creatorImg).isEqualTo(user.img)
+        Assertions.assertThat(response.logs).isNotEmpty
     }
 
     @Test
@@ -137,10 +137,10 @@ class GroupLogServiceTest(
                 type = null,
             )
 
-        Assertions.assertThat(response).isNotEmpty
-        Assertions.assertThat(response[0].type).isEqualTo(content.type)
-        Assertions.assertThat(response[0].contentId).isEqualTo(content.id)
-        Assertions.assertThat(response[0].sectionId).isEqualTo(content.section.id)
+        Assertions.assertThat(response.creatorId).isEqualTo(user.id)
+        Assertions.assertThat(response.creatorName).isEqualTo(user.name)
+        Assertions.assertThat(response.creatorImg).isEqualTo(user.img)
+        Assertions.assertThat(response.logs).isNotEmpty
     }
 
     @Test
