@@ -303,10 +303,10 @@ class GroupServiceTest(
         val response =
             groupService.readRecentFiles(groupId = group.id!!, email = visitor.email, Pageable.unpaged())
 
-        Assertions.assertThat(response).isNotEmpty
-        Assertions.assertThat(response[0].name).isEqualTo(content.name)
-        Assertions.assertThat(response[0].size).isEqualTo(content.size)
-        Assertions.assertThat(response[0].extension).isEqualTo(content.extension)
+        Assertions.assertThat(response.creatorId).isEqualTo(user.id)
+        Assertions.assertThat(response.creatorName).isEqualTo(user.name)
+        Assertions.assertThat(response.creatorImg).isEqualTo(user.img)
+        Assertions.assertThat(response.logs).isNotEmpty
     }
 
     @Test

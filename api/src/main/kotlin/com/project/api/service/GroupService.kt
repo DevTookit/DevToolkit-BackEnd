@@ -13,6 +13,7 @@ import com.project.api.repository.group.HotGroupRepository
 import com.project.api.repository.user.UserRepository
 import com.project.api.web.dto.request.GroupCreateRequest
 import com.project.api.web.dto.request.GroupUpdateRequest
+import com.project.api.web.dto.response.GroupFileAccessDetailResponse.Companion.toGroupFileAccessDetailResponse
 import com.project.api.web.dto.response.GroupFileAccessResponse
 import com.project.api.web.dto.response.GroupFileAccessResponse.Companion.toGroupFileAccessResponse
 import com.project.api.web.dto.response.GroupResponse
@@ -107,7 +108,6 @@ class GroupService(
             groupUserRepository.findByUserAndGroup(user, group) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_GROUP_USER.message)
 
         if (!groupUser.role.isActive()) throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
-
         return group.toResponse()
     }
 
@@ -190,7 +190,7 @@ class GroupService(
         groupId: Long,
         email: String,
         pageable: Pageable,
-    ): List<GroupFileAccessResponse> {
+    ): GroupFileAccessResponse {
         val user =
             userRepository.findByEmail(email) ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_USER.message)
         val group =
@@ -207,12 +207,13 @@ class GroupService(
                 throw RestException.authorized(ErrorMessage.UNAUTHORIZED.message)
             }
         }
-
-        return groupFileAccessLogRepository
-            .findByUserAndGroup(user, group, pageable)
-            .map {
-                it.toGroupFileAccessResponse()
-            }
+        val logs =
+            groupFileAccessLogRepository
+                .findByUserAndGroup(user, group, pageable)
+                .map {
+                    it.toGroupFileAccessDetailResponse()
+                }
+        return group.toGroupFileAccessResponse(logs)
     }
 
     @Transactional(readOnly = true)
@@ -227,8 +228,9 @@ class GroupService(
             groupRepository
                 .findAllByIsPublicIsTrueOrderByGroupUsersSizeDesc(PageRequest.of(0, 10))
                 .map {
-                    val groupUsers = groupUserRepository
-                        .findByGroupAndUserImgIsNotNull(it, PageRequest.of(0, 3), it.user.id!!)
+                    val groupUsers =
+                        groupUserRepository
+                            .findByGroupAndUserImgIsNotNull(it, PageRequest.of(0, 3), it.user.id!!)
                     it.toHotGroupResponse(groupUsers)
                 }
         // redisService.add(RedisType.HOT_GROUP.name, list, RedisType.HOT_GROUP.expiredTime!!)

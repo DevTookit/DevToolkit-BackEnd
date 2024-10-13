@@ -1,8 +1,26 @@
 package com.project.api.web.dto.response
 
+import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupFileAccessLog
 
 data class GroupFileAccessResponse(
+    val creatorId: Long?,
+    val creatorName: String,
+    val creatorImg: String?,
+    val logs: List<GroupFileAccessDetailResponse>,
+) {
+    companion object {
+        fun Group.toGroupFileAccessResponse(logs: List<GroupFileAccessDetailResponse>): GroupFileAccessResponse =
+            GroupFileAccessResponse(
+                creatorId = this.user.id,
+                creatorName = this.user.name,
+                creatorImg = this.user.img,
+                logs = logs,
+            )
+    }
+}
+
+data class GroupFileAccessDetailResponse(
     val contentId: Long?,
     val lastAccessAt: Long,
     val name: String,
@@ -11,8 +29,8 @@ data class GroupFileAccessResponse(
     val size: Long?,
 ) {
     companion object {
-        fun GroupFileAccessLog.toGroupFileAccessResponse(): GroupFileAccessResponse =
-            GroupFileAccessResponse(
+        fun GroupFileAccessLog.toGroupFileAccessDetailResponse(): GroupFileAccessDetailResponse =
+            GroupFileAccessDetailResponse(
                 contentId = this.content.id,
                 lastAccessAt = this.lastAccessAt,
                 name = this.content.name,

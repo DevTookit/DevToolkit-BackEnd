@@ -7,6 +7,9 @@ data class GroupResponse(
     val id: Long?,
     val name: String,
     val img: String?,
+    val creatorId: Long?,
+    val creatorName: String,
+    val creatorImg: String?,
     val description: String?,
     val isPublic: Boolean,
     val userCnt: Long? = null,
@@ -20,6 +23,9 @@ data class GroupResponse(
                 description = this.description,
                 isPublic = this.isPublic,
                 userCnt = this.groupUsers.size.toLong(),
+                creatorId = this.user.id,
+                creatorName = this.user.name,
+                creatorImg = this.user.img,
             )
 
         fun GroupUser.toGroupResponse(): GroupResponse =
@@ -29,6 +35,9 @@ data class GroupResponse(
                 img = this.group.img,
                 description = this.group.description,
                 isPublic = this.group.isPublic,
+                creatorId = this.group.user.id,
+                creatorName = this.group.user.name,
+                creatorImg = this.group.user.img,
             )
     }
 }
