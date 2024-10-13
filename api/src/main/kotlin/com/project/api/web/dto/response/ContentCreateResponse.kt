@@ -7,6 +7,7 @@ data class ContentCreateResponse(
     val contentId: Long?,
     val name: String,
     val type: ContentType,
+    val sectionId: Long?,
 ) {
     companion object {
         fun Content.toContentCreateResponse() =
@@ -14,6 +15,7 @@ data class ContentCreateResponse(
                 contentId = this.id,
                 name = this.name,
                 type = this.type,
+                sectionId = this.section.id,
             )
     }
 }

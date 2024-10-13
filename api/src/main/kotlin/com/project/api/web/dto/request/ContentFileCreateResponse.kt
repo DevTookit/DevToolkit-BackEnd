@@ -10,6 +10,7 @@ data class ContentFileCreateResponse(
     val url: String,
     val createdDate: Long?,
     val lastModifiedDate: Long?,
+    val sectionId: Long?,
 ) {
     companion object {
         fun Content.toContentFileCreateResponse(): ContentFileCreateResponse =
@@ -21,6 +22,7 @@ data class ContentFileCreateResponse(
                 url = url!!,
                 createdDate = createdDate,
                 lastModifiedDate = lastModifiedDate,
+                sectionId = this.section.id,
             )
     }
 }

@@ -12,6 +12,7 @@ data class ContentUpdateResponse(
     val content: String?,
     val description: String?,
     val type: ContentType,
+    val sectionId: Long?,
 ) {
     companion object {
         fun Content.toContentUpdateResponse(): ContentUpdateResponse =
@@ -24,6 +25,7 @@ data class ContentUpdateResponse(
                 languages = this.languages.map { it.name },
                 skills = this.skills.map { it.name },
                 attachments = this.attachments.map { it.name },
+                sectionId = this.section.id,
             )
     }
 }

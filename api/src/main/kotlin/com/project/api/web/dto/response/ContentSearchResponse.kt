@@ -4,6 +4,7 @@ import com.project.core.domain.content.Content
 import com.project.core.internal.ContentType
 
 data class ContentSearchResponse(
+    val sectionId: Long?,
     val contentId: Long?,
     val name: String,
     val languages: List<String>?,
@@ -25,6 +26,7 @@ data class ContentSearchResponse(
                 createdDate = this.createdDate,
                 size = this.size,
                 type = this.type,
+                sectionId = this.section.id,
             )
     }
 }

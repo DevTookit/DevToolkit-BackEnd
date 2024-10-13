@@ -17,6 +17,7 @@ data class ContentResponse(
     val skills: List<String>?,
     val attachments: List<String>?,
     var bookmarkId: Long? = null,
+    val sectionId: Long?,
 ) {
     companion object {
         fun Content.toResponse() =
@@ -33,6 +34,7 @@ data class ContentResponse(
                 languages = this.languages.map { it.name },
                 skills = this.skills.map { it.name },
                 attachments = this.attachments.map { it.name },
+                sectionId = this.section.id,
             )
     }
 }
