@@ -42,6 +42,8 @@ data class ContentFolderDetailResponse(
     val type: ContentType,
     val url: String?,
     val sectionId: Long?,
+    val size: Long?,
+    val extension: String?,
 ) {
     companion object {
         fun Content.toContentFolderDetailResponse() =
@@ -55,6 +57,8 @@ data class ContentFolderDetailResponse(
                 type = this.type,
                 url = this.url,
                 sectionId = this.section.id,
+                size = this.size,
+                extension = this.extension,
             )
     }
 }
