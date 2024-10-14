@@ -230,7 +230,7 @@ class ContentService(
             contentRepository
                 .save(
                     Content(
-                        name = it.name,
+                        name = it.originalFilename ?: "defaultFileName",
                         groupUser = userResponse.groupUser!!,
                         section = section,
                         type = ContentType.FILE,
@@ -279,6 +279,7 @@ class ContentService(
                     val file = uploadFileWithFolder(it, userResponse.groupUser, userResponse.group, section)
                     file.parentFolder = this
                     contentRepository.save(file)
+                    groupLogService.create(group = userResponse.group, user = userResponse.user, content = file, sectionId = section.id!!)
                     this.files.add(file)
                 }
             }

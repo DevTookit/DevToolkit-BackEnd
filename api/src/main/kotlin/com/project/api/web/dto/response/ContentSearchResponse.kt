@@ -11,7 +11,6 @@ data class ContentSearchResponse(
     val writerImg: String?,
     val writerName: String,
     val createdDate: Long?,
-    val size: Long?,
     val type: ContentType,
     var bookmarkId: Long? = null,
 ) {
@@ -24,7 +23,6 @@ data class ContentSearchResponse(
                 writerImg = this.groupUser.user.img,
                 writerName = this.groupUser.name,
                 createdDate = this.createdDate,
-                size = this.size,
                 type = this.type,
                 sectionId = this.section.id,
             )
