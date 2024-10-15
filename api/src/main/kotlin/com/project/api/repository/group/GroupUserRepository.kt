@@ -17,7 +17,7 @@ interface GroupUserRepository :
         group: Group,
     ): GroupUser?
 
-    @Query("SELECT gu FROM GroupUser gu WHERE gu.group = :group AND gu.user.img IS NOT NULL AND gu.user.id = :userId")
+    @Query("SELECT gu FROM GroupUser gu WHERE gu.group = :group AND gu.user.img IS NOT NULL AND gu.user.id != :userId")
     fun findByGroupAndUserImgIsNotNull(
         group: Group,
         pageable: Pageable,
