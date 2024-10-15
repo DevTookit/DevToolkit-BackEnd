@@ -235,6 +235,8 @@ class GroupUserService(
             .findAll(
                 BooleanBuilder()
                     .and(
+                        QGroupUser.groupUser.group.eq(group),
+                    ).and(
                         role?.let { QGroupUser.groupUser.role.eq(it) },
                     ).and(
                         name?.let { QGroupUser.groupUser.name.containsIgnoreCase(it) },
