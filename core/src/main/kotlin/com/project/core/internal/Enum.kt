@@ -59,3 +59,8 @@ enum class BookmarkType {
     FOLDER,
     BOARD,
 }
+
+enum class CommentType {
+    ANNOUNCE,
+    CONTENT,
+}
