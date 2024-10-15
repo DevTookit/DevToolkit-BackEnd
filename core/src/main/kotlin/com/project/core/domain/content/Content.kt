@@ -6,6 +6,7 @@ import com.project.core.domain.group.GroupUser
 import com.project.core.domain.section.Section
 import com.project.core.internal.ContentType
 import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -24,6 +25,7 @@ class Content(
     val section: Section,
     @Enumerated(EnumType.STRING)
     val type: ContentType,
+    @Column(columnDefinition = "LONGBLOB")
     var content: String?,
 ) : BaseEntity() {
     var codeDescription: String? = null
