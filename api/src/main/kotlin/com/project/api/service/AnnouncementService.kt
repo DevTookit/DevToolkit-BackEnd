@@ -3,6 +3,7 @@ package com.project.api.service
 import com.project.api.commons.exception.RestException
 import com.project.api.internal.ErrorMessage
 import com.project.api.repository.announcement.AnnouncementRepository
+import com.project.api.repository.comment.CommentRepository
 import com.project.api.repository.group.GroupRepository
 import com.project.api.repository.group.GroupUserRepository
 import com.project.api.repository.user.UserRepository
@@ -16,6 +17,7 @@ import com.project.api.web.dto.response.AnnouncementResponse
 import com.project.api.web.dto.response.AnnouncementResponse.Companion.toResponse
 import com.project.api.web.dto.response.UserValidateResponse
 import com.project.core.domain.announcement.Announcement
+import com.project.core.internal.CommentType
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -27,6 +29,7 @@ class AnnouncementService(
     private val userRepository: UserRepository,
     private val groupRepository: GroupRepository,
     private val groupUserRepository: GroupUserRepository,
+    private val commentRepository: CommentRepository,
 ) {
     @Transactional(readOnly = true)
     fun readAll(
@@ -39,7 +42,8 @@ class AnnouncementService(
         return announcementRepository
             .findByGroup(userResponse.group, pageable)
             .map {
-                it.toResponse()
+                val commentCnt = commentRepository.countByContentIdAndType(it.id!!, CommentType.ANNOUNCE)
+                it.toResponse(commentCnt)
             }
     }
 
@@ -54,8 +58,9 @@ class AnnouncementService(
             announcementRepository.findByIdAndGroup(announceId, userResponse.group) ?: throw RestException.notFound(
                 ErrorMessage.NOT_FOUND_ANNOUNCE.message,
             )
+        val commentCnt = commentRepository.countByContentIdAndType(announcement.id!!, CommentType.ANNOUNCE)
 
-        return announcement.toResponse()
+        return announcement.toResponse(commentCnt)
     }
 
     @Transactional

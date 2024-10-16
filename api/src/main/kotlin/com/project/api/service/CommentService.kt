@@ -40,13 +40,25 @@ class CommentService(
         email: String,
         groupId: Long,
         contentId: Long,
+        type: CommentType,
     ): List<CommentReadResponse> {
         val userResponse = validatePublic(email, groupId)
+        if(type == CommentType.CONTENT) {
+            val content =
+                contentRepository.findByIdOrNull(contentId)
+                    ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
+            return commentRepository
+                .findByContentId(content.id!!)
+                .map {
+                    it.toCommentReadResponse()
+                }
+        }
         val content =
-            contentRepository.findByIdOrNull(contentId)
-                ?: throw RestException.notFound(ErrorMessage.NOT_FOUND_CONTENT.message)
-        return commentRepository
-            .findByContentId(content.id!!)
+            announcementRepository.findByIdOrNull(contentId) ?: throw RestException.notFound(
+                ErrorMessage.NOT_FOUND_ANNOUNCE.message,
+            )
+
+        return commentRepository.findByContentId(content.id!!)
             .map {
                 it.toCommentReadResponse()
             }

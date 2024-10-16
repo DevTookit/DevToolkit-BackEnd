@@ -19,6 +19,7 @@ import com.project.core.domain.group.Group
 import com.project.core.domain.group.GroupUser
 import com.project.core.domain.user.User
 import com.project.core.internal.CommentType
+import com.project.core.internal.ContentType
 import com.project.core.internal.GroupRole
 import com.project.core.internal.SectionType
 import org.assertj.core.api.Assertions
@@ -63,7 +64,7 @@ class CommentServiceTest(
     }
 
     @Test
-    fun readAll() {
+    fun readAllTypeIsContent() {
         val section = sectionFixture.create(group = group, type = SectionType.REPOSITORY)
         val content = contentFixture.create(section = section, groupUser = groupUser, group = group)
         val comment = commentFixture.create(contentId = content.id!!, groupUser = groupUser, group = group)
@@ -75,6 +76,43 @@ class CommentServiceTest(
                 email = user.email,
                 groupId = group.id!!,
                 contentId = content.id!!,
+                type = CommentType.CONTENT,
+            )
+
+        Assertions.assertThat(response).isNotEmpty
+        Assertions.assertThat(response[0].commentId).isEqualTo(comment.id)
+        Assertions.assertThat(response[0].content).isEqualTo(comment.content)
+        Assertions.assertThat(response[0].mentions).isNotEmpty
+        Assertions.assertThat(response[0].mentions!![0].groupUserId).isEqualTo(groupUser.id)
+    }
+
+    @Test
+    fun readAllTypeIsAnnounce() {
+        val section = sectionFixture.create(group = group, type = SectionType.REPOSITORY)
+        val content =
+            announcementRepository.save(
+                Announcement(
+                    group = group,
+                    groupUser =
+                    groupUserFixture.create(
+                        user = userFixture.create(),
+                        role = GroupRole.TOP_MANAGER,
+                        group = group,
+                    ),
+                    content = "공지사항",
+                    name = "공지사항",
+                ),
+            )
+        val comment = commentFixture.create(contentId = content.id!!, groupUser = groupUser, group = group)
+        val commentMention = commentMentionFixture.create(comment = comment, groupUser = groupUser)
+        comment.apply { this.mentions.add(commentMention) }
+
+        val response =
+            commentService.readAll(
+                email = user.email,
+                groupId = group.id!!,
+                contentId = content.id!!,
+                type = CommentType.ANNOUNCE,
             )
 
         Assertions.assertThat(response).isNotEmpty
@@ -92,6 +130,7 @@ class CommentServiceTest(
                     email = user.email,
                     groupId = group.id!!,
                     contentId = 0L,
+                    type = CommentType.CONTENT,
                 )
             }.isInstanceOf(RestException::class.java)
     }
