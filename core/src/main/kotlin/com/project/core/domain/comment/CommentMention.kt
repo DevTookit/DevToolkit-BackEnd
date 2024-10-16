@@ -10,5 +10,4 @@ import jakarta.persistence.ManyToOne
 class CommentMention(
     @ManyToOne(fetch = FetchType.LAZY) val comment: Comment,
     @ManyToOne(fetch = FetchType.LAZY) var groupUser: GroupUser,
-) : BaseEntity() {
-}
+) : BaseEntity()
