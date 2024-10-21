@@ -6,6 +6,7 @@ enum class ErrorMessage(
     INVALID_ENTITY("처리불가능한 엔티티입니다."),
     NULL("NullPointException 관련 에러입니다."),
     NOT_MATCH_PASSWORD("비밀번호가 틀렸습니다."),
+    NOT_MATCH_PASSWORD_MAX_REACHED("비밀번호 5회이상 틀렸습니다. 이메일 인증을 통해 비밀번호재설정 해주세요."),
     NOT_FOUND_USER("해당 유저를 찾을 수 없습니다."),
     NOT_FOUND_GROUP("해당 그룹을 찾을 수 없습니다."),
     NOT_EXIST_CODE("인증코드와 존재하지 않습니다"),

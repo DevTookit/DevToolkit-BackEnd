@@ -117,7 +117,11 @@ class UserService(
         }
 
         userRepository.save(
-            user.apply { password = passwordEncoder.encode(request.newPassword) },
+            user.apply {
+                password = passwordEncoder.encode(request.newPassword)
+                this.isEnabled = true
+                this.failCount = 0
+            },
         )
     }
 
@@ -201,6 +205,10 @@ class UserService(
                 !user.isEnabled -> ErrorMessage.CONTACT_ADMIN.message
                 !passwordEncoder.matches(request.password, user.password) -> {
                     user.failCount = ++user.failCount
+                    if (user.failCount >= 5) {
+                        user.isEnabled = false
+                        ErrorMessage.NOT_MATCH_PASSWORD_MAX_REACHED.message
+                    }
                     ErrorMessage.NOT_MATCH_PASSWORD.message
                 }
 
