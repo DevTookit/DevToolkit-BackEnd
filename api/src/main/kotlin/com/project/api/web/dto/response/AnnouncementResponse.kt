@@ -9,9 +9,10 @@ data class AnnouncementResponse(
     val name: String,
     val content: String,
     val createdDate: Long?,
+    val commentCnt: Long,
 ) {
     companion object {
-        fun Announcement.toResponse(): AnnouncementResponse =
+        fun Announcement.toResponse(commentCnt: Long): AnnouncementResponse =
             AnnouncementResponse(
                 announceId = this.id,
                 writerName = this.groupUser.name,
@@ -19,6 +20,7 @@ data class AnnouncementResponse(
                 name = this.name,
                 content = this.content,
                 createdDate = this.createdDate,
+                commentCnt = commentCnt,
             )
     }
 }
