@@ -1,3 +1,9 @@
+## ✔️ Tech Stack
+
+[![My Skills](https://skillicons.dev/icons?i=kotlin,spring,mysql,redis,kafka,ktor,githubactions,aws&theme=light)](https://skillicons.dev)
+
+&nbsp;
+
 ## ⚙️ AWS Infrastructure
 
 <p align="center">
